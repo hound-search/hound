@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# gcodeup is a copy of $GOROOT/misc/dashboard/googlecode_upload.py.
+
+. ./setup
+user=$(sed -n 's/^re2.username = //' ~/.hgrc)
+password=$(sed -n 's/^re2\.password = //' ~/.hgrc)
+
+upload() {
+	goos=$(echo $1 | sed "s/codesearch-$version-//; s/-.*//")
+	goarch=$(echo $1 | sed "s/codesearch-$version-//; s/[a-z0-9]*-//; s/-.*//")
+	gcodeup -s "binaries for $(os $goos) $(arch $goarch)" -p codesearch -u "$user" -w "$password" codesearch-$version-$1-$2.zip
+}
+
+for i in codesearch-$version-*
+do
+	upload $i
+done

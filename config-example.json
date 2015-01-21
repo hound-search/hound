@@ -1,0 +1,11 @@
+{
+    "dbpath" : "data",
+    "repos" : {
+        "SomeRepo" : {
+            "url" : "https://www.github.com/YourOrganization/RepoOne.git"
+        },
+        "AnotherRepo" : {
+            "url" : "https://www.github.com/YourOrganization/RepoTwo.git"
+        }
+    }
+}

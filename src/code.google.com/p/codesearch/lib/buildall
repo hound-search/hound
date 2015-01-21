@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# This script builds the code search binaries for a variety of OS/architecture combinations.
+
+. ./setup
+
+for i in {5,6,8}{c,g,a,l}
+do
+	go tool dist install cmd/$i
+done
+
+build() {
+	echo "# $1"
+	goos=$(echo $1 | sed 's;/.*;;')
+	goarch=$(echo $1 | sed 's;.*/;;')
+	GOOS=$goos GOARCH=$goarch CGO_ENABLED=0 \
+		go install -a code.google.com/p/codesearch/cmd/{cgrep,cindex,csearch}
+	rm -rf codesearch-$version
+	mkdir codesearch-$version
+	mv ~/g/bin/{cgrep,cindex,csearch}* codesearch-$version
+	chmod +x codesearch-$version/*
+	cat README.template | sed "s/ARCH/$(arch $goarch)/; s/OPERSYS/$(os $goos)/" >codesearch-$version/README.txt
+	rm -f codesearch-$version-$goos-$goarch.zip
+	zip -z -r codesearch-$version-$goos-$goarch.zip codesearch-$version < codesearch-$version/README.txt
+	rm -rf codesearch-0.01
+}
+
+for i in {linux,darwin,freebsd,windows}/{amd64,386}
+do
+	build $i
+done

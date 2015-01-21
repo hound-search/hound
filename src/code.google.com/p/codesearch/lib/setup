@@ -1,0 +1,23 @@
+set -e
+
+os() {
+	case "$1" in
+	freebsd) echo FreeBSD;;
+	linux) echo Linux;;
+	darwin) echo Mac OS X;;
+	openbsd) echo OpenBSD;;
+	netbsd) echo NetBSD;;
+	windows) echo Windows;;
+	*) echo $1;;
+	esac
+}
+
+arch() {
+	case "$1" in
+	386) echo 32-bit x86;;
+	amd64) echo 64-bit x86;;
+	*) echo $1;;
+	esac
+}
+
+version=$(cat version)
