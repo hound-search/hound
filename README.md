@@ -5,6 +5,22 @@ Hound is an extremely fast source code search engine. The core is based on this 
 [React](http://facebook.github.io/react/) frontend that talks to a [Go](http://golang.org/) backend. The backend keeps an up-to-date index for each
 repository and and answers searches through a minimal API.
 
+## Quick Start Guide
+
+1. Clone the repo: `git clone git@github.com:etsy/Hound.git`
+2. Edit `config-example.json` to add the repos you want `cd Hound && vim config-example.json`
+3. Rename the (now edited) config file: `mv config-example.json config.json`
+4. Set your GOPATH: ``export GOPATH=`pwd` ``
+5. Run the server: `go run src/hound/cmds/houndd/main.go`
+6. See Hound in action in your browser at [http://localhost:6080/](http://localhost:6080/)
+
+Have [Rake](http://docs.seattlerb.org/rake/) installed? Steps 4 and 5 change to:
+
+* Run rake to create binaries: `rake`
+* Run the binary: `./bin/houndd`
+
+This is the preferred approach, since the binaries are generally easier to work with, and rake will build both the server and the CLI binaries at the same time.
+
 ## Why Another Code Search Tool?
 
 We've used many similar tools in the past, and most of them are either too slow, too hard to configure, or require too much software to be installed.
