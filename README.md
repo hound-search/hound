@@ -8,7 +8,7 @@ repository and and answers searches through a minimal API.
 ## Quick Start Guide
 
 1. Clone the repo: `git clone git@github.com:etsy/Hound.git`
-2. Edit `config-example.json` to add the repos you want `cd Hound && vim config-example.json`
+2. Edit `config-example.json` to add the repos you want: `cd Hound && vim config-example.json`
 3. Rename the (now edited) config file: `mv config-example.json config.json`
 4. Set your GOPATH: ``export GOPATH=`pwd` ``
 5. Run the server: `go run src/hound/cmds/houndd/main.go`
