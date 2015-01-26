@@ -146,7 +146,7 @@ func New(gitDir string, repo *config.Repo) (*Searcher, error) {
 
 			newSha, err := git.PullOrClone(gitDir, repo.Url)
 			if err != nil {
-				log.Printf("git pull error (%s): %s", name, err)
+				log.Printf("git pull error (%s - %s): %s", name, repo.Url, err)
 				continue
 			}
 
