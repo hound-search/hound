@@ -73,6 +73,16 @@ var ParamsFromQueryString = function(qs, params) {
   return params;
 };
 
+var ParamsFromUrl = function(params) {
+  params = params || {
+    q: '',
+    i: 'nope',
+    files: '',
+    repos: '*'
+  };
+  return ParamsFromQueryString(location.search, params);
+};
+
 var ParamValueToBool = function(v) {
   v = v.toLowerCase();
   return v == 'fosho' || v == 'true' || v == '1';
@@ -100,13 +110,7 @@ var Model = {
   Load: function() {
     var _this = this;
     var next = function() {
-      var params = ParamsFromQueryString(location.search, {
-        q: '',
-        i: 'nope',
-        files: '',
-        repos: '*'
-      });
-
+      var params = ParamsFromUrl();
       _this.didLoadRepos.raise(_this, _this.repos);
 
       if (params.q !== '') {
@@ -292,21 +296,16 @@ var SearchBar = React.createClass({
   },
 
   componentDidMount: function() {
-    var q = this.refs.q.getDOMNode(),
-        i = this.refs.icase.getDOMNode(),
-        files = this.refs.files.getDOMNode();
+    var q = this.refs.q.getDOMNode();
 
     // TODO(knorton): Can't set this in jsx
     q.setAttribute('autocomplete', 'off');
 
-    q.value = this.props.q;
-    i.checked = this.props.i;
-    files.value = this.props.files;
+    this.setParams(this.props);
 
     if (this.hasAdvancedValues()) {
       this.showAdvanced();
     }
-
     q.focus();
   },
   getInitialState: function() {
@@ -343,7 +342,7 @@ var SearchBar = React.createClass({
     }
   },
   submitQuery: function() {
-    this.props.onSearchRequested();
+    this.props.onSearchRequested(this.getParams());
   },
   getRegExp : function() {
     return new RegExp(this.refs.q.getDOMNode().value.trim(), "ig");
@@ -355,6 +354,15 @@ var SearchBar = React.createClass({
       repos : this.refs.repos.state.value.join(','),
       i: this.refs.icase.getDOMNode().checked ? 'fosho' : 'nope'
     };
+  },
+  setParams: function(params) {
+    var q = this.refs.q.getDOMNode(),
+        i = this.refs.icase.getDOMNode(),
+        files = this.refs.files.getDOMNode();
+
+    q.value = params.q;
+    i.checked = params.i == 'fosho';
+    files.value = params.files;
   },
   hasAdvancedValues: function() {
     return this.refs.files.getDOMNode().value.trim() !== '' || this.refs.icase.getDOMNode().checked || this.refs.repos.getDOMNode().value !== '';
@@ -698,13 +706,7 @@ var ResultView = React.createClass({
 
 var App = React.createClass({
   componentWillMount: function() {
-    var params = ParamsFromQueryString(location.search, {
-      q: '',
-      i: 'nope',
-      files: '',
-      repos: '*'
-    });
-
+    var params = ParamsFromUrl();
     this.setState({
       q: params.q,
       i: ParamValueToBool(params.i),
@@ -713,10 +715,6 @@ var App = React.createClass({
     });
 
     var _this = this;
-    Model.willSearch.tap(function(model, params) {
-      _this.updateHistory(params);
-    });
-
     Model.didSearch.tap(function(model, results, stats) {
       _this.refs.searchBar.setState({
         stats: stats
@@ -743,8 +741,15 @@ var App = React.createClass({
         error: error
       });
     });
+
+    window.addEventListener('popstate', function(e) {
+      var params = ParamsFromUrl();
+      _this.refs.searchBar.setParams(params);
+      Model.Search(params);
+    });
   },
   onSearchRequested: function(params) {
+    this.updateHistory(params);
     Model.Search(this.refs.searchBar.getParams());
   },
   updateHistory: function(params) {
