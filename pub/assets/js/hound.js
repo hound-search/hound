@@ -306,6 +306,7 @@ var SearchBar = React.createClass({
     if (this.hasAdvancedValues()) {
       this.showAdvanced();
     }
+
     q.focus();
   },
   getInitialState: function() {
@@ -361,7 +362,7 @@ var SearchBar = React.createClass({
         files = this.refs.files.getDOMNode();
 
     q.value = params.q;
-    i.checked = params.i == 'fosho';
+    i.checked = ParamValueToBool(params.i);
     files.value = params.files;
   },
   hasAdvancedValues: function() {
@@ -709,7 +710,7 @@ var App = React.createClass({
     var params = ParamsFromUrl();
     this.setState({
       q: params.q,
-      i: ParamValueToBool(params.i),
+      i: params.i,
       files: params.files,
       repos: params.repos
     });
