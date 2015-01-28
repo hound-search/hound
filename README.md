@@ -38,6 +38,12 @@ Which brings us to...
 
 Yup, that's it. You can proxy requests to the Go service through Apache/nginx/etc., but that's not required.
 
+## Support
+
+Currently Hound is only tested on MacOS and CentOS, but it should work on any *nix system. There is no plan to support Windows, and we've heard that it fails to compile on Windows, but we would be happy to accept a PR that fixes this!
+
+Similarly, right now Hound only supports git repositories, although adding SVN and Mercurial wouldn't take too much work. Pull requests for this are welcome.
+
 ## Hacking on Hound
 
 ### Building
