@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strings"
 	"sync"
@@ -47,6 +48,12 @@ func (s *Searcher) GetExcludedFiles() string {
 }
 
 func expungeOldIndexes(sha, gitDir string) error {
+	// TODO(knorton): This is a bandaid for issue #14, but should suffice
+	// since people don't usually name their repos with 40 char hashes. In
+	// the longer term, I want to remove this naming scheme to support
+	// rebuilds of the current hash.
+	pat := regexp.MustCompile("-[0-9a-f]{40}$")
+
 	name := fmt.Sprintf("%s-%s", filepath.Base(gitDir), sha)
 
 	dirs, err := filepath.Glob(fmt.Sprintf("%s-*", gitDir))
@@ -55,6 +62,10 @@ func expungeOldIndexes(sha, gitDir string) error {
 	}
 
 	for _, dir := range dirs {
+		if !pat.MatchString(dir) {
+			continue
+		}
+
 		if strings.HasSuffix(dir, name) {
 			continue
 		}
