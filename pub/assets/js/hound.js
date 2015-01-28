@@ -207,7 +207,7 @@ var Model = {
         _this.didSearch.raise(_this, _this.results, _this.stats);
       },
       error: function(xhr, status, err) {
-        this.didError.raise(this, "The server broke down");
+        _this.didError.raise(this, "The server broke down");
       }
     });
   },
@@ -243,7 +243,7 @@ var Model = {
         _this.didLoadMore.raise(_this, repo, _this.results);
       },
       error: function(xhr, status, err) {
-        this.didError.raise(this, "The server broke down");
+        _this.didError.raise(this, "The server broke down");
       }
     });
   },
