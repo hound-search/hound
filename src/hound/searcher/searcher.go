@@ -56,7 +56,9 @@ func expungeOldIndexes(sha, gitDir string) error {
 
 	name := fmt.Sprintf("%s-%s", filepath.Base(gitDir), sha)
 
-	dirs, err := filepath.Glob(fmt.Sprintf("%s-*", gitDir))
+	// prevents directories with similar prefix to be matched together, for
+	// example `docker-asdf...` and `docker-flatten-asdf...`
+	dirs, err := filepath.Glob(fmt.Sprintf("%s-[0-9a-f]{40}$", gitDir))
 	if err != nil {
 		return err
 	}
