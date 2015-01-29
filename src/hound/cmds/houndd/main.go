@@ -301,10 +301,13 @@ func main() {
 
 	idx, err := makeSearchers(&cfg, *flagStale)
 	if err != nil {
-		panic(err)
+		info_log.Println("Some repos failed to index, see output above")
+	} else {
+		info_log.Println("All indexes built!")
 	}
+	info_log.Printf("Running server at http://localhost%s...\n", *flagAddr)
 
-	info_log.Printf("All indexes built, running server at http://localhost%s...\n", *flagAddr)
+
 
 	if err := runHttp(*flagAddr, *flagRoot, *flagProd, &cfg, idx); err != nil {
 		panic(err)

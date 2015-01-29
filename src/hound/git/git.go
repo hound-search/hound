@@ -3,18 +3,12 @@ package git
 import (
 	"bytes"
 	"io"
-	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 )
-
-func pull(dir string) error {
-	cmd := exec.Command("git", "pull")
-	cmd.Dir = dir
-	return cmd.Run()
-}
 
 func HeadHash(dir string) (string, error) {
 	cmd := exec.Command(
@@ -42,7 +36,11 @@ func HeadHash(dir string) (string, error) {
 }
 
 func Pull(dir string) (string, error) {
-	if err := pull(dir); err != nil {
+	cmd := exec.Command("git", "pull")
+	cmd.Dir = dir
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Printf("Failed to git pull %s, see output below\n%sContinuing...", dir, out)
 		return "", err
 	}
 
@@ -57,8 +55,9 @@ func Clone(dir, url string) (string, error) {
 		url,
 		rep)
 	cmd.Dir = par
-	cmd.Stdout = ioutil.Discard
-	if err := cmd.Run(); err != nil {
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Printf("Failed to clone %s, see output below\n%sContinuing...", url, out)
 		return "", err
 	}
 
