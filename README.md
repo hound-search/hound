@@ -38,6 +38,16 @@ Which brings us to...
 
 Yup, that's it. You can proxy requests to the Go service through Apache/nginx/etc., but that's not required.
 
+## Docker
+* docker 1.4+
+
+You should follow the quickstart guide up to step (3) and then run:
+
+    $ docker build . -t houndd
+    $ docker run -it --rm -p 0.0.0.0:6080:6080 --name houndd houndd
+
+You should be able to navigate to [http://localhost:6080/](http://localhost:6080/) as usual.
+
 ## Support
 
 Currently Hound is only tested on MacOS and CentOS, but it should work on any *nix system. There is no plan to support Windows, and we've heard that it fails to compile on Windows, but we would be happy to accept a PR that fixes this!
