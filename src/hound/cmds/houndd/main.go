@@ -178,11 +178,12 @@ func makeSearchers(
 	// Now build and initialize a searcher for each repo.
 	// TODO(knorton): These could be done in parallel.
 	m := map[string]*searcher.Searcher{}
+	var err error
 	for name, repo := range cfg.Repos {
 		path := filepath.Join(cfg.DbPath, name)
 
 		var s *searcher.Searcher
-		var err error
+
 
 		if useStaleIndex {
 			s, err = searcher.NewFromExisting(path, repo)
@@ -190,14 +191,13 @@ func makeSearchers(
 			s, err = searcher.New(path, repo)
 		}
 
-		if err != nil {
-			return nil, err
+		if err == nil {
+			m[strings.ToLower(name)] = s
 		}
-		m[strings.ToLower(name)] = s
 
 	}
 
-	return m, nil
+	return m, err
 }
 
 func makeTemplateData(cfg *config.Config) (interface{}, error) {
