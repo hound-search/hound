@@ -44,6 +44,12 @@ Currently Hound is only tested on MacOS and CentOS, but it should work on any *n
 
 Similarly, right now Hound only supports git repositories, although adding SVN and Mercurial wouldn't take too much work. Pull requests for this are welcome.
 
+## Editor Integration
+
+Currently the following editors have plugins that support Hound:
+
+* [Sublime Text](https://github.com/bgreenlee/SublimeHound)
+
 ## Hacking on Hound
 
 ### Building
