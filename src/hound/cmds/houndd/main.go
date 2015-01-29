@@ -305,9 +305,12 @@ func main() {
 	} else {
 		info_log.Println("All indexes built!")
 	}
-	info_log.Printf("Running server at http://localhost%s...\n", *flagAddr)
 
-
+	formattedAddress := *flagAddr
+	if (0 == strings.Index(*flagAddr, ":")) {
+		formattedAddress = "localhost" + *flagAddr
+	}
+	info_log.Printf("running server at http://%s...\n", formattedAddress)
 
 	if err := runHttp(*flagAddr, *flagRoot, *flagProd, &cfg, idx); err != nil {
 		panic(err)
