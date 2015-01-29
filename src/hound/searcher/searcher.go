@@ -11,7 +11,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
-	"strings"
 	"sync"
 	"time"
 )
@@ -62,11 +61,12 @@ func expungeOldIndexes(sha, gitDir string) error {
 	}
 
 	for _, dir := range dirs {
-		if !pat.MatchString(dir) {
+		bn := filepath.Base(dir)
+		if !pat.MatchString(bn) || len(bn) != len(name) {
 			continue
 		}
 
-		if strings.HasSuffix(dir, name) {
+		if bn == name {
 			continue
 		}
 
