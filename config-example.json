@@ -2,10 +2,12 @@
     "dbpath" : "data",
     "repos" : {
         "SomeGitRepo" : {
-            "url" : "https://www.github.com/YourOrganization/RepoOne.git"
+            "url" : "https://www.github.com/YourOrganization/RepoOne.git",
+            "branches": ["master", "v1", "v2"]
         },
         "AnotherGitRepo" : {
             "url" : "https://www.github.com/YourOrganization/RepoOne.git",
+            "branches": ["another"],
             "ms-between-poll": 10000
         },
         
