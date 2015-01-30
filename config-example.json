@@ -6,6 +6,10 @@
         },
         "AnotherRepo" : {
             "url" : "https://www.github.com/YourOrganization/RepoTwo.git"
-        }
+        },
+        "AnotherSubversionRepo" : {
+            /* all repositories without ".git" at the end of their URL are SVN */
+            "url" : "https://www.github.com/YourOrganization/SvnRepoOne/trunk"
+	}
     }
 }

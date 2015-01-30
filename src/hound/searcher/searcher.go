@@ -133,6 +133,7 @@ func New(vcsDir string, repo *config.Repo) (*Searcher, error) {
 	log.Printf("Searcher started for %s", name)
 
 	sha, err := vcs.PullOrClone(repo.VCS, vcsDir, repo.Url)
+
 	if err != nil {
 		return nil, err
 	}
