@@ -1,26 +1,29 @@
-package git
+package vcs
 
 import (
 	"bytes"
 	"io"
 	"io/ioutil"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 )
 
-func pull(dir string) error {
-	cmd := exec.Command("git", "pull")
-	cmd.Dir = dir
-	return cmd.Run()
+func init() {
+	RegisterVCS("hg", &MercurialDriver{})
+	RegisterVCS("mercurial", &MercurialDriver{})
 }
 
-func HeadHash(dir string) (string, error) {
+type MercurialDriver struct{}
+
+func (g *MercurialDriver) HeadHash(dir string) (string, error) {
 	cmd := exec.Command(
-		"git",
-		"rev-parse",
-		"HEAD")
+		"hg",
+		"log",
+		"-r",
+		"tip",
+		"--template",
+		"{node}")
 	cmd.Dir = dir
 	r, err := cmd.StdoutPipe()
 	if err != nil {
@@ -41,18 +44,21 @@ func HeadHash(dir string) (string, error) {
 	return strings.TrimSpace(buf.String()), cmd.Wait()
 }
 
-func Pull(dir string) (string, error) {
-	if err := pull(dir); err != nil {
+func (g *MercurialDriver) Pull(dir string) (string, error) {
+	cmd := exec.Command("hg", "pull")
+	cmd.Dir = dir
+	err := cmd.Run()
+	if err != nil {
 		return "", err
 	}
 
-	return HeadHash(dir)
+	return g.HeadHash(dir)
 }
 
-func Clone(dir, url string) (string, error) {
+func (g *MercurialDriver) Clone(dir, url string) (string, error) {
 	par, rep := filepath.Split(dir)
 	cmd := exec.Command(
-		"git",
+		"hg",
 		"clone",
 		url,
 		rep)
@@ -62,19 +68,5 @@ func Clone(dir, url string) (string, error) {
 		return "", err
 	}
 
-	return HeadHash(dir)
-}
-
-func exists(path string) bool {
-	if _, err := os.Stat(path); err != nil {
-		return false
-	}
-	return true
-}
-
-func PullOrClone(dir, url string) (string, error) {
-	if exists(dir) {
-		return Pull(dir)
-	}
-	return Clone(dir, url)
+	return g.HeadHash(dir)
 }
