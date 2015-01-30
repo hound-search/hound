@@ -176,6 +176,7 @@ func makeSearchers(
 		}
 	}
 
+	validRepos := map[string]*config.Repo{}
 	// Now build and initialize a searcher for each repo.
 	// TODO(knorton): These could be done in parallel.
 	m := map[string]*searcher.Searcher{}
@@ -194,6 +195,7 @@ func makeSearchers(
 
 		if err == nil {
 			m[strings.ToLower(name)] = s
+			validRepos[name] = repo
 		}
 
 	}
@@ -202,6 +204,8 @@ func makeSearchers(
 		err = errors.New("One or more repos failed to index")
 	}
 
+	// Update the config to only include repos we have successfully indexed
+	cfg.Repos = validRepos
 	return m, err
 }
 
