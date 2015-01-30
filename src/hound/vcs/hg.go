@@ -21,7 +21,7 @@ func (g *MercurialDriver) HeadHash(dir string) (string, error) {
 		"hg",
 		"log",
 		"-r",
-		"tip",
+		".",
 		"--template",
 		"{node}")
 	cmd.Dir = dir
@@ -45,7 +45,7 @@ func (g *MercurialDriver) HeadHash(dir string) (string, error) {
 }
 
 func (g *MercurialDriver) Pull(dir string) (string, error) {
-	cmd := exec.Command("hg", "pull")
+	cmd := exec.Command("hg", "pull", "-u")
 	cmd.Dir = dir
 	err := cmd.Run()
 	if err != nil {
