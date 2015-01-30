@@ -6,11 +6,15 @@ import (
 	"path/filepath"
 )
 
-const defaultMsBetweenPoll = 30000
+const (
+	defaultMsBetweenPoll = 30000
+	defaultVCS           = "git"
+)
 
 type Repo struct {
 	Url            string `json:"url"`
 	MsBetweenPolls int    `json:"ms-between-poll"`
+	VCS            string `json:"vcs"`
 }
 
 type Config struct {
@@ -41,6 +45,9 @@ func (c *Config) LoadFromFile(filename string) error {
 	for _, repo := range c.Repos {
 		if repo.MsBetweenPolls == 0 {
 			repo.MsBetweenPolls = defaultMsBetweenPoll
+		}
+		if repo.VCS == "" {
+			repo.VCS = defaultVCS
 		}
 	}
 

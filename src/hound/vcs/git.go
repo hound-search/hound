@@ -1,16 +1,23 @@
-package git
+package vcs
 
 import (
 	"bytes"
 	"io"
 	"log"
 	"os"
+	"io/ioutil"
 	"os/exec"
 	"path/filepath"
 	"strings"
 )
 
-func HeadHash(dir string) (string, error) {
+func init() {
+	RegisterVCS("git", &GitDriver{})
+}
+
+type GitDriver struct{}
+
+func (g *GitDriver) HeadHash(dir string) (string, error) {
 	cmd := exec.Command(
 		"git",
 		"rev-parse",
@@ -35,7 +42,7 @@ func HeadHash(dir string) (string, error) {
 	return strings.TrimSpace(buf.String()), cmd.Wait()
 }
 
-func Pull(dir string) (string, error) {
+func (g *GitDriver) Pull(dir string) (string, error) {
 	cmd := exec.Command("git", "pull")
 	cmd.Dir = dir
 	out, err := cmd.CombinedOutput()
@@ -44,10 +51,10 @@ func Pull(dir string) (string, error) {
 		return "", err
 	}
 
-	return HeadHash(dir)
+	return g.HeadHash(dir)
 }
 
-func Clone(dir, url string) (string, error) {
+func (g *GitDriver) Clone(dir, url string) (string, error) {
 	par, rep := filepath.Split(dir)
 	cmd := exec.Command(
 		"git",
@@ -61,19 +68,5 @@ func Clone(dir, url string) (string, error) {
 		return "", err
 	}
 
-	return HeadHash(dir)
-}
-
-func exists(path string) bool {
-	if _, err := os.Stat(path); err != nil {
-		return false
-	}
-	return true
-}
-
-func PullOrClone(dir, url string) (string, error) {
-	if exists(dir) {
-		return Pull(dir)
-	}
-	return Clone(dir, url)
+	return g.HeadHash(dir)
 }

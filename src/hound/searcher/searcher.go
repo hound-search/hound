@@ -3,8 +3,8 @@ package searcher
 import (
 	"fmt"
 	"hound/config"
-	"hound/git"
 	"hound/index"
+	"hound/vcs"
 	"io/ioutil"
 	"log"
 	"os"
@@ -46,16 +46,16 @@ func (s *Searcher) GetExcludedFiles() string {
 	return string(dat)
 }
 
-func expungeOldIndexes(sha, gitDir string) error {
+func expungeOldIndexes(sha, vcsDir string) error {
 	// TODO(knorton): This is a bandaid for issue #14, but should suffice
 	// since people don't usually name their repos with 40 char hashes. In
 	// the longer term, I want to remove this naming scheme to support
 	// rebuilds of the current hash.
 	pat := regexp.MustCompile("-[0-9a-f]{40}$")
 
-	name := fmt.Sprintf("%s-%s", filepath.Base(gitDir), sha)
+	name := fmt.Sprintf("%s-%s", filepath.Base(vcsDir), sha)
 
-	dirs, err := filepath.Glob(fmt.Sprintf("%s-*", gitDir))
+	dirs, err := filepath.Glob(fmt.Sprintf("%s-*", vcsDir))
 	if err != nil {
 		return err
 	}
@@ -78,10 +78,10 @@ func expungeOldIndexes(sha, gitDir string) error {
 	return nil
 }
 
-func buildAndOpenIndex(sha, gitDir string) (*index.Index, error) {
-	idxDir := fmt.Sprintf("%s-%s", gitDir, sha)
+func buildAndOpenIndex(sha, vcsDir string) (*index.Index, error) {
+	idxDir := fmt.Sprintf("%s-%s", vcsDir, sha)
 	if _, err := os.Stat(idxDir); err != nil {
-		_, err := index.Build(idxDir, gitDir)
+		_, err := index.Build(idxDir, vcsDir)
 		if err != nil {
 			return nil, err
 		}
@@ -99,22 +99,22 @@ func reportOnMemory() {
 	fmt.Printf("HeapIdle  = %0.2f\n", float64(ms.HeapIdle)/1e6)
 }
 
-// Creates a new Searcher for the gitDir but avoids any remote git operations.
-// This requires that an existing gitDir be available in the data directory. This
+// Creates a new Searcher for the vcsDir but avoids any remote vcs operations.
+// This requires that an existing vcsDir be available in the data directory. This
 // is intended for debugging and testing only. This will not start a watcher to
 // monitor the remote repo for changes.
-func NewFromExisting(gitDir string, repo *config.Repo) (*Searcher, error) {
-	name := filepath.Base(gitDir)
+func NewFromExisting(vcsDir string, repo *config.Repo) (*Searcher, error) {
+	name := filepath.Base(vcsDir)
 
 	log.Printf("Search started for %s", name)
 	log.Println("  WARNING: index is static and will not update")
 
-	sha, err := git.HeadHash(gitDir)
+	sha, err := vcs.HeadHash(repo.VCS, vcsDir)
 	if err != nil {
 		return nil, err
 	}
 
-	idx, err := buildAndOpenIndex(sha, gitDir)
+	idx, err := buildAndOpenIndex(sha, vcsDir)
 	if err != nil {
 		return nil, err
 	}
@@ -127,21 +127,21 @@ func NewFromExisting(gitDir string, repo *config.Repo) (*Searcher, error) {
 
 // Creates a new Searcher that is available for searches as soon as this returns.
 // This will pull or clone the target repo and start watching the repo for changes.
-func New(gitDir string, repo *config.Repo) (*Searcher, error) {
-	name := filepath.Base(gitDir)
+func New(vcsDir string, repo *config.Repo) (*Searcher, error) {
+	name := filepath.Base(vcsDir)
 
 	log.Printf("Searcher started for %s", name)
 
-	sha, err := git.PullOrClone(gitDir, repo.Url)
+	sha, err := vcs.PullOrClone(repo.VCS, vcsDir, repo.Url)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := expungeOldIndexes(sha, gitDir); err != nil {
+	if err := expungeOldIndexes(sha, vcsDir); err != nil {
 		return nil, err
 	}
 
-	idx, err := buildAndOpenIndex(sha, gitDir)
+	idx, err := buildAndOpenIndex(sha, vcsDir)
 	if err != nil {
 		return nil, err
 	}
@@ -155,9 +155,9 @@ func New(gitDir string, repo *config.Repo) (*Searcher, error) {
 		for {
 			time.Sleep(time.Duration(repo.MsBetweenPolls) * time.Millisecond)
 
-			newSha, err := git.PullOrClone(gitDir, repo.Url)
+			newSha, err := vcs.PullOrClone(repo.VCS, vcsDir, repo.Url)
 			if err != nil {
-				log.Printf("git pull error (%s - %s): %s", name, repo.Url, err)
+				log.Printf("vcs pull error (%s - %s): %s", name, repo.Url, err)
 				continue
 			}
 
@@ -166,10 +166,10 @@ func New(gitDir string, repo *config.Repo) (*Searcher, error) {
 			}
 
 			log.Printf("Rebuilding %s for %s", name, newSha)
-			idx, err := buildAndOpenIndex(newSha, gitDir)
+			idx, err := buildAndOpenIndex(newSha, vcsDir)
 			if err != nil {
 				log.Printf("failed index build (%s): %s", name, err)
-				os.RemoveAll(fmt.Sprintf("%s-%s", gitDir, newSha))
+				os.RemoveAll(fmt.Sprintf("%s-%s", vcsDir, newSha))
 				continue
 			}
 
