@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"io"
 	"log"
-	"os"
-	"io/ioutil"
 	"os/exec"
 	"path/filepath"
 	"strings"

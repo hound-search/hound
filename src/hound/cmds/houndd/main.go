@@ -13,6 +13,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"errors"
 	"os/exec"
 	"path"
 	"path/filepath"
@@ -195,6 +196,10 @@ func makeSearchers(
 			m[strings.ToLower(name)] = s
 		}
 
+	}
+
+	if err != nil {
+		err = errors.New("One or more repos failed to index")
 	}
 
 	return m, err
