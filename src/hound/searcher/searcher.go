@@ -2,8 +2,10 @@ package searcher
 
 import (
 	"fmt"
+	"strings"
 	"hound/config"
 	"hound/git"
+	"hound/svn"
 	"hound/index"
 	"io/ioutil"
 	"log"
@@ -125,6 +127,16 @@ func NewFromExisting(gitDir string, repo *config.Repo) (*Searcher, error) {
 	}, nil
 }
 
+func PullOrClone(dir, url string) (string, error) {
+	if strings.HasSuffix(url, ".git") {
+		log.Printf("Pulling from git")
+		return git.PullOrClone(dir, url)
+	} else {
+		log.Printf("Pulling from svn")
+		return svn.PullOrClone(dir, url)
+	}
+}
+
 // Creates a new Searcher that is available for searches as soon as this returns.
 // This will pull or clone the target repo and start watching the repo for changes.
 func New(gitDir string, repo *config.Repo) (*Searcher, error) {
@@ -132,7 +144,8 @@ func New(gitDir string, repo *config.Repo) (*Searcher, error) {
 
 	log.Printf("Searcher started for %s", name)
 
-	sha, err := git.PullOrClone(gitDir, repo.Url)
+	sha, err := PullOrClone(gitDir, repo.Url)
+
 	if err != nil {
 		return nil, err
 	}
@@ -155,9 +168,10 @@ func New(gitDir string, repo *config.Repo) (*Searcher, error) {
 		for {
 			time.Sleep(time.Duration(repo.MsBetweenPolls) * time.Millisecond)
 
-			newSha, err := git.PullOrClone(gitDir, repo.Url)
+			newSha, err := PullOrClone(gitDir, repo.Url)
+
 			if err != nil {
-				log.Printf("git pull error (%s - %s): %s", name, repo.Url, err)
+				log.Printf("pull error (%s - %s): %s", name, repo.Url, err)
 				continue
 			}
 
