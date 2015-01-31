@@ -1,11 +1,30 @@
 package vcs
 
 import (
+	"bytes"
+	"io"
+	"strings"
 	"io/ioutil"
 	"os/exec"
 	"path/filepath"
+	"encoding/xml"
 	"log"
 )
+
+
+type Info struct {
+	Entry Entry `xml:"entry"`
+}
+type Entry struct {
+	Revision string `xml:"revision,attr"`
+	Url string `xml:"url"`
+	RelativeUrl string `xml:"relative-url"`
+	Repository Repository `xml:"repository"`
+}
+type Repository struct {
+	Root string `xml:"root"`
+	Uuid string `xml:"uuid"`
+}
 
 func init() {
 	RegisterVCS("svn", &SvnDriver{})
@@ -20,17 +39,37 @@ func pull(dir string) error {
 }
 
 func (g *SvnDriver) HeadHash(dir string) (string, error) {
+	//TODO is there a better way to extract revision number in golang?
 	cmd := exec.Command(
-		"svn",
-		"log",
-		"--limit 1")
+		"svn", "info", "--xml")
 	cmd.Dir = dir
-	cmd.Stdout = ioutil.Discard
-	//TODO create a better hash using the actual revision
-	//TODO do not ignore out, but it's always returning exit status 1 - normal for SVN?
-	cmd.Run()
+	r, err := cmd.StdoutPipe()
+	if err != nil {
+		return "", err
+	}
+	defer r.Close()
 
-	return "HEAD", nil
+	if err := cmd.Start(); err != nil {
+		return "", err
+	}
+
+	var buf bytes.Buffer
+
+	if _, err := io.Copy(&buf, r); err != nil {
+		return "", err
+	}
+
+	// TODO parse xml output
+	info := Info{}
+	if err := xml.Unmarshal(buf.Bytes(), &info); err != nil {
+		log.Printf("error: %v", err)
+		return "", err
+	}
+
+	hash := strings.TrimSpace(info.Entry.Repository.Uuid)
+	log.Printf("hash: %s", hash)
+
+	return hash, cmd.Wait()
 }
 
 func (g *SvnDriver) Pull(dir string) (string, error) {
@@ -43,7 +82,6 @@ func (g *SvnDriver) Pull(dir string) (string, error) {
 
 func (g *SvnDriver) Clone(dir, url string) (string, error) {
 	par, dirName := filepath.Split(dir)
-	log.Printf("Checkout into %s from %s...\n", dir, url)
 	cmd := exec.Command(
 		"svn",
 		"checkout",
@@ -51,8 +89,9 @@ func (g *SvnDriver) Clone(dir, url string) (string, error) {
 		dirName)
 	cmd.Dir = par
 	cmd.Stdout = ioutil.Discard
-	//TODO do not ignore out, but it's always returning exit status 1 - normal for SVN?
-	cmd.Run()
+	if err := cmd.Run(); err != nil {
+		return "", err
+	}
 
 	return g.HeadHash(dir)
 }
