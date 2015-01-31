@@ -160,6 +160,17 @@ var Model = {
 
     _this.params = params;
 
+    // An empty query is basically useless, so rather than
+    // sending it to the server and having the server do work
+    // to produce an error, we simply return empty results
+    // immediately in the client.
+    if (params.q == '') {
+      _this.results = [];
+      _this.resultsByRepo = {};
+      _this.didSearch.raise(_this, _this.Results);
+      return;
+    }
+
     $.ajax({
       url: '/api/v1/search',
       data: params,
