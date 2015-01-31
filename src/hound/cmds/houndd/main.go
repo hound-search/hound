@@ -13,6 +13,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"errors"
 	"os/exec"
 	"path"
 	"path/filepath"
@@ -175,14 +176,16 @@ func makeSearchers(
 		}
 	}
 
+	validRepos := map[string]*config.Repo{}
 	// Now build and initialize a searcher for each repo.
 	// TODO(knorton): These could be done in parallel.
 	m := map[string]*searcher.Searcher{}
+	var err error
 	for name, repo := range cfg.Repos {
 		path := filepath.Join(cfg.DbPath, name)
 
 		var s *searcher.Searcher
-		var err error
+
 
 		if useStaleIndex {
 			s, err = searcher.NewFromExisting(path, repo)
@@ -190,14 +193,20 @@ func makeSearchers(
 			s, err = searcher.New(path, repo)
 		}
 
-		if err != nil {
-			return nil, err
+		if err == nil {
+			m[strings.ToLower(name)] = s
+			validRepos[name] = repo
 		}
-		m[strings.ToLower(name)] = s
 
 	}
 
-	return m, nil
+	if err != nil {
+		err = errors.New("One or more repos failed to index")
+	}
+
+	// Update the config to only include repos we have successfully indexed
+	cfg.Repos = validRepos
+	return m, err
 }
 
 func makeTemplateData(cfg *config.Config) (interface{}, error) {
@@ -301,16 +310,16 @@ func main() {
 
 	idx, err := makeSearchers(&cfg, *flagStale)
 	if err != nil {
-		panic(err)
+		info_log.Println("Some repos failed to index, see output above")
+	} else {
+		info_log.Println("All indexes built!")
 	}
-
 
 	formattedAddress := *flagAddr
 	if (0 == strings.Index(*flagAddr, ":")) {
 		formattedAddress = "localhost" + *flagAddr
 	}
-
-	info_log.Printf("All indexes built, running server at http://%s...\n", formattedAddress)
+	info_log.Printf("running server at http://%s...\n", formattedAddress)
 
 	if err := runHttp(*flagAddr, *flagRoot, *flagProd, &cfg, idx); err != nil {
 		panic(err)
