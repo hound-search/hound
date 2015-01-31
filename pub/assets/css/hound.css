@@ -282,7 +282,7 @@ button:focus {
 }
 
 .match {
-  border-bottom: 3px solid #f8f8f8;
+  border-bottom: 2px solid #f0f0f0;
 }
 
 .match:first-child {
