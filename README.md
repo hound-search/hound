@@ -8,6 +8,21 @@ Hound is an extremely fast source code search engine. The core is based on this 
 
 ## Quick Start Guide
 
+#### Preferred Method
+
+This is the preferred approach, since the binaries are generally easier to work with, and make will build both the server and the CLI binaries at the same time. 
+
+1. Clone the repo: `git clone git@github.com:etsy/Hound.git`
+2. Edit [config-example.json](config-example.json) to add the repos you want: `cd Hound && vim config-example.json`
+3. Rename the (now edited) config file: `mv config-example.json config.json`
+4. `make`
+5. `./bin/houndd`
+6. See Hound in action in your browser at [http://localhost:6080/](http://localhost:6080/)
+
+#### Using only Go tools.
+
+Alternatively, you can avoid the use of make and just use go tools.
+
 1. Clone the repo: `git clone git@github.com:etsy/Hound.git`
 2. Edit [config-example.json](config-example.json) to add the repos you want: `cd Hound && vim config-example.json`
 3. Rename the (now edited) config file: `mv config-example.json config.json`
@@ -15,12 +30,9 @@ Hound is an extremely fast source code search engine. The core is based on this 
 5. Run the server: `go run src/hound/cmds/houndd/main.go`
 6. See Hound in action in your browser at [http://localhost:6080/](http://localhost:6080/)
 
-Have [Rake](http://docs.seattlerb.org/rake/) installed? Steps 4 and 5 change to:
+#### Why can't I use `go get`?
 
-* Run rake to create binaries: `rake`
-* Run the binary: `./bin/houndd`
-
-This is the preferred approach, since the binaries are generally easier to work with, and rake will build both the server and the CLI binaries at the same time.
+That's coming, we just need to make it easier to bundle the javascript/css assets so it all works seamlessly.
 
 ## Why Another Code Search Tool?
 
@@ -33,7 +45,7 @@ Which brings us to...
 * Go 1.3+
 
 ### Optional, Recommended Software
-* Rake (for building the binaries, not strictly required)
+* Make (for building the binaries, not strictly required)
 * nodejs (for the command line react-tools)
 
 Yup, that's it. You can proxy requests to the Go service through Apache/nginx/etc., but that's not required.
@@ -65,7 +77,7 @@ Currently the following editors have plugins that support Hound:
 ### Building
 
 ```
-rake
+make
 ```
 
 This will build `./bin/houndd` which is the server binary and `./bin/hound` which is the command line client.
