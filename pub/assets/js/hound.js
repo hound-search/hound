@@ -639,9 +639,7 @@ var FilesView = React.createClass({
             </a>
           </div>
           <div className="file-body">
-            <div className="matches">
-              {matches}
-            </div>
+            {matches}
           </div>
         </div>
       );

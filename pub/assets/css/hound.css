@@ -240,6 +240,7 @@ button:focus {
 .file {
   margin: 10px 0 20px;
   border-radius: 3px;
+  border: 1px solid #d8d8d8;
 }
 
 .file > .title {
@@ -247,9 +248,6 @@ button:focus {
   display: block;
   line-height: 30px;
   background-color: #f5f5f5;
-  border-top: 1px solid #d8d8d8;
-  border-left: 1px solid #d8d8d8;
-  border-right: 1px solid #d8d8d8;
 }
 
 .title a {
@@ -284,8 +282,6 @@ button:focus {
 }
 
 .match {
-  border-left: 1px solid #d8d8d8;
-  border-right: 1px solid #d8d8d8;
   border-bottom: 3px solid #f8f8f8;
 }
 
