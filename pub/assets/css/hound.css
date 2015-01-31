@@ -239,8 +239,8 @@ button:focus {
 
 .file {
   margin: 10px 0 20px;
-  border: 1px solid #d8d8d8;
   border-radius: 3px;
+  border: 1px solid #d8d8d8;
 }
 
 .file > .title {
@@ -248,7 +248,6 @@ button:focus {
   display: block;
   line-height: 30px;
   background-color: #f5f5f5;
-  border-bottom: 1px solid #d8d8d8;
 }
 
 .title a {
@@ -282,6 +281,18 @@ button:focus {
   overflow: auto;
 }
 
+.match {
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.match:first-child {
+  border-top: 1px solid #d8d8d8;
+}
+
+.match:last-child {
+  border-bottom: 1px solid #d8d8d8;
+}
+
 .match > .line {
   white-space: pre;
 }
@@ -296,6 +307,14 @@ button:focus {
   display: inline-block;
   font-size: 14px;
   color: #aaa;
+}
+
+.match > .line:last-child > .lnum {
+  padding-bottom: 8px;
+}
+
+.match > .line:first-child > .lnum {
+  padding-top: 8px;
 }
 
 .match > .line > .lnum:hover {
