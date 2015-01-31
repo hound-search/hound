@@ -282,6 +282,29 @@ button:focus {
   overflow: auto;
 }
 
+.matches {
+  /* Allow borders in .match grow to the end of line */
+  display: inline-block;
+  min-width: 100%;
+}
+
+.match {
+  margin: 10px 0;
+  border: 1px solid #d8d8d8;
+  border-left: none;
+  border-right: none;
+}
+
+.match:first-child {
+  margin-top: 0;
+  border-top: none;
+}
+
+.match:last-child {
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
 .match > .line {
   white-space: pre;
 }
