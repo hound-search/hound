@@ -281,6 +281,12 @@ button:focus {
   overflow: auto;
 }
 
+.matches {
+  /* Allow borders in .match grow to the end of line */
+  display: inline-block;
+  min-width: 100%;
+}
+
 .match {
   border-bottom: 2px solid #f0f0f0;
 }
