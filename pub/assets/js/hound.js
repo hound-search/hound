@@ -285,6 +285,10 @@ var Model = {
     var info = this.repos[repo],
         url = info.url.replace(/\.git$/, ''),
         anc = line ? '#L' + line : '';
+
+    // Hacky solution to fix _some_ of the 404's when using SSH style URLs
+    url = url.replace("git@github.com:", 'https://www.github.com/');
+
     return url + '/blob/master/' + path + anc;
   }
 
