@@ -12,7 +12,7 @@ Hound is an extremely fast source code search engine. The core is based on this 
 
 This is the preferred approach, since the binaries are generally easier to work with, and make will build both the server and the CLI binaries at the same time. 
 
-1. Clone the repo: `git clone git@github.com:etsy/Hound.git`
+1. Clone the repo: `git clone https://github.com/etsy/Hound.git`
 2. Edit [config-example.json](config-example.json) to add the repos you want: `cd Hound && vim config-example.json`
 3. Rename the (now edited) config file: `mv config-example.json config.json`
 4. `make`
