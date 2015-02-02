@@ -23,7 +23,7 @@ This is the preferred approach, since the binaries are generally easier to work 
 
 Alternatively, you can avoid the use of make and just use go tools.
 
-1. Clone the repo: `git clone git@github.com:etsy/Hound.git`
+1. Clone the repo: `git clone https://github.com/etsy/Hound.git`
 2. Edit [config-example.json](config-example.json) to add the repos you want: `cd Hound && vim config-example.json`
 3. Rename the (now edited) config file: `mv config-example.json config.json`
 4. Set your GOPATH: ``export GOPATH=`pwd` ``
