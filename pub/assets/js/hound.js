@@ -451,9 +451,7 @@ var SearchBar = React.createClass({
 
         <div id="inb">
           <div id="adv" ref="adv">
-            <div className="hideAdv" onClick={this.hideAdvanced}>
-                Hide Advanced
-            </div>
+            <span className="octicon octicon-chevron-up hide-adv" onClick={this.hideAdvanced}></span>
             <div className="field">
               <label>File Path</label>
               <div className="field-input">
@@ -637,7 +635,7 @@ var FilesView = React.createClass({
           <div className="title">
             <ReactZeroClipboard className="copy-path-container" text={match.Filename}>
               <button className="copy-path-btn">
-                <span className="octicon octicon-clippy"></span> 
+                <span className="octicon octicon-clippy"></span>
               </button>
             </ReactZeroClipboard>
             <a href={Model.UrlToRepo(repo, match.Filename)}>
