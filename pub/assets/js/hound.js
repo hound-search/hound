@@ -397,13 +397,16 @@ var SearchBar = React.createClass({
   },
   hideAdvanced: function() {
     var adv = this.refs.adv.getDOMNode(),
-        ban = this.refs.ban.getDOMNode();
+        ban = this.refs.ban.getDOMNode(),
+        q = this.refs.q.getDOMNode();
 
     css(adv, 'height', '0');
     css(adv, 'padding', '0');
 
     css(ban, 'max-height', '100px');
     css(ban, 'opacity', '1');
+
+    q.focus();
   },
   render: function() {
     var repoCount = this.state.allRepos.length,
@@ -448,6 +451,9 @@ var SearchBar = React.createClass({
 
         <div id="inb">
           <div id="adv" ref="adv">
+            <div className="hideAdv" onClick={this.hideAdvanced}>
+                Hide Advanced
+            </div>
             <div className="field">
               <label>File Path</label>
               <div className="field-input">
