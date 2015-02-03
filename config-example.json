@@ -6,6 +6,10 @@
         },
         "AnotherRepo" : {
             "url" : "https://www.github.com/YourOrganization/RepoTwo.git"
-        }
+        },
+        "AnotherSubversionRepo" : {
+            "VCS" : "svn",
+            "url" : "https://www.github.com/YourOrganization/SvnRepoOne/trunk"
+	}
     }
 }
