@@ -71,7 +71,6 @@ import (
   "os"
   "runtime"
   "sort"
-  "syscall"
 )
 
 const (
@@ -415,15 +414,8 @@ func corrupt(file *os.File) {
   log.Fatalf("corrupt index: %s", file.Name())
 }
 
-// An mmapData is mmap'ed read-only data from a file.
-type mmapData struct {
-  f *os.File
-  d []byte
-  o []byte
-}
-
 func (m *mmapData) close() error {
-  if err := syscall.Munmap(m.o); err != nil {
+  if err := Munmap(m.o); err != nil {
     return err
   }
   return m.f.Close()
