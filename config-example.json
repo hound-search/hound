@@ -1,11 +1,15 @@
 {
     "dbpath" : "data",
     "repos" : {
-        "SomeRepo" : {
+        "SomeGitRepo" : {
             "url" : "https://www.github.com/YourOrganization/RepoOne.git"
         },
-        "AnotherRepo" : {
-            "url" : "https://www.github.com/YourOrganization/RepoTwo.git"
+        "SomeMercurialRepo" : {
+            "url" : "https://www.example.com/foo/hg",
+            "vcs" : "hg"
+        },
+        "LocalFolder" : {
+            "url" : "file:///absolute/path/to/directory"
         }
     }
 }
