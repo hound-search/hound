@@ -64,7 +64,7 @@ You should be able to navigate to [http://localhost:6080/](http://localhost:6080
 
 Currently Hound is only tested on MacOS and CentOS, but it should work on any *nix system. There is no plan to support Windows, and we've heard that it fails to compile on Windows, but we would be happy to accept a PR that fixes this!
 
-Right now Hound supports git and mercurial, and SVN support is being added.
+Right now Hound supports git and mercurial, and SVN support is being added. By default Hound expects git repositories, so to use mercurial you have to specify `"vcs" : "hg"` in the config as shown in [config-example.json](config-example.json).
 
 ## Private Repositories
 
