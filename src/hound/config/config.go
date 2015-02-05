@@ -8,14 +8,14 @@ import (
 
 const (
 	defaultMsBetweenPoll = 30000
-	defaultVCS           = "git"
+	defaultVcs           = "git"
 )
 
 type Repo struct {
 	Url            string `json:"url"`
 	Name           string `json:"name"`
 	MsBetweenPolls int    `json:"ms-between-poll"`
-	VCS            string `json:"vcs"`
+	Vcs            string `json:"vcs"`
 }
 
 type Config struct {
@@ -47,8 +47,8 @@ func (c *Config) LoadFromFile(filename string) error {
 		if repo.MsBetweenPolls == 0 {
 			repo.MsBetweenPolls = defaultMsBetweenPoll
 		}
-		if repo.VCS == "" {
-			repo.VCS = defaultVCS
+		if repo.Vcs == "" {
+			repo.Vcs = defaultVcs
 		}
 	}
 
