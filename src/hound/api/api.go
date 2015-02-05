@@ -25,7 +25,7 @@ type Stats struct {
 
 func writeJson(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json;charset=utf-8")
-	w.Header().Set("Access-Control-Allow", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	if err := json.NewEncoder(w).Encode(data); err != nil {
 		log.Panicf("Failed to encode JSON: %v\n", err)
 	}
