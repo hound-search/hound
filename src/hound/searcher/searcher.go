@@ -109,7 +109,7 @@ func NewFromExisting(vcsDir string, repo *config.Repo) (*Searcher, error) {
 	log.Printf("Search started for %s", name)
 	log.Println("  WARNING: index is static and will not update")
 
-	sha, err := vcs.HeadHash(repo.VCS, vcsDir)
+	sha, err := vcs.HeadHash(repo.Vcs, vcsDir)
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +132,7 @@ func New(vcsDir string, repo *config.Repo) (*Searcher, error) {
 
 	log.Printf("Searcher started for %s", name)
 
-	sha, err := vcs.PullOrClone(repo.VCS, vcsDir, repo.Url)
+	sha, err := vcs.PullOrClone(repo.Vcs, vcsDir, repo.Url)
 	if err != nil {
 		return nil, err
 	}
@@ -155,7 +155,7 @@ func New(vcsDir string, repo *config.Repo) (*Searcher, error) {
 		for {
 			time.Sleep(time.Duration(repo.MsBetweenPolls) * time.Millisecond)
 
-			newSha, err := vcs.PullOrClone(repo.VCS, vcsDir, repo.Url)
+			newSha, err := vcs.PullOrClone(repo.Vcs, vcsDir, repo.Url)
 			if err != nil {
 				log.Printf("vcs pull error (%s - %s): %s", name, repo.Url, err)
 				continue
