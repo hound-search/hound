@@ -265,6 +265,11 @@ var Model = {
       return repo;
     }
 
+    // Prefer the given name
+    if (info.name) {
+      return info.name;
+    }
+
     var url = info.url,
         ax = url.lastIndexOf('/');
     if (ax  < 0) {

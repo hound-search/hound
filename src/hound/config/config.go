@@ -13,6 +13,7 @@ const (
 
 type Repo struct {
 	Url            string `json:"url"`
+	Name           string `json:"name"`
 	MsBetweenPolls int    `json:"ms-between-poll"`
 	VCS            string `json:"vcs"`
 }
