@@ -12,6 +12,17 @@ import (
   "syscall"
 )
 
+// An mmapData is mmap'ed read-only data from a file.
+type mmapData struct {
+  f *os.File
+  d []byte
+  o []byte
+}
+
+func Munmap(o []byte) error{
+  return syscall.Munmap(o)
+}
+
 func mmapFile(f *os.File) mmapData {
   st, err := f.Stat()
   if err != nil {

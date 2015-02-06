@@ -11,7 +11,6 @@ import (
 	"log"
 	"os"
 	"strings"
-	"syscall"
 	"unsafe"
 
 	"code.google.com/p/codesearch/sparse"
@@ -247,7 +246,7 @@ func (ix *IndexWriter) Flush() {
 
 	os.Remove(ix.nameData.name)
 	for _, d := range ix.postData {
-		syscall.Munmap(d)
+		Munmap(d)
 	}
 	for _, f := range ix.postFile {
 		f.Close()
