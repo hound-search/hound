@@ -258,28 +258,6 @@ button:focus {
   color: #666;
 }
 
-.copy-path-container {
-  float: right;
-  cursor: pointer;
-}
-
-.copy-path-btn {
-    padding: 6px 10px;
-    border-radius: 3px;
-    border: none;
-    color: #999;
-    background-color: transparent;
-    text-shadow: 1px 1px 0 #fff;
-}
-
-.zeroclipboard-is-hover .copy-path-btn {
-    color: #333;
-}
-
-.zeroclipboard-is-active .copy-path-btn {
-    color: #999;
-}
-
 .file-body {
   /* Allow horizontal scrolling in code, similar to github.com */
   overflow: auto;

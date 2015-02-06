@@ -637,11 +637,6 @@ var FilesView = React.createClass({
       return (
         <div className="file">
           <div className="title">
-            <ReactZeroClipboard className="copy-path-container" text={match.Filename}>
-              <button className="copy-path-btn">
-                <span className="octicon octicon-clippy"></span>
-              </button>
-            </ReactZeroClipboard>
             <a href={Model.UrlToRepo(repo, match.Filename)}>
               {match.Filename}
             </a>
