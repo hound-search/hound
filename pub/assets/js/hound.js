@@ -259,28 +259,6 @@ var Model = {
     });
   },
 
-  NameForRepo: function(repo) {
-    var info = this.repos[repo];
-    if (!info) {
-      return repo;
-    }
-
-    var url = info.url,
-        ax = url.lastIndexOf('/');
-    if (ax  < 0) {
-      return repo;
-    }
-
-    var name = url.substring(ax + 1).replace(/\.git$/, '');
-
-    var bx = url.lastIndexOf('/', ax - 1);
-    if (bx < 0) {
-      return name;
-    }
-
-    return url.substring(bx + 1, ax) + ' / ' + name;
-  },
-
   UrlToRepo: function(repo, path, line) {
     var info = this.repos[repo],
         url = info.url.replace(/\.git$/, ''),
@@ -655,7 +633,7 @@ var FilesView = React.createClass({
 
     var more = '';
     if (matches.length < totalMatches) {
-      more = (<button className="moar" onClick={this.onLoadMore}>Load all {totalMatches} matches in {Model.NameForRepo(repo)}</button>);
+      more = (<button className="moar" onClick={this.onLoadMore}>Load all {totalMatches} matches in {repo}</button>);
     }
 
     return (
@@ -709,7 +687,7 @@ var ResultView = React.createClass({
         <div className="repo">
           <div className="title">
             <span className="mega-octicon octicon-repo"></span>
-            <span className="name">{Model.NameForRepo(result.Repo)}</span>
+            <span className="name">{result.Repo}</span>
           </div>
           <FilesView matches={result.Matches}
               repo={result.Repo}
