@@ -44,6 +44,10 @@ func repoNameFromUrl(uri string) string {
 		name = name[:len(name)-4]
 	}
 
+	if strings.HasPrefix(uri, "file://") {
+		return fmt.Sprintf("%s/%s", uri[7:ax], name)
+	}
+
 	bx := strings.LastIndex(uri[:ax-1], "/")
 	if bx < 0 {
 		return name
