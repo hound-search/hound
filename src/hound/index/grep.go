@@ -2,8 +2,8 @@ package index
 
 import (
 	"bytes"
-	"code.google.com/p/codesearch/regexp"
 	"compress/gzip"
+	"hound/codesearch/regexp"
 	"io"
 	"os"
 )

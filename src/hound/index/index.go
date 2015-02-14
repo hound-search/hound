@@ -1,11 +1,11 @@
 package index
 
 import (
-	"code.google.com/p/codesearch/index"
-	"code.google.com/p/codesearch/regexp"
 	"compress/gzip"
 	"encoding/json"
 	"fmt"
+	"hound/codesearch/index"
+	"hound/codesearch/regexp"
 	"io"
 	"os"
 	"path/filepath"

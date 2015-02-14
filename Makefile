@@ -2,8 +2,8 @@ BINS = bin/houndd bin/hound
 HOST = localhost:6080
 
 TESTS = ansi \
-				code.google.com/p/codesearch/index \
-				code.google.com/p/codesearch/regexp \
+				hound/codesearch/index \
+				hound/codesearch/regexp \
 				hound/client \
 				hound/index
 

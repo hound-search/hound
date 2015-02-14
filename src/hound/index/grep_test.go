@@ -2,8 +2,8 @@ package index
 
 import (
 	"bytes"
-	"code.google.com/p/codesearch/regexp"
 	"fmt"
+	"hound/codesearch/regexp"
 	"strings"
 	"testing"
 )
