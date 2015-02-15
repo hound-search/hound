@@ -85,6 +85,7 @@ By default Hound polls the URL in the config for updates every 30 seconds. You c
 Currently the following editors have plugins that support Hound:
 
 * [Sublime Text](https://github.com/bgreenlee/SublimeHound)
+* [Vim](https://github.com/urthbound/hound.vim)
 
 ## Hacking on Hound
 
