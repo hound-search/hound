@@ -55,7 +55,7 @@ Yup, that's it. You can proxy requests to the Go service through Apache/nginx/et
 
 You should follow the quickstart guide up to step (3) and then run:
 
-    $ docker build . -t houndd
+    $ docker build -t houndd .
     $ docker run -it --rm -p 0.0.0.0:6080:6080 --name houndd houndd
 
 You should be able to navigate to [http://localhost:6080/](http://localhost:6080/) as usual.
