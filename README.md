@@ -86,6 +86,7 @@ Currently the following editors have plugins that support Hound:
 
 * [Sublime Text](https://github.com/bgreenlee/SublimeHound)
 * [Vim](https://github.com/urthbound/hound.vim)
+* [Emacs](https://github.com/ryoung786/hound.el)
 
 ## Hacking on Hound
 
