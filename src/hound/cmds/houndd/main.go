@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"hound/api"
@@ -13,7 +14,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"errors"
 	"os/exec"
 	"path"
 	"path/filepath"
@@ -182,24 +182,23 @@ func makeSearchers(
 	m := map[string]*searcher.Searcher{}
 	var err error
 	for name, repo := range cfg.Repos {
-		path := filepath.Join(cfg.DbPath, name)
+		for _, branch := range repo.Branches {
+			path := filepath.Join(cfg.DbPath, name)
 
-		var s *searcher.Searcher
+			var s *searcher.Searcher
 
+			if useStaleIndex {
+				s, err = searcher.NewFromExisting(path, repo, branch)
+			} else {
+				s, err = searcher.New(path, repo, branch)
+			}
+			if err == nil {
+				m[strings.ToLower(name)+"@"+strings.ToLower(branch)] = s
+				validRepos[name] = repo
+			}
 
-		if useStaleIndex {
-			s, err = searcher.NewFromExisting(path, repo)
-		} else {
-			s, err = searcher.New(path, repo)
 		}
-
-		if err == nil {
-			m[strings.ToLower(name)] = s
-			validRepos[name] = repo
-		}
-
 	}
-
 	if err != nil {
 		err = errors.New("One or more repos failed to index")
 	}
@@ -316,7 +315,7 @@ func main() {
 	}
 
 	formattedAddress := *flagAddr
-	if (0 == strings.Index(*flagAddr, ":")) {
+	if 0 == strings.Index(*flagAddr, ":") {
 		formattedAddress = "localhost" + *flagAddr
 	}
 	info_log.Printf("running server at http://%s...\n", formattedAddress)

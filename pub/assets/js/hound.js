@@ -260,6 +260,7 @@ var Model = {
   },
 
   NameForRepo: function(repo) {
+    repo = repo.split("@")[0];
     var info = this.repos[repo];
     if (!info) {
       return repo;
@@ -272,7 +273,6 @@ var Model = {
     }
 
     var name = url.substring(ax + 1).replace(/\.git$/, '');
-
     var bx = url.lastIndexOf('/', ax - 1);
     if (bx < 0) {
       return name;
@@ -282,6 +282,9 @@ var Model = {
   },
 
   UrlToRepo: function(repo, path, line) {
+    repo = repo.split("@");
+    branch = repo[1];
+    repo = repo[0];
     var info = this.repos[repo],
         url = info.url.replace(/\.git$/, ''),
         anc = line ? '#L' + line : '';
@@ -289,7 +292,7 @@ var Model = {
     // Hacky solution to fix _some_ of the 404's when using SSH style URLs
     url = url.replace("git@github.com:", 'https://www.github.com/');
 
-    return url + '/blob/master/' + path + anc;
+    return url + '/blob/' + branch + '/' + path + anc;
   }
 
 };

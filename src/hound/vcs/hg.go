@@ -44,7 +44,26 @@ func (g *MercurialDriver) HeadHash(dir string) (string, error) {
 	return strings.TrimSpace(buf.String()), cmd.Wait()
 }
 
-func (g *MercurialDriver) Pull(dir string) (string, error) {
+func (g *MercurialDriver) Checkout(dir, branch string) error {
+	cmd := exec.Command("hg", "checkout", branch)
+	cmd.Dir = dir
+	err := cmd.Run()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (g *MercurialDriver) Pull(dir, branch string) (string, error) {
+	if branch == "" {
+		branch = "default"
+	}
+
+	if err := g.Checkout(dir, branch); err != nil {
+		return "", err
+	}
+
 	cmd := exec.Command("hg", "pull", "-u")
 	cmd.Dir = dir
 	err := cmd.Run()
@@ -55,12 +74,17 @@ func (g *MercurialDriver) Pull(dir string) (string, error) {
 	return g.HeadHash(dir)
 }
 
-func (g *MercurialDriver) Clone(dir, url string) (string, error) {
+func (g *MercurialDriver) Clone(dir, url, branch string) (string, error) {
+	if branch == "" {
+		branch = "default"
+	}
 	par, rep := filepath.Split(dir)
 	cmd := exec.Command(
 		"hg",
 		"clone",
 		url,
+		"-r",
+		branch,
 		rep)
 	cmd.Dir = par
 	cmd.Stdout = ioutil.Discard

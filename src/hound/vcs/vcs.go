@@ -6,8 +6,8 @@ import (
 )
 
 type Driver interface {
-	Clone(dir, url string) (string, error)
-	Pull(dir string) (string, error)
+	Clone(dir, url, branch string) (string, error)
+	Pull(dir, branch string) (string, error)
 	HeadHash(dir string) (string, error)
 }
 
@@ -23,22 +23,22 @@ func RegisterVCS(name string, driver Driver) {
 	drivers[name] = driver
 }
 
-func Clone(vcs, dir, url string) (string, error) {
+func Clone(vcs, dir, url, branch string) (string, error) {
 	driver, ok := drivers[vcs]
 	if !ok {
 		return "", fmt.Errorf("vcs: unknown driver %q", vcs)
 	}
 
-	return driver.Clone(dir, url)
+	return driver.Clone(dir, url, branch)
 }
 
-func Pull(vcs, dir string) (string, error) {
+func Pull(vcs, dir, branch string) (string, error) {
 	driver, ok := drivers[vcs]
 	if !ok {
 		return "", fmt.Errorf("vcs: unknown driver %q", vcs)
 	}
 
-	return driver.Pull(dir)
+	return driver.Pull(dir, branch)
 }
 
 func HeadHash(vcs, dir string) (string, error) {
@@ -56,9 +56,10 @@ func exists(path string) bool {
 	return true
 }
 
-func PullOrClone(vcs, dir, url string) (string, error) {
+func PullOrClone(vcs, dir, url, branch string) (string, error) {
 	if exists(dir) {
-		return Pull(vcs, dir)
+		return Pull(vcs, dir, branch)
 	}
-	return Clone(vcs, dir, url)
+
+	return Clone(vcs, dir, url, branch)
 }

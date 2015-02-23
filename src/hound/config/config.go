@@ -12,9 +12,10 @@ const (
 )
 
 type Repo struct {
-	Url            string `json:"url"`
-	MsBetweenPolls int    `json:"ms-between-poll"`
-	Vcs            string `json:"vcs"`
+	Url            string   `json:"url"`
+	Branches       []string `json:"branches"`
+	MsBetweenPolls int      `json:"ms-between-poll"`
+	Vcs            string   `json:"vcs"`
 }
 
 type Config struct {

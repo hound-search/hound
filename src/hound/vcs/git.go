@@ -40,7 +40,26 @@ func (g *GitDriver) HeadHash(dir string) (string, error) {
 	return strings.TrimSpace(buf.String()), cmd.Wait()
 }
 
-func (g *GitDriver) Pull(dir string) (string, error) {
+func (g *GitDriver) Checkout(dir, branch string) error {
+	cmd := exec.Command("git", "checkout", branch)
+	cmd.Dir = dir
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Printf("Failed to git checkout %s, see output below\n%sContinuing...", dir, out)
+		return err
+	}
+	return nil
+}
+
+func (g *GitDriver) Pull(dir, branch string) (string, error) {
+	if branch == "" {
+		branch = "master"
+	}
+
+	if err := g.Checkout(dir, branch); err != nil {
+		return "", err
+	}
+
 	cmd := exec.Command("git", "pull")
 	cmd.Dir = dir
 	out, err := cmd.CombinedOutput()
@@ -52,11 +71,16 @@ func (g *GitDriver) Pull(dir string) (string, error) {
 	return g.HeadHash(dir)
 }
 
-func (g *GitDriver) Clone(dir, url string) (string, error) {
+func (g *GitDriver) Clone(dir, url, branch string) (string, error) {
+	if branch == "" {
+		branch = "master"
+	}
 	par, rep := filepath.Split(dir)
 	cmd := exec.Command(
 		"git",
 		"clone",
+		"-b",
+		branch,
 		url,
 		rep)
 	cmd.Dir = par

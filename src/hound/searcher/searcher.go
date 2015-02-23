@@ -46,16 +46,16 @@ func (s *Searcher) GetExcludedFiles() string {
 	return string(dat)
 }
 
-func expungeOldIndexes(sha, vcsDir string) error {
+func expungeOldIndexes(sha, branch, vcsDir string) error {
 	// TODO(knorton): This is a bandaid for issue #14, but should suffice
 	// since people don't usually name their repos with 40 char hashes. In
 	// the longer term, I want to remove this naming scheme to support
 	// rebuilds of the current hash.
 	pat := regexp.MustCompile("-[0-9a-f]{40}$")
 
-	name := fmt.Sprintf("%s-%s", filepath.Base(vcsDir), sha)
+	name := fmt.Sprintf("%s-%s-%s", filepath.Base(vcsDir), branch, sha)
 
-	dirs, err := filepath.Glob(fmt.Sprintf("%s-*", vcsDir))
+	dirs, err := filepath.Glob(fmt.Sprintf("%s-%s-*", vcsDir, branch))
 	if err != nil {
 		return err
 	}
@@ -78,15 +78,14 @@ func expungeOldIndexes(sha, vcsDir string) error {
 	return nil
 }
 
-func buildAndOpenIndex(sha, vcsDir string) (*index.Index, error) {
-	idxDir := fmt.Sprintf("%s-%s", vcsDir, sha)
+func buildAndOpenIndex(sha, branch, vcsDir string) (*index.Index, error) {
+	idxDir := fmt.Sprintf("%s-%s-%s", vcsDir, branch, sha)
 	if _, err := os.Stat(idxDir); err != nil {
 		_, err := index.Build(idxDir, vcsDir)
 		if err != nil {
 			return nil, err
 		}
 	}
-
 	return index.Open(idxDir)
 }
 
@@ -103,7 +102,7 @@ func reportOnMemory() {
 // This requires that an existing vcsDir be available in the data directory. This
 // is intended for debugging and testing only. This will not start a watcher to
 // monitor the remote repo for changes.
-func NewFromExisting(vcsDir string, repo *config.Repo) (*Searcher, error) {
+func NewFromExisting(vcsDir string, repo *config.Repo, branch string) (*Searcher, error) {
 	name := filepath.Base(vcsDir)
 
 	log.Printf("Search started for %s", name)
@@ -114,7 +113,7 @@ func NewFromExisting(vcsDir string, repo *config.Repo) (*Searcher, error) {
 		return nil, err
 	}
 
-	idx, err := buildAndOpenIndex(sha, vcsDir)
+	idx, err := buildAndOpenIndex(sha, branch, vcsDir)
 	if err != nil {
 		return nil, err
 	}
@@ -127,21 +126,21 @@ func NewFromExisting(vcsDir string, repo *config.Repo) (*Searcher, error) {
 
 // Creates a new Searcher that is available for searches as soon as this returns.
 // This will pull or clone the target repo and start watching the repo for changes.
-func New(vcsDir string, repo *config.Repo) (*Searcher, error) {
+func New(vcsDir string, repo *config.Repo, branch string) (*Searcher, error) {
 	name := filepath.Base(vcsDir)
 
 	log.Printf("Searcher started for %s", name)
 
-	sha, err := vcs.PullOrClone(repo.Vcs, vcsDir, repo.Url)
+	sha, err := vcs.PullOrClone(repo.Vcs, vcsDir, repo.Url, branch)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := expungeOldIndexes(sha, vcsDir); err != nil {
+	if err := expungeOldIndexes(sha, branch, vcsDir); err != nil {
 		return nil, err
 	}
 
-	idx, err := buildAndOpenIndex(sha, vcsDir)
+	idx, err := buildAndOpenIndex(sha, branch, vcsDir)
 	if err != nil {
 		return nil, err
 	}
@@ -155,7 +154,7 @@ func New(vcsDir string, repo *config.Repo) (*Searcher, error) {
 		for {
 			time.Sleep(time.Duration(repo.MsBetweenPolls) * time.Millisecond)
 
-			newSha, err := vcs.PullOrClone(repo.Vcs, vcsDir, repo.Url)
+			newSha, err := vcs.PullOrClone(repo.Vcs, vcsDir, repo.Url, branch)
 			if err != nil {
 				log.Printf("vcs pull error (%s - %s): %s", name, repo.Url, err)
 				continue
@@ -166,10 +165,10 @@ func New(vcsDir string, repo *config.Repo) (*Searcher, error) {
 			}
 
 			log.Printf("Rebuilding %s for %s", name, newSha)
-			idx, err := buildAndOpenIndex(newSha, vcsDir)
+			idx, err := buildAndOpenIndex(newSha, branch, vcsDir)
 			if err != nil {
 				log.Printf("failed index build (%s): %s", name, err)
-				os.RemoveAll(fmt.Sprintf("%s-%s", vcsDir, newSha))
+				os.RemoveAll(fmt.Sprintf("%s-%s-%s", vcsDir, branch, newSha))
 				continue
 			}
 
