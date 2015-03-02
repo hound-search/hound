@@ -9,12 +9,16 @@ import (
 const (
 	defaultMsBetweenPoll = 30000
 	defaultVcs           = "git"
+	defaultUrlPattern    = "${url}/blob/master/${path}${anc}"
+	defaultAnchorPattern = "#L${line}"
 )
 
 type Repo struct {
 	Url            string `json:"url"`
 	MsBetweenPolls int    `json:"ms-between-poll"`
 	Vcs            string `json:"vcs"`
+	UrlPattern     string `json:"urlpattern"`
+	AnchorPattern  string `json:"anchorpattern"`
 }
 
 type Config struct {
@@ -48,6 +52,12 @@ func (c *Config) LoadFromFile(filename string) error {
 		}
 		if repo.Vcs == "" {
 			repo.Vcs = defaultVcs
+		}
+		if repo.UrlPattern == "" {
+			repo.UrlPattern = defaultUrlPattern
+		}
+		if repo.AnchorPattern == "" {
+			repo.AnchorPattern = defaultAnchorPattern
 		}
 	}
 

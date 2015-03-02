@@ -284,7 +284,7 @@ var Model = {
   UrlToRepo: function(repo, path, line) {
     var info = this.repos[repo],
         url = info.url.replace(/\.git$/, ''),
-        anc = line ? '#L' + line : '';
+        anc = line ? info.anchorpattern.replace('${line}', line) : '';
 
     // Hacky solution to fix _some more_ of the 404's when using SSH style URLs
     var sshParts = /git@(.*):(.*)/i.exec(url);
@@ -292,7 +292,8 @@ var Model = {
       url = '//' + sshParts[1] + '/' + sshParts[2];
     }
 
-    return url + '/blob/master/' + path + anc;
+    // I'm sure there is a nicer React/jsx way to do this:
+    return info.urlpattern.replace('${url}', url).replace('${path}', path).replace('${anc}', anc);
   }
 
 };
