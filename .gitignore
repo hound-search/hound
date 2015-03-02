@@ -4,3 +4,5 @@ hound.sublime-workspace
 data
 .vagrant
 pub/index.html
+pub/excluded_files.html
+config.json

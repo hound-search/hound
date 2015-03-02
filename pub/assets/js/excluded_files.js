@@ -2,10 +2,11 @@
 
 var ExcludedRow = React.createClass({
   render: function() {
+    var url = UrlToRepo(this.props.repo, this.props.file.Filename);
     return (
       <tr>
         <td className="name">
-          <a href={this.props.baseUrl + this.props.file.Filename}>{this.props.file.Filename}</a>
+          <a href={url}>{this.props.file.Filename}</a>
         </td>
         <td className="reason">{this.props.file.Reason}</td>
       </tr>
@@ -22,7 +23,7 @@ var ExcludedTable = React.createClass({
 
     var rows = [];
     this.props.files.forEach(function(file) {
-      rows.push(<ExcludedRow file={file} baseUrl={_this.props.baseUrl} />);
+      rows.push(<ExcludedRow file={file} repo={_this.props.repo} />);
     });
 
     return (
@@ -62,7 +63,7 @@ var RepoList = React.createClass({
     var repos = [],
         _this = this;
     this.props.repos.forEach(function(repo){
-      repos.push(<RepoButton repo={repo} onRepoClick={_this.props.onRepoClick} currentRepo={_this.props.currentRepo} />);
+      repos.push(<RepoButton repo={repo} onRepoClick={_this.props.onRepoClick} currentRepo={_this.props.repo} />);
     });
 
     return (
@@ -91,24 +92,15 @@ var FilterableExcludedFiles = React.createClass({
     return {
       files: [],
       repos: [],
-      currentRepo: '',
-      currentRepoUrl: ''
+      repo: null,
     };
-  },
-
-  getUrlToRepo: function(repo) {
-    var info = this.state.repos[repo],
-        url = info.url.replace(/\.git$/, '');
-
-    return url + '/blob/master/';
   },
 
   onRepoClick: function(repo) {
     var _this = this;
     _this.setState({
-      searching:      true,
-      currentRepo:    repo,
-      currentRepoUrl: _this.getUrlToRepo(repo)
+      searching: true,
+      repo: this.state.repos[repo],
     });
     $.ajax({
       url: '/api/v1/excludes',
@@ -132,8 +124,8 @@ var FilterableExcludedFiles = React.createClass({
         <h1>Excluded Files</h1>
 
         <div id="excluded_files" className="table-container">
-          <RepoList repos={Object.keys(this.state.repos)} onRepoClick={this.onRepoClick} currentRepo={this.state.currentRepo} />
-          <ExcludedTable files={this.state.files} searching={this.state.searching} baseUrl={this.state.currentRepoUrl} />
+          <RepoList repos={Object.keys(this.state.repos)} onRepoClick={this.onRepoClick} repo={this.state.repo} />
+          <ExcludedTable files={this.state.files} searching={this.state.searching} repo={this.state.repo} />
         </div>
       </div>
     );

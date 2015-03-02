@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"hound/api"
@@ -13,7 +14,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"errors"
 	"os/exec"
 	"path"
 	"path/filepath"
@@ -186,7 +186,6 @@ func makeSearchers(
 
 		var s *searcher.Searcher
 
-
 		if useStaleIndex {
 			s, err = searcher.NewFromExisting(path, repo)
 		} else {
@@ -236,6 +235,7 @@ func runHttp(addr, root string, prod bool, cfg *config.Config, idx map[string]*s
 			template: "index.tpl.html",
 			dest:     "index.html",
 			sources: []string{
+				"assets/js/common.js",
 				"assets/js/hound.js",
 			},
 		},
@@ -243,7 +243,9 @@ func runHttp(addr, root string, prod bool, cfg *config.Config, idx map[string]*s
 			template: "excluded_files.tpl.html",
 			dest:     "excluded_files.html",
 			sources: []string{
-				"assets/js/excluded_files.js"},
+				"assets/js/common.js",
+				"assets/js/excluded_files.js",
+			},
 		},
 	}
 
@@ -316,7 +318,7 @@ func main() {
 	}
 
 	formattedAddress := *flagAddr
-	if (0 == strings.Index(*flagAddr, ":")) {
+	if 0 == strings.Index(*flagAddr, ":") {
 		formattedAddress = "localhost" + *flagAddr
 	}
 	info_log.Printf("running server at http://%s...\n", formattedAddress)
