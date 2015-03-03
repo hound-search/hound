@@ -4,3 +4,4 @@ hound.sublime-workspace
 data
 .vagrant
 pub/index.html
+config.json
