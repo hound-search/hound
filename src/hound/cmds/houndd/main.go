@@ -185,7 +185,17 @@ func makeSearchers(cfg *config.Config) (map[string]*searcher.Searcher, error) {
 	var err error
 	for name, repo := range cfg.Repos {
 		var s *searcher.Searcher
+<<<<<<< HEAD
 		s, err = searcher.New(cfg.DbPath, name, repo)
+=======
+
+		if useStaleIndex {
+			s, err = searcher.NewFromExisting(path, repo)
+		} else {
+			s, err = searcher.New(path, repo)
+		}
+
+>>>>>>> master
 		if err == nil {
 			m[strings.ToLower(name)] = s
 			validRepos[name] = repo
@@ -229,6 +239,7 @@ func runHttp(addr, root string, prod bool, cfg *config.Config, idx map[string]*s
 			template: "index.tpl.html",
 			dest:     "index.html",
 			sources: []string{
+				"assets/js/common.js",
 				"assets/js/hound.js",
 			},
 		},
@@ -236,7 +247,9 @@ func runHttp(addr, root string, prod bool, cfg *config.Config, idx map[string]*s
 			template: "excluded_files.tpl.html",
 			dest:     "excluded_files.html",
 			sources: []string{
-				"assets/js/excluded_files.js"},
+				"assets/js/common.js",
+				"assets/js/excluded_files.js",
+			},
 		},
 	}
 
@@ -306,11 +319,12 @@ func main() {
 		info_log.Println("All indexes built!")
 	}
 
-	formattedAddress := *flagAddr
-	if 0 == strings.Index(*flagAddr, ":") {
-		formattedAddress = "localhost" + *flagAddr
+	host := *flagAddr
+	if strings.HasPrefix(host, ":") {
+		host = "localhost" + host
 	}
-	info_log.Printf("running server at http://%s...\n", formattedAddress)
+
+	info_log.Printf("running server at http://%s...\n", host)
 
 	if err := runHttp(*flagAddr, *flagRoot, *flagProd, &cfg, idx); err != nil {
 		panic(err)

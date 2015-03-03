@@ -9,17 +9,51 @@ import (
 const (
 	defaultMsBetweenPoll = 30000
 	defaultVcs           = "git"
+	defaultBaseUrl       = "{url}/blob/master/{path}{anchor}"
+	defaultAnchor        = "#L{line}"
 )
 
+type UrlPattern struct {
+	BaseUrl string `json:"base-url"`
+	Anchor  string `json:"anchor"`
+}
+
 type Repo struct {
-	Url            string `json:"url"`
-	MsBetweenPolls int    `json:"ms-between-poll"`
-	Vcs            string `json:"vcs"`
+	Url            string      `json:"url"`
+	MsBetweenPolls int         `json:"ms-between-poll"`
+	Vcs            string      `json:"vcs"`
+	UrlPattern     *UrlPattern `json:"url-pattern"`
 }
 
 type Config struct {
 	DbPath string           `json:"dbpath"`
 	Repos  map[string]*Repo `json:"repos"`
+}
+
+// Populate missing config values with default values.
+func initRepo(r *Repo) {
+	if r.MsBetweenPolls == 0 {
+		r.MsBetweenPolls = defaultMsBetweenPoll
+	}
+
+	if r.Vcs == "" {
+		r.Vcs = defaultVcs
+	}
+
+	if r.UrlPattern == nil {
+		r.UrlPattern = &UrlPattern{
+			BaseUrl: defaultBaseUrl,
+			Anchor:  defaultAnchor,
+		}
+	} else {
+		if r.UrlPattern.BaseUrl == "" {
+			r.UrlPattern.BaseUrl = defaultBaseUrl
+		}
+
+		if r.UrlPattern.Anchor == "" {
+			r.UrlPattern.Anchor = defaultAnchor
+		}
+	}
 }
 
 func (c *Config) LoadFromFile(filename string) error {
@@ -43,12 +77,7 @@ func (c *Config) LoadFromFile(filename string) error {
 	}
 
 	for _, repo := range c.Repos {
-		if repo.MsBetweenPolls == 0 {
-			repo.MsBetweenPolls = defaultMsBetweenPoll
-		}
-		if repo.Vcs == "" {
-			repo.Vcs = defaultVcs
-		}
+		initRepo(repo)
 	}
 
 	return nil
