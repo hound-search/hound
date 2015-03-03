@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"hound/api"
@@ -13,7 +14,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"errors"
 	"os/exec"
 	"path"
 	"path/filepath"
@@ -186,7 +186,6 @@ func makeSearchers(
 
 		var s *searcher.Searcher
 
-
 		if useStaleIndex {
 			s, err = searcher.NewFromExisting(path, repo)
 		} else {
@@ -315,11 +314,12 @@ func main() {
 		info_log.Println("All indexes built!")
 	}
 
-	formattedAddress := *flagAddr
-	if (0 == strings.Index(*flagAddr, ":")) {
-		formattedAddress = "localhost" + *flagAddr
+	host := *flagAddr
+	if strings.HasPrefix(host, ":") {
+		host = "localhost" + host
 	}
-	info_log.Printf("running server at http://%s...\n", formattedAddress)
+
+	info_log.Printf("running server at http://%s...\n", host)
 
 	if err := runHttp(*flagAddr, *flagRoot, *flagProd, &cfg, idx); err != nil {
 		panic(err)
