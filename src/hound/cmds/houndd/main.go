@@ -166,50 +166,30 @@ func BuildContentFor(root string, prod bool, cnts []*content, cfg *config.Config
 	}, nil
 }
 
-func makeSearchers(cfg *config.Config) (map[string]*searcher.Searcher, error) {
+func makeSearchers(cfg *config.Config) (map[string]*searcher.Searcher, bool, error) {
 	// Ensure we have a dbpath
 	if _, err := os.Stat(cfg.DbPath); err != nil {
 		if err := os.MkdirAll(cfg.DbPath, os.ModePerm); err != nil {
-			return nil, err
+			return nil, false, err
 		}
 	}
 
-	if err := searcher.RemoveAllIndexes(cfg.DbPath); err != nil {
-		return nil, err
-	}
-
-	validRepos := map[string]*config.Repo{}
-	// Now build and initialize a searcher for each repo.
-	// TODO(knorton): These could be done in parallel.
-	m := map[string]*searcher.Searcher{}
-	var err error
-	for name, repo := range cfg.Repos {
-		var s *searcher.Searcher
-<<<<<<< HEAD
-		s, err = searcher.New(cfg.DbPath, name, repo)
-=======
-
-		if useStaleIndex {
-			s, err = searcher.NewFromExisting(path, repo)
-		} else {
-			s, err = searcher.New(path, repo)
-		}
-
->>>>>>> master
-		if err == nil {
-			m[strings.ToLower(name)] = s
-			validRepos[name] = repo
-		}
-
-	}
-
+	searchers, errs, err := searcher.MakeAll(cfg)
 	if err != nil {
-		err = errors.New("One or more repos failed to index")
+		return nil, false, err
 	}
 
-	// Update the config to only include repos we have successfully indexed
-	cfg.Repos = validRepos
-	return m, err
+	if len(errs) > 0 {
+		// NOTE: This mutates the original config so the repos
+		// are not even seen by other code paths.
+		for name, _ := range errs {
+			delete(cfg.Repos, name)
+		}
+
+		return searchers, false, errors.New("One or more repos failed to index")
+	}
+
+	return searchers, true, nil
 }
 
 func makeTemplateData(cfg *config.Config) (interface{}, error) {
@@ -312,8 +292,11 @@ func main() {
 		panic(err)
 	}
 
-	idx, err := makeSearchers(&cfg)
+	idx, ok, err := makeSearchers(&cfg)
 	if err != nil {
+		log.Panic(err)
+	}
+	if !ok {
 		info_log.Println("Some repos failed to index, see output above")
 	} else {
 		info_log.Println("All indexes built!")
