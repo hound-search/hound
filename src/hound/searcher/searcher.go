@@ -1,15 +1,17 @@
 package searcher
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"fmt"
 	"hound/config"
 	"hound/index"
 	"hound/vcs"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"os"
 	"path/filepath"
-	"regexp"
 	"runtime"
 	"sync"
 	"time"
@@ -46,30 +48,18 @@ func (s *Searcher) GetExcludedFiles() string {
 	return string(dat)
 }
 
-func expungeOldIndexes(sha, vcsDir string) error {
-	// TODO(knorton): This is a bandaid for issue #14, but should suffice
-	// since people don't usually name their repos with 40 char hashes. In
-	// the longer term, I want to remove this naming scheme to support
-	// rebuilds of the current hash.
-	pat := regexp.MustCompile("-[0-9a-f]{40}$")
+func nextIndexName() string {
+	r := uint64(rand.Uint32())<<32 | uint64(rand.Uint32())
+	return fmt.Sprintf("idx-%08x", r)
+}
 
-	name := fmt.Sprintf("%s-%s", filepath.Base(vcsDir), sha)
-
-	dirs, err := filepath.Glob(fmt.Sprintf("%s-*", vcsDir))
+func RemoveAllIndexes(dbpath string) error {
+	dirs, err := filepath.Glob(filepath.Join(dbpath, "idx-*"))
 	if err != nil {
 		return err
 	}
 
 	for _, dir := range dirs {
-		bn := filepath.Base(dir)
-		if !pat.MatchString(bn) || len(bn) != len(name) {
-			continue
-		}
-
-		if bn == name {
-			continue
-		}
-
 		if err := os.RemoveAll(dir); err != nil {
 			return err
 		}
@@ -78,8 +68,8 @@ func expungeOldIndexes(sha, vcsDir string) error {
 	return nil
 }
 
-func buildAndOpenIndex(sha, vcsDir string) (*index.Index, error) {
-	idxDir := fmt.Sprintf("%s-%s", vcsDir, sha)
+func buildAndOpenIndex(dbpath, vcsDir string) (*index.Index, error) {
+	idxDir := filepath.Join(dbpath, nextIndexName())
 	if _, err := os.Stat(idxDir); err != nil {
 		_, err := index.Build(idxDir, vcsDir)
 		if err != nil {
@@ -99,36 +89,24 @@ func reportOnMemory() {
 	fmt.Printf("HeapIdle  = %0.2f\n", float64(ms.HeapIdle)/1e6)
 }
 
-// Creates a new Searcher for the vcsDir but avoids any remote vcs operations.
-// This requires that an existing vcsDir be available in the data directory. This
-// is intended for debugging and testing only. This will not start a watcher to
-// monitor the remote repo for changes.
-func NewFromExisting(vcsDir string, repo *config.Repo) (*Searcher, error) {
-	name := filepath.Base(vcsDir)
+func hashFor(name string) string {
+	h := sha1.New()
+	h.Write([]byte(name))
+	return hex.EncodeToString(h.Sum(nil))
+}
 
-	log.Printf("Search started for %s", name)
-	log.Println("  WARNING: index is static and will not update")
+func vcsDirFor(repo *config.Repo) string {
+	return fmt.Sprintf("vcs-%s", hashFor(repo.Url))
+}
 
-	sha, err := vcs.HeadHash(repo.Vcs, vcsDir)
-	if err != nil {
-		return nil, err
-	}
-
-	idx, err := buildAndOpenIndex(sha, vcsDir)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Searcher{
-		idx:  idx,
-		Repo: repo,
-	}, nil
+func init() {
+	rand.Seed(time.Now().UnixNano())
 }
 
 // Creates a new Searcher that is available for searches as soon as this returns.
 // This will pull or clone the target repo and start watching the repo for changes.
-func New(vcsDir string, repo *config.Repo) (*Searcher, error) {
-	name := filepath.Base(vcsDir)
+func New(dbpath, name string, repo *config.Repo) (*Searcher, error) {
+	vcsDir := filepath.Join(dbpath, vcsDirFor(repo))
 
 	log.Printf("Searcher started for %s", name)
 
@@ -137,11 +115,7 @@ func New(vcsDir string, repo *config.Repo) (*Searcher, error) {
 		return nil, err
 	}
 
-	if err := expungeOldIndexes(sha, vcsDir); err != nil {
-		return nil, err
-	}
-
-	idx, err := buildAndOpenIndex(sha, vcsDir)
+	idx, err := buildAndOpenIndex(dbpath, vcsDir)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +140,7 @@ func New(vcsDir string, repo *config.Repo) (*Searcher, error) {
 			}
 
 			log.Printf("Rebuilding %s for %s", name, newSha)
-			idx, err := buildAndOpenIndex(newSha, vcsDir)
+			idx, err := buildAndOpenIndex(dbpath, vcsDir)
 			if err != nil {
 				log.Printf("failed index build (%s): %s", name, err)
 				os.RemoveAll(fmt.Sprintf("%s-%s", vcsDir, newSha))

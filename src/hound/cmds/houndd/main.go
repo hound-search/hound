@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"hound/api"
@@ -13,7 +14,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"errors"
 	"os/exec"
 	"path"
 	"path/filepath"
@@ -166,14 +166,16 @@ func BuildContentFor(root string, prod bool, cnts []*content, cfg *config.Config
 	}, nil
 }
 
-func makeSearchers(
-	cfg *config.Config,
-	useStaleIndex bool) (map[string]*searcher.Searcher, error) {
+func makeSearchers(cfg *config.Config) (map[string]*searcher.Searcher, error) {
 	// Ensure we have a dbpath
 	if _, err := os.Stat(cfg.DbPath); err != nil {
 		if err := os.MkdirAll(cfg.DbPath, os.ModePerm); err != nil {
 			return nil, err
 		}
+	}
+
+	if err := searcher.RemoveAllIndexes(cfg.DbPath); err != nil {
+		return nil, err
 	}
 
 	validRepos := map[string]*config.Repo{}
@@ -182,17 +184,8 @@ func makeSearchers(
 	m := map[string]*searcher.Searcher{}
 	var err error
 	for name, repo := range cfg.Repos {
-		path := filepath.Join(cfg.DbPath, name)
-
 		var s *searcher.Searcher
-
-
-		if useStaleIndex {
-			s, err = searcher.NewFromExisting(path, repo)
-		} else {
-			s, err = searcher.New(path, repo)
-		}
-
+		s, err = searcher.New(cfg.DbPath, name, repo)
 		if err == nil {
 			m[strings.ToLower(name)] = s
 			validRepos[name] = repo
@@ -287,8 +280,6 @@ func main() {
 	flagAddr := flag.String("addr", ":6080", "")
 	flagRoot := flag.String("root", "", "")
 	flagProd := flag.Bool("prod", false, "")
-	flagStale := flag.Bool("use-existing-stale-index", false,
-		"DEV: Do not talk to git via pull or clone (requires an existing index)")
 
 	flag.Parse()
 
@@ -308,7 +299,7 @@ func main() {
 		panic(err)
 	}
 
-	idx, err := makeSearchers(&cfg, *flagStale)
+	idx, err := makeSearchers(&cfg)
 	if err != nil {
 		info_log.Println("Some repos failed to index, see output above")
 	} else {
@@ -316,7 +307,7 @@ func main() {
 	}
 
 	formattedAddress := *flagAddr
-	if (0 == strings.Index(*flagAddr, ":")) {
+	if 0 == strings.Index(*flagAddr, ":") {
 		formattedAddress = "localhost" + *flagAddr
 	}
 	info_log.Printf("running server at http://%s...\n", formattedAddress)
