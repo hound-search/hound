@@ -8,13 +8,19 @@
             "url" : "https://www.github.com/YourOrganization/RepoOne.git",
             "ms-between-poll": 10000
         },
-        
         "SomeMercurialRepo" : {
             "url" : "https://www.example.com/foo/hg",
             "vcs" : "hg"
         },
         "LocalFolder" : {
             "url" : "file:///absolute/path/to/directory"
+        },
+        "RepoWithCustomUrls" : {
+            "url" : "https://github.com/username/Foo.git",
+            "url-pattern" : {
+                "base-url" : "{url}/files/{path}{anchor}",
+                "anchor" : "#line={line}"
+            }
         }
     }
 }
