@@ -282,7 +282,7 @@ var Model = {
   },
 
   UrlToRepo: function(repo, path, line) {
-    return UrlToRepo(this.repos[repo], path, line);
+    return lib.UrlToRepo(this.repos[repo], path, line);
   }
 
 };
