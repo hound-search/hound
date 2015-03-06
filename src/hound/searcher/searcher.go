@@ -237,6 +237,7 @@ func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error)
 		s, err := newSearcher(cfg.DbPath, name, repo, manifests)
 		if err != nil {
 			errs[name] = err
+			continue
 		}
 
 		searchers[strings.ToLower(name)] = s

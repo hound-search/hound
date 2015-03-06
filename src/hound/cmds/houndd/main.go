@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"flag"
 	"fmt"
 	"hound/api"
@@ -186,7 +185,7 @@ func makeSearchers(cfg *config.Config) (map[string]*searcher.Searcher, bool, err
 			delete(cfg.Repos, name)
 		}
 
-		return searchers, false, errors.New("One or more repos failed to index")
+		return searchers, false, nil
 	}
 
 	return searchers, true, nil
