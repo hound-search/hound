@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"flag"
 	"fmt"
 	"hound/api"
@@ -166,46 +165,30 @@ func BuildContentFor(root string, prod bool, cnts []*content, cfg *config.Config
 	}, nil
 }
 
-func makeSearchers(
-	cfg *config.Config,
-	useStaleIndex bool) (map[string]*searcher.Searcher, error) {
+func makeSearchers(cfg *config.Config) (map[string]*searcher.Searcher, bool, error) {
 	// Ensure we have a dbpath
 	if _, err := os.Stat(cfg.DbPath); err != nil {
 		if err := os.MkdirAll(cfg.DbPath, os.ModePerm); err != nil {
-			return nil, err
+			return nil, false, err
 		}
 	}
 
-	validRepos := map[string]*config.Repo{}
-	// Now build and initialize a searcher for each repo.
-	// TODO(knorton): These could be done in parallel.
-	m := map[string]*searcher.Searcher{}
-	var err error
-	for name, repo := range cfg.Repos {
-		path := filepath.Join(cfg.DbPath, name)
-
-		var s *searcher.Searcher
-
-		if useStaleIndex {
-			s, err = searcher.NewFromExisting(path, repo)
-		} else {
-			s, err = searcher.New(path, repo)
-		}
-
-		if err == nil {
-			m[strings.ToLower(name)] = s
-			validRepos[name] = repo
-		}
-
-	}
-
+	searchers, errs, err := searcher.MakeAll(cfg)
 	if err != nil {
-		err = errors.New("One or more repos failed to index")
+		return nil, false, err
 	}
 
-	// Update the config to only include repos we have successfully indexed
-	cfg.Repos = validRepos
-	return m, err
+	if len(errs) > 0 {
+		// NOTE: This mutates the original config so the repos
+		// are not even seen by other code paths.
+		for name, _ := range errs {
+			delete(cfg.Repos, name)
+		}
+
+		return searchers, false, nil
+	}
+
+	return searchers, true, nil
 }
 
 func makeTemplateData(cfg *config.Config) (interface{}, error) {
@@ -289,8 +272,6 @@ func main() {
 	flagAddr := flag.String("addr", ":6080", "")
 	flagRoot := flag.String("root", "", "")
 	flagProd := flag.Bool("prod", false, "")
-	flagStale := flag.Bool("use-existing-stale-index", false,
-		"DEV: Do not talk to git via pull or clone (requires an existing index)")
 
 	flag.Parse()
 
@@ -310,8 +291,11 @@ func main() {
 		panic(err)
 	}
 
-	idx, err := makeSearchers(&cfg, *flagStale)
+	idx, ok, err := makeSearchers(&cfg)
 	if err != nil {
+		log.Panic(err)
+	}
+	if !ok {
 		info_log.Println("Some repos failed to index, see output above")
 	} else {
 		info_log.Println("All indexes built!")
