@@ -193,6 +193,7 @@ var Model = {
           var res = matches[repo];
           results.push({
             Repo: repo,
+            Rev: res.Revision,
             Matches: res.Matches,
             FilesWithMatch: res.FilesWithMatch,
           });
@@ -281,8 +282,8 @@ var Model = {
     return url.substring(bx + 1, ax) + ' / ' + name;
   },
 
-  UrlToRepo: function(repo, path, line) {
-    return lib.UrlToRepo(this.repos[repo], path, line);
+  UrlToRepo: function(repo, path, line, rev) {
+    return lib.UrlToRepo(this.repos[repo], path, line, rev);
   }
 
 };
@@ -602,7 +603,8 @@ var FilesView = React.createClass({
   },
 
   render: function() {
-    var repo = this.props.repo,
+    var rev = this.props.rev,
+        repo = this.props.repo,
         regexp = this.props.regexp,
         matches = this.props.matches,
         totalMatches = this.props.totalMatches;
@@ -614,7 +616,7 @@ var FilesView = React.createClass({
           var content = ContentFor(line, regexp);
           return (
             <div className="line">
-              <a href={Model.UrlToRepo(repo, filename, line.Number)}
+              <a href={Model.UrlToRepo(repo, filename, line.Number, rev)}
                   className="lnum"
                   target="_blank">{line.Number}</a>
               <span className="lval" dangerouslySetInnerHTML={{__html:content}} />
@@ -630,7 +632,7 @@ var FilesView = React.createClass({
       return (
         <div className="file">
           <div className="title">
-            <a href={Model.UrlToRepo(repo, match.Filename)}>
+            <a href={Model.UrlToRepo(repo, match.Filename, null, rev)}>
               {match.Filename}
             </a>
           </div>
@@ -700,6 +702,7 @@ var ResultView = React.createClass({
             <span className="name">{Model.NameForRepo(result.Repo)}</span>
           </div>
           <FilesView matches={result.Matches}
+              rev={result.Rev}
               repo={result.Repo}
               regexp={regexp}
               totalMatches={result.FilesWithMatch} />

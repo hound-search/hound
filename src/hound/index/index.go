@@ -20,6 +20,7 @@ type Snapshot string
 
 type Index struct {
 	dir string
+	rev string
 	idx *index.Index
 	lck sync.RWMutex
 }
@@ -44,6 +45,7 @@ type SearchResponse struct {
 	FilesWithMatch int
 	FilesOpened    int           `json:"-"`
 	Duration       time.Duration `json:"-"`
+	Revision       string
 }
 
 type FileMatch struct {
@@ -57,7 +59,7 @@ type ExcludedFile struct {
 }
 
 func (s Snapshot) Open() (*Index, error) {
-	return Open(string(s))
+	return Open(string(s), "")
 }
 
 func (n *Index) Destroy() error {
@@ -172,6 +174,7 @@ func (n *Index) Search(pat string, opt *SearchOptions) (*SearchResponse, error) 
 		FilesWithMatch: filesFound,
 		FilesOpened:    filesOpened,
 		Duration:       time.Now().Sub(startedAt),
+		Revision:       n.rev,
 	}, nil
 }
 
@@ -318,9 +321,10 @@ func Build(dst, src string) (Snapshot, error) {
 }
 
 // Open an existing snapshot
-func Open(dir string) (*Index, error) {
+func Open(dir, rev string) (*Index, error) {
 	return &Index{
 		dir: dir,
+		rev: rev,
 		idx: index.Open(filepath.Join(dir, "tri")),
 	}, nil
 }
