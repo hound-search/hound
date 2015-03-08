@@ -184,7 +184,7 @@ func buildAndOpenIndex(dbpath, vcsDir, idxDir, url, rev string) (*index.Index, e
 		}
 	}
 
-	return index.Open(idxDir)
+	return index.Open(idxDir, rev)
 }
 
 // Simply prints out statistics about the heap. When hound rebuilds a new
