@@ -2,6 +2,7 @@ package index
 
 import (
 	"compress/gzip"
+	"encoding/gob"
 	"encoding/json"
 	"fmt"
 	"hound/codesearch/index"
@@ -14,13 +15,13 @@ import (
 	"unicode/utf8"
 )
 
-const matchLimit = 5000
-
-type Snapshot string
+const (
+	matchLimit       = 5000
+	manifestFilename = "metadata.gob"
+)
 
 type Index struct {
-	dir string
-	rev string
+	Ref *IndexRef
 	idx *index.Index
 	lck sync.RWMutex
 }
@@ -58,8 +59,36 @@ type ExcludedFile struct {
 	Reason   string
 }
 
-func (s Snapshot) Open() (*Index, error) {
-	return Open(string(s), "")
+type IndexRef struct {
+	Url  string
+	Rev  string
+	Time time.Time
+	dir  string
+}
+
+func (r *IndexRef) Dir() string {
+	return r.dir
+}
+
+func (r *IndexRef) writeManifest() error {
+	w, err := os.Create(filepath.Join(r.dir, manifestFilename))
+	if err != nil {
+		return err
+	}
+	defer w.Close()
+
+	return gob.NewEncoder(w).Encode(r)
+}
+
+func (r *IndexRef) Open() (*Index, error) {
+	return &Index{
+		Ref: r,
+		idx: index.Open(filepath.Join(r.dir, "tri")),
+	}, nil
+}
+
+func (r *IndexRef) Remove() error {
+	return os.RemoveAll(r.dir)
 }
 
 func (n *Index) Destroy() error {
@@ -68,11 +97,11 @@ func (n *Index) Destroy() error {
 	if err := n.idx.Close(); err != nil {
 		return err
 	}
-	return os.RemoveAll(n.dir)
+	return n.Ref.Remove()
 }
 
 func (n *Index) GetDir() string {
-	return n.dir
+	return n.Ref.dir
 }
 
 func toStrings(lines [][]byte) []string {
@@ -130,7 +159,7 @@ func (n *Index) Search(pat string, opt *SearchOptions) (*SearchResponse, error) 
 		}
 
 		filesOpened++
-		if err := g.grep2File(filepath.Join(n.dir, "raw", name), re, int(opt.LinesOfContext),
+		if err := g.grep2File(filepath.Join(n.Ref.dir, "raw", name), re, int(opt.LinesOfContext),
 			func(line []byte, lineno int, before [][]byte, after [][]byte) (bool, error) {
 
 				hasMatch = true
@@ -174,7 +203,7 @@ func (n *Index) Search(pat string, opt *SearchOptions) (*SearchResponse, error) 
 		FilesWithMatch: filesFound,
 		FilesOpened:    filesOpened,
 		Duration:       time.Now().Sub(startedAt),
-		Revision:       n.rev,
+		Revision:       n.Ref.Rev,
 	}, nil
 }
 
@@ -302,29 +331,63 @@ func indexAllFiles(dst, src string) error {
 	return nil
 }
 
-func Build(dst, src string) (Snapshot, error) {
+// Read the metadata for the index directory. Note that even if this
+// returns a non-nil error, a Metadata object will be returned with
+// all the information that is known about the index (this might
+// include only the path)
+func Read(dir string) (*IndexRef, error) {
+	m := &IndexRef{
+		dir: dir,
+	}
+
+	r, err := os.Open(filepath.Join(dir, manifestFilename))
+	if err != nil {
+		return m, err
+	}
+	defer r.Close()
+
+	if err := gob.NewDecoder(r).Decode(m); err != nil {
+		return m, err
+	}
+
+	return m, nil
+}
+
+func Build(dst, src, url, rev string) (*IndexRef, error) {
 	if _, err := os.Stat(dst); err != nil {
 		if err := os.MkdirAll(dst, os.ModePerm); err != nil {
-			return Snapshot(""), err
+			return nil, err
 		}
 	}
 
 	if err := os.Mkdir(filepath.Join(dst, "raw"), os.ModePerm); err != nil {
-		return Snapshot(""), err
+		return nil, err
 	}
 
 	if err := indexAllFiles(dst, src); err != nil {
-		return Snapshot(""), err
+		return nil, err
 	}
 
-	return Snapshot(dst), nil
+	r := &IndexRef{
+		Url:  url,
+		Rev:  rev,
+		Time: time.Now(),
+		dir:  dst,
+	}
+
+	if err := r.writeManifest(); err != nil {
+		return nil, err
+	}
+
+	return r, nil
 }
 
-// Open an existing snapshot
-func Open(dir, rev string) (*Index, error) {
-	return &Index{
-		dir: dir,
-		rev: rev,
-		idx: index.Open(filepath.Join(dir, "tri")),
-	}, nil
+// Open the index in dir for searching.
+func Open(dir string) (*Index, error) {
+	r, err := Read(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.Open()
 }
