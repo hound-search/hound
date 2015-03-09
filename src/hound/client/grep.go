@@ -1,7 +1,6 @@
 package client
 
 import (
-	"ansi"
 	"fmt"
 	"hound/config"
 	"os"
@@ -18,11 +17,18 @@ func (p *grepPresenter) Present(
 	repos map[string]*config.Repo,
 	res *Response) error {
 
-	c := ansi.NewFor(p.f)
-
-	if _, err := fmt.Fprintf(p.f, "%s\n",
-		c.Fg("// TODO(knorton): Implement", ansi.Yellow, ansi.Bold)); err != nil {
-		return err
+	for repo, resp := range res.Results {
+		for _, file := range resp.Matches {
+			for _, match := range file.Matches {
+				if _, err := fmt.Fprintf(p.f, "%s/%s:%d: %s\n",
+					repoNameFor(repos, repo),
+					file.Filename,
+					match.LineNumber,
+					match.Line); err != nil {
+						return err
+					}
+			}
+		}
 	}
 
 	return nil
