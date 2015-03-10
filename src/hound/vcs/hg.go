@@ -15,8 +15,8 @@ func init() {
 
 type MercurialDriver struct{}
 
-func newHg(b []byte) Driver {
-	return &MercurialDriver{}
+func newHg(b []byte) (Driver, error) {
+	return &MercurialDriver{}, nil
 }
 
 func (g *MercurialDriver) HeadRev(dir string) (string, error) {

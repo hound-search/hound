@@ -15,19 +15,20 @@ func init() {
 }
 
 type SVNDriver struct {
-	Username string
-	Password string
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
-func newSvn(b []byte) Driver {
+func newSvn(b []byte) (Driver, error) {
 	var d SVNDriver
 
-	if err := json.Unmarshal(b, &d); err != nil {
-		// TODO(knorton): I guess these really need to reutrn error
-		log.Panic(err)
+	if b != nil {
+		if err := json.Unmarshal(b, &d); err != nil {
+			return nil, err
+		}
 	}
 
-	return &d
+	return &d, nil
 }
 
 func (g *SVNDriver) HeadRev(dir string) (string, error) {

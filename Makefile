@@ -2,10 +2,11 @@ BINS = bin/houndd bin/hound
 HOST = localhost:6080
 
 TESTS = ansi \
-				hound/codesearch/index \
-				hound/codesearch/regexp \
-				hound/client \
-				hound/index
+		hound/codesearch/index \
+		hound/codesearch/regexp \
+		hound/client \
+		hound/index \
+		hound/vcs
 
 ALL: $(BINS)
 
