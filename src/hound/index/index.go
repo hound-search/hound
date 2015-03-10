@@ -91,6 +91,12 @@ func (r *IndexRef) Remove() error {
 	return os.RemoveAll(r.dir)
 }
 
+func (n *Index) Close() error {
+	n.lck.Lock()
+	defer n.lck.Unlock()
+	return n.idx.Close()
+}
+
 func (n *Index) Destroy() error {
 	n.lck.Lock()
 	defer n.lck.Unlock()

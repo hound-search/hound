@@ -49,6 +49,7 @@ func TestSearch(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer idx.Close()
 
 	// Make sure we can carry out a search
 	if _, err := idx.Search("5a1c0dac2d9b3ea4085b30dd14375c18eab993d5", &SearchOptions{}); err != nil {
@@ -90,4 +91,10 @@ func TestRead(t *testing.T) {
 	if r.Rev != rev {
 		t.Fatal("expected rev of %s, got %s", rev, r.Rev)
 	}
+
+	idx, err := r.Open()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer idx.Close()
 }
