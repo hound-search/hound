@@ -2,21 +2,35 @@ package vcs
 
 import (
 	"bytes"
+	"encoding/json"
 	"io"
 	"log"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 )
 
 func init() {
-	RegisterVCS("svn", &SVNDriver{})
+	Register(newSvn, "svn", "subversion")
 }
 
-type SVNDriver struct{}
+type SVNDriver struct {
+	Username string
+	Password string
+}
 
-func (g *SVNDriver) HeadHash(dir string) (string, error) {
+func newSvn(b []byte) Driver {
+	var d SVNDriver
+
+	if err := json.Unmarshal(b, &d); err != nil {
+		// TODO(knorton): I guess these really need to reutrn error
+		log.Panic(err)
+	}
+
+	return &d
+}
+
+func (g *SVNDriver) HeadRev(dir string) (string, error) {
 	cmd := exec.Command(
 		"svnversion")
 	cmd.Dir = dir
@@ -44,9 +58,9 @@ func (g *SVNDriver) Pull(dir string) (string, error) {
 		"svn",
 		"update",
 		"--username",
-		os.Getenv("SVN_USERNAME"),
+		g.Username,
 		"--password",
-		os.Getenv("SVN_PASSWORD"))
+		g.Password)
 	cmd.Dir = dir
 	out, err := cmd.CombinedOutput()
 	if err != nil {
@@ -54,7 +68,7 @@ func (g *SVNDriver) Pull(dir string) (string, error) {
 		return "", err
 	}
 
-	return g.HeadHash(dir)
+	return g.HeadRev(dir)
 }
 
 func (g *SVNDriver) Clone(dir, url string) (string, error) {
@@ -63,9 +77,9 @@ func (g *SVNDriver) Clone(dir, url string) (string, error) {
 		"svn",
 		"checkout",
 		"--username",
-		os.Getenv("SVN_USERNAME"),
+		g.Username,
 		"--password",
-		os.Getenv("SVN_PASSWORD"),
+		g.Password,
 		url,
 		rep)
 	cmd.Dir = par
@@ -75,5 +89,5 @@ func (g *SVNDriver) Clone(dir, url string) (string, error) {
 		return "", err
 	}
 
-	return g.HeadHash(dir)
+	return g.HeadRev(dir)
 }
