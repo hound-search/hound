@@ -10,12 +10,16 @@ import (
 )
 
 func init() {
-	RegisterVCS("git", &GitDriver{})
+	Register(newGit, "git")
 }
 
 type GitDriver struct{}
 
-func (g *GitDriver) HeadHash(dir string) (string, error) {
+func newGit(b []byte) Driver {
+	return &GitDriver{}
+}
+
+func (g *GitDriver) HeadRev(dir string) (string, error) {
 	cmd := exec.Command(
 		"git",
 		"rev-parse",
@@ -49,7 +53,7 @@ func (g *GitDriver) Pull(dir string) (string, error) {
 		return "", err
 	}
 
-	return g.HeadHash(dir)
+	return g.HeadRev(dir)
 }
 
 func (g *GitDriver) Clone(dir, url string) (string, error) {
@@ -66,5 +70,5 @@ func (g *GitDriver) Clone(dir, url string) (string, error) {
 		return "", err
 	}
 
-	return g.HeadHash(dir)
+	return g.HeadRev(dir)
 }

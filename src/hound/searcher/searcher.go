@@ -236,6 +236,7 @@ func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error)
 	for name, repo := range cfg.Repos {
 		s, err := newSearcher(cfg.DbPath, name, repo, manifests)
 		if err != nil {
+			log.Print(err)
 			errs[name] = err
 			continue
 		}
@@ -263,7 +264,12 @@ func newSearcher(dbpath, name string, repo *config.Repo, manifests []*manifest) 
 
 	log.Printf("Searcher started for %s", name)
 
-	rev, err := vcs.PullOrClone(repo.Vcs, vcsDir, repo.Url)
+	wd, err := vcs.New(repo.Vcs, repo.VcsConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	rev, err := wd.PullOrClone(vcsDir, repo.Url)
 	if err != nil {
 		return nil, err
 	}
@@ -291,7 +297,7 @@ func newSearcher(dbpath, name string, repo *config.Repo, manifests []*manifest) 
 		for {
 			time.Sleep(time.Duration(repo.MsBetweenPolls) * time.Millisecond)
 
-			newRev, err := vcs.PullOrClone(repo.Vcs, vcsDir, repo.Url)
+			newRev, err := wd.PullOrClone(vcsDir, repo.Url)
 			if err != nil {
 				log.Printf("vcs pull error (%s - %s): %s", name, repo.Url, err)
 				continue

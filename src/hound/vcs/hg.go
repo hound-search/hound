@@ -10,13 +10,16 @@ import (
 )
 
 func init() {
-	RegisterVCS("hg", &MercurialDriver{})
-	RegisterVCS("mercurial", &MercurialDriver{})
+	Register(newHg, "hg", "mercurial")
 }
 
 type MercurialDriver struct{}
 
-func (g *MercurialDriver) HeadHash(dir string) (string, error) {
+func newHg(b []byte) Driver {
+	return &MercurialDriver{}
+}
+
+func (g *MercurialDriver) HeadRev(dir string) (string, error) {
 	cmd := exec.Command(
 		"hg",
 		"log",
@@ -52,7 +55,7 @@ func (g *MercurialDriver) Pull(dir string) (string, error) {
 		return "", err
 	}
 
-	return g.HeadHash(dir)
+	return g.HeadRev(dir)
 }
 
 func (g *MercurialDriver) Clone(dir, url string) (string, error) {
@@ -68,5 +71,5 @@ func (g *MercurialDriver) Clone(dir, url string) (string, error) {
 		return "", err
 	}
 
-	return g.HeadHash(dir)
+	return g.HeadRev(dir)
 }

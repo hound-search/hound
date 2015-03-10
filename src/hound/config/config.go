@@ -19,10 +19,11 @@ type UrlPattern struct {
 }
 
 type Repo struct {
-	Url            string      `json:"url"`
-	MsBetweenPolls int         `json:"ms-between-poll"`
-	Vcs            string      `json:"vcs"`
-	UrlPattern     *UrlPattern `json:"url-pattern"`
+	Url            string          `json:"url"`
+	MsBetweenPolls int             `json:"ms-between-poll"`
+	Vcs            string          `json:"vcs"`
+	VcsConfig      json.RawMessage `json:"vcs-config"`
+	UrlPattern     *UrlPattern     `json:"url-pattern"`
 }
 
 type Config struct {
