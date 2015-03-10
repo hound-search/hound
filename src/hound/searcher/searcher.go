@@ -2,7 +2,6 @@ package searcher
 
 import (
 	"crypto/sha1"
-	"encoding/gob"
 	"encoding/hex"
 	"fmt"
 	"hound/config"
@@ -19,23 +18,57 @@ import (
 	"time"
 )
 
-const (
-	manifestFileName = "manifest.gob"
-)
-
 type Searcher struct {
 	idx  *index.Index
 	lck  sync.RWMutex
 	Repo *config.Repo
 }
 
-type manifest struct {
-	Url  string
-	Rev  string
-	Time time.Time
+/**
+ * Holds a set of IndexRefs that were found in the dbpath at startup,
+ * these indexes can be 'claimed' and re-used by newly created searchers.
+ */
+type foundRefs struct {
+	refs    []*index.IndexRef
+	claimed map[*index.IndexRef]bool
+}
 
-	path string
-	keep bool
+/**
+ * Find an Index ref for the repo url and rev, returns nil if no such
+ * ref exists.
+ */
+func (r *foundRefs) find(url, rev string) *index.IndexRef {
+	for _, ref := range r.refs {
+		if ref.Url == url && ref.Rev == rev {
+			return ref
+		}
+	}
+	return nil
+}
+
+/**
+ * Claim a ref for reuse. This ensures they ref will not be garbage
+ * collected at the end of startup.
+ */
+func (r *foundRefs) claim(ref *index.IndexRef) {
+	r.claimed[ref] = true
+}
+
+/**
+ * Delete the directorires associated with all IndexRefs that were
+ * found in the dbpath but were not claimed during startup.
+ */
+func (r *foundRefs) removeUnclaimed() error {
+	for _, ref := range r.refs {
+		if r.claimed[ref] {
+			continue
+		}
+
+		if err := ref.Remove(); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // Perform atomic swap of index in the searcher so that the new
@@ -78,89 +111,24 @@ func nextIndexDir(dbpath string) string {
 	return filepath.Join(dbpath, fmt.Sprintf("idx-%08x", r))
 }
 
-// Read the manifest for the index directory. Note that even if
-// this returns a non-nil error, a manifest will be returned with
-// all the information we do know about the index dir. The most
-// common error condition will return a manifest with only a path
-// set. This allows us to clean up dead, mal-formed indexes.
-func readManifest(idxDir string) (*manifest, error) {
-	m := &manifest{
-		path: idxDir,
-	}
-
-	r, err := os.Open(filepath.Join(idxDir, manifestFileName))
-	if err != nil {
-		return m, err
-	}
-	defer r.Close()
-
-	if err := gob.NewDecoder(r).Decode(m); err != nil {
-		return m, err
-	}
-
-	return m, nil
-}
-
-// Serialize this manifest into the given index directory.
-func (m *manifest) write(idxDir string) error {
-	w, err := os.Create(filepath.Join(idxDir, manifestFileName))
-	if err != nil {
-		return err
-	}
-	defer w.Close()
-
-	return gob.NewEncoder(w).Encode(m)
-}
-
-// Remove the index directory associated with this manifest.
-func (m *manifest) removeIndex() error {
-	return os.RemoveAll(m.path)
-}
-
-// Read the manifests associated with each of the index dirs
+// Read the refs associated with each of the index dirs
 // in the given dbpath.
-func readAllManifests(dbpath string) ([]*manifest, error) {
+func findExistingRefs(dbpath string) (*foundRefs, error) {
 	dirs, err := filepath.Glob(filepath.Join(dbpath, "idx-*"))
 	if err != nil {
 		return nil, err
 	}
 
-	var ms []*manifest
+	var refs []*index.IndexRef
 	for _, dir := range dirs {
-		m, _ := readManifest(dir)
-		ms = append(ms, m)
+		r, _ := index.Read(dir)
+		refs = append(refs, r)
 	}
 
-	return ms, nil
-}
-
-// Find a manifest corresponding to a particular repo and revision. This
-// returns nil if no such manifest exists. Note that this is simple linear
-// search but we are typically dealing with small numbers of indices, so the
-// cost will be less than hashing string keys.
-func findManifest(manifests []*manifest, url, rev string) *manifest {
-	for _, m := range manifests {
-		if m.Url == url && m.Rev == rev {
-			return m
-		}
-	}
-	return nil
-}
-
-// Remove all indexes associated with manfiests that have not been
-// kept.
-func removeUnusedIndexes(manifests []*manifest) error {
-	for _, m := range manifests {
-		if m.keep {
-			continue
-		}
-
-		if err := m.removeIndex(); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return &foundRefs{
+		refs:    refs,
+		claimed: map[*index.IndexRef]bool{},
+	}, nil
 }
 
 // Open an index at the given path. If the idxDir is already present, it will
@@ -168,23 +136,15 @@ func removeUnusedIndexes(manifests []*manifest) error {
 // one will be built.
 func buildAndOpenIndex(dbpath, vcsDir, idxDir, url, rev string) (*index.Index, error) {
 	if _, err := os.Stat(idxDir); err != nil {
-		_, err := index.Build(idxDir, vcsDir)
+		r, err := index.Build(idxDir, vcsDir, url, rev)
 		if err != nil {
 			return nil, err
 		}
 
-		m := manifest{
-			Url:  url,
-			Rev:  rev,
-			Time: time.Now(),
-		}
-
-		if err := m.write(idxDir); err != nil {
-			return nil, err
-		}
+		return r.Open()
 	}
 
-	return index.Open(idxDir, rev)
+	return index.Open(idxDir)
 }
 
 // Simply prints out statistics about the heap. When hound rebuilds a new
@@ -228,13 +188,13 @@ func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error)
 	errs := map[string]error{}
 	searchers := map[string]*Searcher{}
 
-	manifests, err := readAllManifests(cfg.DbPath)
+	refs, err := findExistingRefs(cfg.DbPath)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	for name, repo := range cfg.Repos {
-		s, err := newSearcher(cfg.DbPath, name, repo, manifests)
+		s, err := newSearcher(cfg.DbPath, name, repo, refs)
 		if err != nil {
 			errs[name] = err
 			continue
@@ -243,7 +203,7 @@ func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error)
 		searchers[strings.ToLower(name)] = s
 	}
 
-	if err := removeUnusedIndexes(manifests); err != nil {
+	if err := refs.removeUnclaimed(); err != nil {
 		return nil, nil, err
 	}
 
@@ -253,12 +213,12 @@ func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error)
 // Creates a new Searcher that is available for searches as soon as this returns.
 // This will pull or clone the target repo and start watching the repo for changes.
 func New(dbpath, name string, repo *config.Repo) (*Searcher, error) {
-	return newSearcher(dbpath, name, repo, nil)
+	return newSearcher(dbpath, name, repo, &foundRefs{})
 }
 
 // Creates a new Searcher that is capable of re-claiming an existing index directory
 // from a set of existing manifests.
-func newSearcher(dbpath, name string, repo *config.Repo, manifests []*manifest) (*Searcher, error) {
+func newSearcher(dbpath, name string, repo *config.Repo, refs *foundRefs) (*Searcher, error) {
 	vcsDir := filepath.Join(dbpath, vcsDirFor(repo))
 
 	log.Printf("Searcher started for %s", name)
@@ -269,12 +229,12 @@ func newSearcher(dbpath, name string, repo *config.Repo, manifests []*manifest) 
 	}
 
 	var idxDir string
-	man := findManifest(manifests, repo.Url, rev)
-	if man == nil {
+	ref := refs.find(repo.Url, rev)
+	if ref == nil {
 		idxDir = nextIndexDir(dbpath)
 	} else {
-		idxDir = man.path
-		man.keep = true
+		idxDir = ref.Dir()
+		refs.claim(ref)
 	}
 
 	idx, err := buildAndOpenIndex(dbpath, vcsDir, idxDir, repo.Url, rev)
