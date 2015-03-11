@@ -22,13 +22,37 @@ type Repo struct {
 	Url            string          `json:"url"`
 	MsBetweenPolls int             `json:"ms-between-poll"`
 	Vcs            string          `json:"vcs"`
-	VcsConfig      json.RawMessage `json:"vcs-config"`
+	VcsConfig      json.RawMessage `json:"-"`
 	UrlPattern     *UrlPattern     `json:"url-pattern"`
 }
 
 type Config struct {
 	DbPath string           `json:"dbpath"`
 	Repos  map[string]*Repo `json:"repos"`
+}
+
+// TODO(knorton): Hopefully this is a temporary measure while I straighten
+// out what I broke. The issue is we cannot marshal Repos once I put the
+// RawMessage in there.
+func (r *Repo) UnmarshalJSON(b []byte) error {
+	var repo struct {
+		Url            string          `json:"url"`
+		MsBetweenPolls int             `json:"ms-between-poll"`
+		Vcs            string          `json:"vcs"`
+		VcsConfig      json.RawMessage `json:"vcs-config"`
+		UrlPattern     *UrlPattern     `json:"url-pattern"`
+	}
+
+	if err := json.Unmarshal(b, &repo); err != nil {
+		return err
+	}
+
+	r.Url = repo.Url
+	r.MsBetweenPolls = repo.MsBetweenPolls
+	r.Vcs = repo.Vcs
+	r.VcsConfig = repo.VcsConfig
+	r.UrlPattern = repo.UrlPattern
+	return nil
 }
 
 // Populate missing config values with default values.
