@@ -224,7 +224,7 @@ func newSearcher(dbpath, name string, repo *config.Repo, refs *foundRefs) (*Sear
 
 	log.Printf("Searcher started for %s", name)
 
-	wd, err := vcs.New(repo.Vcs, repo.VcsConfig)
+	wd, err := vcs.New(repo.Vcs, repo.VcsConfig())
 	if err != nil {
 		return nil, err
 	}
