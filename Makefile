@@ -6,7 +6,8 @@ TESTS = ansi \
 		hound/codesearch/regexp \
 		hound/client \
 		hound/index \
-		hound/vcs
+		hound/vcs \
+		hound/config
 
 ALL: $(BINS)
 

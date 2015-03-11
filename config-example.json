@@ -12,6 +12,17 @@
             "url" : "https://www.example.com/foo/hg",
             "vcs" : "hg"
         },
+        "Subversion" : {
+            "url" : "http://my-svn.com/repo",
+            "vcs" : "svn"
+        },
+        "SubversionWithCreds" : {
+            "url" : "http://my-private-svn.com/repo",
+            "vcs-config" : {
+                "username" : "username_for_ro_account",
+                "password" : "password_for_ro_account"
+            }
+        },
         "LocalFolder" : {
             "url" : "file:///absolute/path/to/directory"
         },
