@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"log"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -58,6 +59,12 @@ func (g *GitDriver) Pull(dir string) (string, error) {
 
 func (g *GitDriver) Clone(dir, url string) (string, error) {
 	par, rep := filepath.Split(dir)
+	err := os.MkdirAll(par, 0755)
+	if err != nil {
+		log.Printf("Failed to create directory for %s, see output below\n%sContinuing...", url, err.Error())
+		return "", err
+	}
+
 	cmd := exec.Command(
 		"git",
 		"clone",
