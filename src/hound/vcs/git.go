@@ -15,8 +15,8 @@ func init() {
 
 type GitDriver struct{}
 
-func newGit(b []byte) Driver {
-	return &GitDriver{}
+func newGit(b []byte) (Driver, error) {
+	return &GitDriver{}, nil
 }
 
 func (g *GitDriver) HeadRev(dir string) (string, error) {

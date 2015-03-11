@@ -9,7 +9,7 @@ import (
 // A collection that maps vcs names to their underlying
 // factory. A factory allows the vcs to have unserialized
 // json config passed in to be parsed.
-var drivers = make(map[string]func(c []byte) Driver)
+var drivers = make(map[string]func(c []byte) (Driver, error))
 
 // A "plugin" for each vcs that supports the very limited set of vcs
 // operations that hound needs.
@@ -26,7 +26,7 @@ type WorkDir struct {
 }
 
 // Register a new vcs driver under 1 or more names.
-func Register(fn func(c []byte) Driver, names ...string) {
+func Register(fn func(c []byte) (Driver, error), names ...string) {
 	if fn == nil {
 		log.Panic("vcs: cannot register nil factory")
 	}
@@ -42,7 +42,13 @@ func New(name string, cfg []byte) (*WorkDir, error) {
 	if f == nil {
 		return nil, fmt.Errorf("vcs: %s is not a valid vcs driver.", name)
 	}
-	return &WorkDir{f(cfg)}, nil
+
+	d, err := f(cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	return &WorkDir{d}, nil
 }
 
 func exists(path string) bool {
