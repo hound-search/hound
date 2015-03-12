@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 )
@@ -19,11 +20,11 @@ type UrlPattern struct {
 }
 
 type Repo struct {
-	Url            string          `json:"url"`
-	MsBetweenPolls int             `json:"ms-between-poll"`
-	Vcs            string          `json:"vcs"`
-	VcsConfig      json.RawMessage `json:"-"`
-	UrlPattern     *UrlPattern     `json:"url-pattern"`
+	Url              string         `json:"url"`
+	MsBetweenPolls   int            `json:"ms-between-poll"`
+	Vcs              string         `json:"vcs"`
+	VcsConfigMessage *SecretMessage `json:"vcs-config"`
+	UrlPattern       *UrlPattern    `json:"url-pattern"`
 }
 
 type Config struct {
@@ -31,28 +32,32 @@ type Config struct {
 	Repos  map[string]*Repo `json:"repos"`
 }
 
-// TODO(knorton): Hopefully this is a temporary measure while I straighten
-// out what I broke. The issue is we cannot marshal Repos once I put the
-// RawMessage in there.
-func (r *Repo) UnmarshalJSON(b []byte) error {
-	var repo struct {
-		Url            string          `json:"url"`
-		MsBetweenPolls int             `json:"ms-between-poll"`
-		Vcs            string          `json:"vcs"`
-		VcsConfig      json.RawMessage `json:"vcs-config"`
-		UrlPattern     *UrlPattern     `json:"url-pattern"`
-	}
+// SecretMessage is just like json.RawMessage but it will not
+// marshal its value as JSON. This is to ensure that vcs-config
+// is not marshalled into JSON and send to the UI.
+type SecretMessage []byte
 
-	if err := json.Unmarshal(b, &repo); err != nil {
-		return err
-	}
+// This always marshals to an empty object.
+func (s *SecretMessage) MarshalJSON() ([]byte, error) {
+	return []byte("{}"), nil
+}
 
-	r.Url = repo.Url
-	r.MsBetweenPolls = repo.MsBetweenPolls
-	r.Vcs = repo.Vcs
-	r.VcsConfig = repo.VcsConfig
-	r.UrlPattern = repo.UrlPattern
+// See http://golang.org/pkg/encoding/json/#RawMessage.UnmarshalJSON
+func (s *SecretMessage) UnmarshalJSON(b []byte) error {
+	if b == nil {
+		return errors.New("SecretMessage: UnmarshalJSON on nil pointer")
+	}
+	*s = append((*s)[0:0], b...)
 	return nil
+}
+
+// Get the JSON encode vcs-config for this repo. This returns nil if
+// the repo doesn't declare a vcs-config.
+func (r *Repo) VcsConfig() []byte {
+	if r.VcsConfigMessage == nil {
+		return nil
+	}
+	return *r.VcsConfigMessage
 }
 
 // Populate missing config values with default values.

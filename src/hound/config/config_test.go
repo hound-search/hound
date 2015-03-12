@@ -28,7 +28,7 @@ func TestExampleConfigsAreValid(t *testing.T) {
 
 	// Ensure that each of the declared vcs's are legit
 	for _, repo := range cfg.Repos {
-		_, err := vcs.New(repo.Vcs, repo.VcsConfig)
+		_, err := vcs.New(repo.Vcs, repo.VcsConfig())
 		if err != nil {
 			t.Fatal(err)
 		}
