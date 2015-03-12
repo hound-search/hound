@@ -14,10 +14,17 @@
         },
         "Subversion" : {
             "url" : "http://my-svn.com/repo",
+            "url-pattern" : { 
+                "base-url" : "{url}/{path}{anchor}"
+            },
             "vcs" : "svn"
         },
         "SubversionWithCreds" : {
             "url" : "http://my-private-svn.com/repo",
+            "url-pattern" : {
+                "base-url" : "{url}/{path}{anchor}"
+            },
+            "vcs" : "svn",
             "vcs-config" : {
                 "username" : "username_for_ro_account",
                 "password" : "password_for_ro_account"
