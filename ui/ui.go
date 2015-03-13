@@ -22,6 +22,7 @@ type devHandler struct {
 
 type prdHandler struct {
 	content map[string]*content
+	cfgJson string
 	cfg     *config.Config
 }
 
@@ -77,7 +78,7 @@ func (h *prdHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ct := h.content[p]
 	if ct != nil {
-		if err := renderForPrd(w, ct, h.cfg); err != nil {
+		if err := renderForPrd(w, ct, h.cfgJson); err != nil {
 			log.Panic(err)
 		}
 		return
@@ -100,11 +101,7 @@ func (h *prdHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func renderForPrd(w io.Writer, c *content, cfg *config.Config) error {
-	json, err := cfg.ToJsonString()
-	if err != nil {
-		return err
-	}
+func renderForPrd(w io.Writer, c *content, cfgJson string) error {
 
 	var buf bytes.Buffer
 	buf.WriteString("<script>")
@@ -120,7 +117,7 @@ func renderForPrd(w io.Writer, c *content, cfg *config.Config) error {
 	return c.tpl.Execute(w, map[string]interface{}{
 		"ReactVersion":  ReactVersion,
 		"jQueryVersion": JQueryVersion,
-		"ReposAsJson":   json,
+		"ReposAsJson":   cfgJson,
 		"Source":        template.HTML(buf.String()),
 	})
 }
@@ -158,9 +155,15 @@ func newPrdHandler(cfg *config.Config) (http.Handler, error) {
 		}
 	}
 
+	json, err := cfg.ToJsonString()
+	if err != nil {
+		return nil, err
+	}
+
 	return &prdHandler{
 		content: contents,
 		cfg:     cfg,
+		cfgJson: json,
 	}, nil
 }
 
