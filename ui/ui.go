@@ -128,6 +128,8 @@ func (h *prdHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	serveAsset(w, r, p[1:])
 }
 
+// Renders a templated asset in prd-mode. This strategy will embed
+// the sources directly in a script tag on the templated page.
 func renderForPrd(w io.Writer, c *content, cfgJson string) error {
 
 	var buf bytes.Buffer
@@ -149,6 +151,8 @@ func renderForPrd(w io.Writer, c *content, cfgJson string) error {
 	})
 }
 
+// Used for dev-mode only. Determime the asset directory where
+// we can find all our web files for direct serving.
 func assetDir() string {
 	_, file, _, _ := runtime.Caller(0)
 	dir, err := filepath.Abs(
@@ -159,6 +163,7 @@ func assetDir() string {
 	return dir
 }
 
+// Create an http.Handler for dev-mode.
 func newDevHandler(cfg *config.Config) (http.Handler, error) {
 	root := assetDir()
 	return &devHandler{
@@ -169,6 +174,7 @@ func newDevHandler(cfg *config.Config) (http.Handler, error) {
 	}, nil
 }
 
+// Create an http.Handler for prd-mode.
 func newPrdHandler(cfg *config.Config) (http.Handler, error) {
 	for _, cnt := range contents {
 		a, err := Asset(cnt.template)
@@ -194,6 +200,11 @@ func newPrdHandler(cfg *config.Config) (http.Handler, error) {
 	}, nil
 }
 
+// Create an http.Handler for serving the web assets. If dev is true,
+// the http.Handler that is returned will serve assets directly our of
+// the source directories making rapid web development possible. If dev
+// is false, the http.Handler will serve assets out of data embedded
+// in the executable.
 func Content(dev bool, cfg *config.Config) (http.Handler, error) {
 	if dev {
 		return newDevHandler(cfg)
