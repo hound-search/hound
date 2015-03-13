@@ -7,40 +7,58 @@ import (
 	"html/template"
 	"io"
 	"log"
-	"mime"
 	"net/http"
 	"path/filepath"
 	"runtime"
 )
 
+// An http.Handler for the dev-mode case.
 type devHandler struct {
+	// A simple file server for serving non-template assets
 	http.Handler
+
+	// the collection of templated assets
 	content map[string]*content
-	root    string
-	cfg     *config.Config
+
+	// the root asset dir
+	root string
+
+	// the config we are running on
+	cfg *config.Config
 }
 
+// An http.Handler for the prd-mode case.
 type prdHandler struct {
+	// The collection of templated assets w/ their templates pre-parsed
 	content map[string]*content
+
+	// The config object as a json string
 	cfgJson string
-	cfg     *config.Config
+
+	// the config we are running on
+	cfg *config.Config
 }
 
 func (h *devHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	p := r.URL.Path
 
+	// See if we have templated content for this path
 	cr := h.content[p]
 	if cr == nil {
+		// if not, serve up files
 		h.Handler.ServeHTTP(w, r)
 		return
 	}
 
+	// If so, render the HTML
 	w.Header().Set("Content-Type", "text/html;charset=utf-8")
 	if err := renderForDev(w, h.root, cr, h.cfg); err != nil {
 		log.Panic(err)
 	}
 }
 
+// Renders a templated asset in dev-mode. This simply embeds external script tags
+// for the source elements.
 func renderForDev(w io.Writer, root string, c *content, cfg *config.Config) error {
 	t, err := template.ParseFiles(
 		filepath.Join(root, c.template))
@@ -73,32 +91,41 @@ func renderForDev(w io.Writer, root string, c *content, cfg *config.Config) erro
 	})
 }
 
+// Serve an asset over HTTP. This ensures we get proper support for range
+// requests and if-modified-since checks.
+func serveAsset(w http.ResponseWriter, r *http.Request, name string) {
+	n, err := AssetInfo(name)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	a, err := Asset(name)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	http.ServeContent(w, r, n.Name(), n.ModTime(), bytes.NewReader(a))
+}
+
 func (h *prdHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	p := r.URL.Path
 
+	// see if we have a templated asset for this path
 	ct := h.content[p]
 	if ct != nil {
+		// if so, render it
 		if err := renderForPrd(w, ct, h.cfgJson); err != nil {
 			log.Panic(err)
 		}
 		return
 	}
 
-	a, err := Asset(p[1:])
-	if err != nil {
-		http.NotFound(w, r)
-		return
-	}
-
-	mt := mime.TypeByExtension(
-		filepath.Ext(p))
-	if mt != "" {
-		w.Header().Set("Content-Type", mt)
-	}
-
-	if _, err := w.Write(a); err != nil {
-		log.Panic(err)
-	}
+	// otherwise, we need to find the asset in the bundled asset
+	// data. Assets are relative to the asset directory, so we need
+	// to remove the leading '/' in the path.
+	serveAsset(w, r, p[1:])
 }
 
 func renderForPrd(w io.Writer, c *content, cfgJson string) error {
