@@ -13,20 +13,6 @@ import (
 	"runtime"
 )
 
-var contents map[string]*content
-
-const (
-	ReactVersion  = "0.12.2"
-	JQueryVersion = "2.1.3"
-)
-
-type content struct {
-	uri      string
-	template string
-	sources  []string
-	tpl      *template.Template
-}
-
 type devHandler struct {
 	http.Handler
 	content map[string]*content
@@ -137,25 +123,6 @@ func renderForPrd(w io.Writer, c *content, cfg *config.Config) error {
 		"ReposAsJson":   json,
 		"Source":        template.HTML(buf.String()),
 	})
-}
-
-func init() {
-	contents = map[string]*content{
-		"/": &content{
-			template: "index.tpl.html",
-			sources: []string{
-				"js/common.js",
-				"js/hound.js",
-			},
-		},
-		"/excluded_files.html": &content{
-			template: "excluded_files.tpl.html",
-			sources: []string{
-				"js/common.js",
-				"js/excluded_files.js",
-			},
-		},
-	}
 }
 
 func assetDir() string {
