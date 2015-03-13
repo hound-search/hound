@@ -1,26 +1,13 @@
-BINS = bin/houndd bin/hound
-HOST = localhost:6080
 
-TESTS = ansi \
-		hound/codesearch/index \
-		hound/codesearch/regexp \
-		hound/client \
-		hound/index \
-		hound/vcs \
-		hound/config
+ALL: ui/bindata.go
 
-ALL: $(BINS)
+build/bin/go-bindata:
+	GOPATH=`pwd`/build go get github.com/jteeuwen/go-bindata/...
 
-bin/houndd : $(wildcard src/hound/**/*)
-	GOPATH=`pwd` go build -o $@ src/hound/cmds/houndd/main.go
+ui/bindata.go: build/bin/go-bindata $(wildcard ui/assets/**/*)
+	rsync -r --exclude '*.js' ui/assets/* build/ui
+	jsx --no-cache-dir ui/assets/js build/ui/js
+	$< -o $@ -pkg ui -prefix build/ui build/ui/...
 
-bin/hound : $(wildcard src/hound/**/*)
-	GOPATH=`pwd` go build -o $@ \
-		-ldflags "-X main.defaultHost $(HOST)" \
-		src/hound/cmds/hound/*.go
-
-test:
-	GOPATH=`pwd` go test $(TESTS)
-	
 clean:
-	rm -f $(BINS)
+	rm -f build ui/bindata.go
