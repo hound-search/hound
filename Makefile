@@ -10,4 +10,4 @@ ui/bindata.go: build/bin/go-bindata $(wildcard ui/assets/**/*)
 	$< -o $@ -pkg ui -prefix build/ui -nomemcopy build/ui/...
 
 clean:
-	rm -f build ui/bindata.go
+	rm -f build

@@ -1,0 +1,16 @@
+{
+  "folders":
+  [
+    {
+      "follow_symlinks": true,
+      "path": ".",
+      "folder_exclude_patterns":  ["data"]
+    }
+  ],
+  "settings":
+  {
+    "tab_size": 4,
+    "convert_tabspaces_on_save": true,
+    "translate_tabs_to_spaces": false
+  }
+}
