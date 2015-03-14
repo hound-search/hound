@@ -8,31 +8,24 @@ Hound is an extremely fast source code search engine. The core is based on this 
 
 ## Quick Start Guide
 
-#### Preferred Method
+1. Use the Go tools to install Hound. The binaries `houndd` (server) and `hound` (cli) will be installed in your $GOPATH.
+```
+go get github.com/etsy/hound/cmds/...
+```
 
-This is the preferred approach, since the binaries are generally easier to work with, and make will build both the server and the CLI binaries at the same time. 
+2. Create a [config.json](config-example.json) with your list of repositories.
 
-1. Clone the repo: `git clone https://github.com/etsy/Hound.git`
-2. Edit [config-example.json](config-example.json) to add the repos you want: `cd Hound && vim config-example.json`
-3. Rename the (now edited) config file: `mv config-example.json config.json`
-4. `make`
-5. `./bin/houndd`
-6. See Hound in action in your browser at [http://localhost:6080/](http://localhost:6080/)
+3. Run the Hound server with `houndd` and you should see output similer to:
+````
+2015/03/13 09:07:42 Searcher started for statsd
+2015/03/13 09:07:42 Searcher started for Hound
+2015/03/13 09:07:42 All indexes built!
+2015/03/13 09:07:42 running server at http://localhost:6080...
+```
 
-#### Using only Go tools.
+## Running in Production
 
-Alternatively, you can avoid the use of make and just use go tools.
-
-1. Clone the repo: `git clone https://github.com/etsy/Hound.git`
-2. Edit [config-example.json](config-example.json) to add the repos you want: `cd Hound && vim config-example.json`
-3. Rename the (now edited) config file: `mv config-example.json config.json`
-4. Set your GOPATH: ``export GOPATH=`pwd` ``
-5. Run the server: `go run src/hound/cmds/houndd/main.go`
-6. See Hound in action in your browser at [http://localhost:6080/](http://localhost:6080/)
-
-#### Why can't I use `go get`?
-
-That's coming, we just need to make it easier to bundle the javascript/css assets so it all works seamlessly.
+There are no special flags to run Hound in production. You can use the `--addr=:6880` flag to control the port to which the server binds. Currently, Hound does not supports SSL/TLS as most users simply run Hound behind either Apache or nginx. Adding TLS support is pretty straight forward though if anyone wants to add it.
 
 ## Why Another Code Search Tool?
 
@@ -97,30 +90,38 @@ Currently the following editors have plugins that support Hound:
 
 ## Hacking on Hound
 
-### Building
+### Editing & Building
+
+Hound uses the standard Go tools for development, so your favorite Go workflow should work. If you are looking for something that will work, here is one option:
 
 ```
+git clone https://github.com/etsy/Hound.git hound/src/github.com/etsy/hound
+cd hound
+GOPATH=`pwd` go install github.com/etsy/hound/cmds/...
+```
+
+### Testing
+
+There are an increasing number of tests in each of the packages in Hound. Please make sure these pass before uploading your Pull Request. You can run the tests with the following command.
+
+```
+GOPATH=`pwd` go test github.com/etsy/hound/...
+```
+
+### Working on the web UI
+
+Hound includes a web UI that is composed of several files (html, css, javascript, etc.). To make sure hound works seamlessly with the standard Go tools, these resources are all built inside of the `houndd` binary. This adds a small burden on developers to re-package the UI files after each change. If you make changes to the UI, please follow these steps:
+
+1. To make development easier, there is a flag that will read the files from the file system (allowing the much-loved edit/refresh cycle).
+```
+bin/houndd --dev
+```
+
+2. Before uploading a Pull Request, please run the following command. This should regenerate the file `ui/bindata.go` which should be included in your Pull Request.
+```
+cd src/github.com/etsy/hound
 make
 ```
-
-This will build `./bin/houndd` which is the server binary and `./bin/hound` which is the command line client.
-
-### Running in development
-
-```
-./bin/houndd
-```
-
-This will start up the combined server and indexer. The first time you start the server, it will take a bit of time to initialize your `data` directory with the repository data.
-You can access the web frontend at http://localhost:6080/
-
-### Running in production
-
-```
-./bin/houndd --prod --addr=address:port
-```
-
-The will start up the combined server/indexer and build all static assets in production mode. The default addr is ":6080", and thus the `--addr` flag can be used to have the server listen on a different port.
 
 ## Get in Touch
 
