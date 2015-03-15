@@ -327,7 +327,8 @@ var SearchBar = React.createClass({
   queryGotKeydown: function(event) {
     switch (event.keyCode) {
     case 40:
-      this.showAdvanced();
+      // this will cause advanced to expand if it is not expanded.
+      this.refs.files.getDOMNode().focus();
       break;
     case 38:
       this.hideAdvanced();
@@ -335,6 +336,11 @@ var SearchBar = React.createClass({
     case 13:
       this.submitQuery();
       break;
+    }
+  },
+  queryGotFocus: function(event) {
+    if (!this.hasAdvancedValues()) {
+      this.hideAdvanced();
     }
   },
   filesGotKeydown: function(event) {
@@ -350,6 +356,9 @@ var SearchBar = React.createClass({
       this.submitQuery();
       break;
     }
+  },
+  filesGotFocus: function(event) {
+    this.showAdvanced();
   },
   submitQuery: function() {
     this.props.onSearchRequested(this.getParams());
@@ -441,7 +450,8 @@ var SearchBar = React.createClass({
               placeholder="Search by Regexp"
               ref="q"
               autocomplete="off"
-              onKeyDown={this.queryGotKeydown} />
+              onKeyDown={this.queryGotKeydown}
+              onFocus={this.queryGotFocus}/>
           <div className="button-add-on">
             <button id="dodat" onClick={this.submitQuery}></button>
           </div>
@@ -457,7 +467,8 @@ var SearchBar = React.createClass({
                     id="files"
                     placeholder="/regexp/"
                     ref="files"
-                    onKeyDown={this.filesGotKeydown} />
+                    onKeyDown={this.filesGotKeydown}
+                    onFocus={this.filesGotFocus} />
               </div>
             </div>
             <div className="field">
