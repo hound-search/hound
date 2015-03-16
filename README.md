@@ -9,9 +9,10 @@ Hound is an extremely fast source code search engine. The core is based on this 
 ## Quick Start Guide
 
 1. Use the Go tools to install Hound. The binaries `houndd` (server) and `hound` (cli) will be installed in your $GOPATH.
-```
-go get github.com/etsy/hound/cmds/...
-```
+
+    ```
+    go get github.com/etsy/hound/cmds/...
+    ```
 
 2. Create a [config.json](config-example.json) with your list of repositories.
 
@@ -113,15 +114,17 @@ GOPATH=`pwd` go test github.com/etsy/hound/...
 Hound includes a web UI that is composed of several files (html, css, javascript, etc.). To make sure hound works seamlessly with the standard Go tools, these resources are all built inside of the `houndd` binary. This adds a small burden on developers to re-package the UI files after each change. If you make changes to the UI, please follow these steps:
 
 1. To make development easier, there is a flag that will read the files from the file system (allowing the much-loved edit/refresh cycle).
-```
-bin/houndd --dev
-```
+
+    ```
+    bin/houndd --dev
+    ```
 
 2. Before uploading a Pull Request, please run the following command. This should regenerate the file `ui/bindata.go` which should be included in your Pull Request.
-```
-cd src/github.com/etsy/hound
-make
-```
+
+    ```
+    cd src/github.com/etsy/hound
+    make
+    ```
 
 ## Get in Touch
 
