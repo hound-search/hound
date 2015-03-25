@@ -1,10 +1,9 @@
 FROM golang
 
-COPY src /go/src
-COPY pub /go/pub
-COPY config.json /go/pub/
-RUN go-wrapper install hound/cmds/houndd
+COPY . /go/src/github.com/etsy/hound
+COPY config.json /hound/
+RUN go-wrapper install github.com/etsy/hound/cmds/houndd
 
 EXPOSE 6080
 
-ENTRYPOINT ["bin/houndd", "-conf", "/go/pub/config.json"]
+ENTRYPOINT ["/go/bin/houndd", "-conf", "/hound/config.json"]
