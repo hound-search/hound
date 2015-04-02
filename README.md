@@ -130,8 +130,6 @@ Hound includes a web UI that is composed of several files (html, css, javascript
 
 ## Get in Touch
 
-IRC: #codeascraft on freenode
-
 Created at [Etsy](https://www.etsy.com) by:
 
 * [Kelly Norton](https://github.com/kellegous)
