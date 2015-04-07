@@ -211,6 +211,12 @@ func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error)
 	return searchers, errs, nil
 }
 
+func PollAll(cfg *config.Config, searchers map[string]*Searcher) {
+	for name, repo := range cfg.Repos {
+		pollRepoVCS(cfg.DbPath, name, repo, searchers[strings.ToLower(name)])
+	}
+}
+
 // Creates a new Searcher that is available for searches as soon as this returns.
 // This will pull or clone the target repo and start watching the repo for changes.
 func New(dbpath, name string, repo *config.Repo) (*Searcher, error) {
@@ -252,6 +258,18 @@ func newSearcher(dbpath, name string, repo *config.Repo, refs *foundRefs) (*Sear
 		idx:  idx,
 		Repo: repo,
 	}
+
+
+	return s, nil
+}
+
+func pollRepoVCS(dbpath, name string, repo *config.Repo, s *Searcher) {
+	vcsDir := filepath.Join(dbpath, vcsDirFor(repo))
+
+	log.Printf("Polling started for %s", name)
+
+	wd, _ := vcs.New(repo.Vcs, repo.VcsConfig())
+	rev, _ := wd.PullOrClone(vcsDir, repo.Url)
 
 	go func() {
 		for {
@@ -298,6 +316,4 @@ func newSearcher(dbpath, name string, repo *config.Repo, refs *foundRefs) (*Sear
 			reportOnMemory()
 		}
 	}()
-
-	return s, nil
 }
