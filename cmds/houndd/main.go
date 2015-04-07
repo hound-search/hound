@@ -107,9 +107,6 @@ func main() {
 		info_log.Println("All indexes built!")
 	}
 
-	info_log.Println("start polling VCS for updates...")
-	searcher.PollAll(&cfg, idx)
-
 	host := *flagAddr
 	if strings.HasPrefix(host, ":") {
 		host = "localhost" + host
