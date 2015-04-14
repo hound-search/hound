@@ -21,6 +21,7 @@ import (
 type Searcher struct {
 	idx  *index.Index
 	lck  sync.RWMutex
+	beg  chan bool
 	Repo *config.Repo
 }
 
@@ -102,6 +103,14 @@ func (s *Searcher) GetExcludedFiles() string {
 		log.Printf("Couldn't read excluded_files.json %v\n", err)
 	}
 	return string(dat)
+}
+
+// Signal the searcher that it is ok to begin polling the repository.
+func (s *Searcher) begin() {
+	if s.beg != nil {
+		s.beg <- true
+		s.beg = nil
+	}
 }
 
 // Generate a new index directory in the dbpath. The names are based
@@ -208,13 +217,25 @@ func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error)
 		return nil, nil, err
 	}
 
+	// after all the repos are in good shape, we start their polling
+	for _, s := range searchers {
+		s.begin()
+	}
+
 	return searchers, errs, nil
 }
 
 // Creates a new Searcher that is available for searches as soon as this returns.
 // This will pull or clone the target repo and start watching the repo for changes.
 func New(dbpath, name string, repo *config.Repo) (*Searcher, error) {
-	return newSearcher(dbpath, name, repo, &foundRefs{})
+	s, err := newSearcher(dbpath, name, repo, &foundRefs{})
+	if err != nil {
+		return nil, err
+	}
+
+	s.begin()
+
+	return s, nil
 }
 
 // Creates a new Searcher that is capable of re-claiming an existing index directory
@@ -250,10 +271,15 @@ func newSearcher(dbpath, name string, repo *config.Repo, refs *foundRefs) (*Sear
 
 	s := &Searcher{
 		idx:  idx,
+		beg:  make(chan bool),
 		Repo: repo,
 	}
 
 	go func() {
+
+		// each searcher's poller is held until begin is called.
+		<-s.beg
+
 		for {
 			time.Sleep(time.Duration(repo.MsBetweenPolls) * time.Millisecond)
 
