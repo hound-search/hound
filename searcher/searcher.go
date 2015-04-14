@@ -22,6 +22,8 @@ type Searcher struct {
 	idx  *index.Index
 	lck  sync.RWMutex
 	Repo *config.Repo
+	vcsDir string
+	name string
 }
 
 /**
@@ -208,6 +210,10 @@ func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error)
 		return nil, nil, err
 	}
 
+	for _, searcher := range searchers {
+		go searcher.poll(cfg.DbPath)
+	}
+
 	return searchers, errs, nil
 }
 
@@ -251,53 +257,65 @@ func newSearcher(dbpath, name string, repo *config.Repo, refs *foundRefs) (*Sear
 	s := &Searcher{
 		idx:  idx,
 		Repo: repo,
+		vcsDir: vcsDir,
+		name: name,
 	}
 
-	go func() {
-		for {
-			time.Sleep(time.Duration(repo.MsBetweenPolls) * time.Millisecond)
-
-			newRev, err := wd.PullOrClone(vcsDir, repo.Url)
-			if err != nil {
-				log.Printf("vcs pull error (%s - %s): %s", name, repo.Url, err)
-				continue
-			}
-
-			if newRev == rev {
-				continue
-			}
-
-			log.Printf("Rebuilding %s for %s", name, newRev)
-			idx, err := buildAndOpenIndex(
-				dbpath,
-				vcsDir,
-				nextIndexDir(dbpath),
-				repo.Url,
-				newRev)
-			if err != nil {
-				log.Printf("failed index build (%s): %s", name, err)
-				continue
-			}
-
-			if err := s.swapIndexes(idx); err != nil {
-				log.Printf("failed index swap (%s): %s", name, err)
-				if err := idx.Destroy(); err != nil {
-					log.Printf("failed to destroy index (%s): %s\n", name, err)
-				}
-				continue
-			}
-
-			rev = newRev
-
-			// This is just a good time to GC since we know there will be a
-			// whole set of dead posting lists on the heap. Ensuring these
-			// go away quickly helps to prevent the heap from expanding
-			// uncessarily.
-			runtime.GC()
-
-			reportOnMemory()
-		}
-	}()
 
 	return s, nil
+}
+
+func (s Searcher) poll(dbpath string) {
+	var repo = s.Repo
+	var vcsDir = s.vcsDir
+	var name = s.name 
+
+	log.Printf("Polling started for %s", name)
+
+	wd, _ := vcs.New(repo.Vcs, repo.VcsConfig())
+	rev, _ := wd.PullOrClone(vcsDir, repo.Url)
+
+	for {
+		time.Sleep(time.Duration(repo.MsBetweenPolls) * time.Millisecond)
+
+		newRev, err := wd.PullOrClone(vcsDir, repo.Url)
+		if err != nil {
+			log.Printf("vcs pull error (%s - %s): %s", name, repo.Url, err)
+			continue
+		}
+
+		if newRev == rev {
+			continue
+		}
+
+		log.Printf("Rebuilding %s for %s", name, newRev)
+		idx, err := buildAndOpenIndex(
+			dbpath,
+			vcsDir,
+			nextIndexDir(dbpath),
+			repo.Url,
+			newRev)
+		if err != nil {
+			log.Printf("failed index build (%s): %s", name, err)
+			continue
+		}
+
+		if err := s.swapIndexes(idx); err != nil {
+			log.Printf("failed index swap (%s): %s", name, err)
+			if err := idx.Destroy(); err != nil {
+				log.Printf("failed to destroy index (%s): %s\n", name, err)
+			}
+			continue
+		}
+
+		rev = newRev
+
+		// This is just a good time to GC since we know there will be a
+		// whole set of dead posting lists on the heap. Ensuring these
+		// go away quickly helps to prevent the heap from expanding
+		// uncessarily.
+		runtime.GC()
+
+		reportOnMemory()
+	}
 }
