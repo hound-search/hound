@@ -14,9 +14,18 @@ var drivers = make(map[string]func(c []byte) (Driver, error))
 // A "plugin" for each vcs that supports the very limited set of vcs
 // operations that hound needs.
 type Driver interface {
+
+	// Clone a new working directory.
 	Clone(dir, url string) (string, error)
+
+	// Pull new changes from the server and update the working directory.
 	Pull(dir string) (string, error)
+
+	// Return the revision at the head of the vcs directory.
 	HeadRev(dir string) (string, error)
+
+	// Return a list of special filenames that should not be indexed.
+	SpecialFiles() []string
 }
 
 // An API to interact with a vcs working directory. This is

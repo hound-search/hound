@@ -24,7 +24,9 @@ func buildIndex(url, rev string) (*IndexRef, error) {
 		return nil, err
 	}
 
-	return Build(dir, thisDir(), url, rev)
+	var opt IndexOptions
+
+	return Build(&opt, dir, thisDir(), url, rev)
 }
 
 func TestSearch(t *testing.T) {

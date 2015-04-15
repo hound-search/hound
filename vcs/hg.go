@@ -73,3 +73,9 @@ func (g *MercurialDriver) Clone(dir, url string) (string, error) {
 
 	return g.HeadRev(dir)
 }
+
+func (g *MercurialDriver) SpecialFiles() []string {
+	return []string{
+		".hg",
+	}
+}

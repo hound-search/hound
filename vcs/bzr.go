@@ -71,3 +71,9 @@ func (g *BzrDriver) Clone(dir, url string) (string, error) {
 
 	return g.HeadRev(dir)
 }
+
+func (g *BzrDriver) SpecialFiles() []string {
+	return []string{
+		".bzr",
+	}
+}

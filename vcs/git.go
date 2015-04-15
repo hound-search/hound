@@ -72,3 +72,9 @@ func (g *GitDriver) Clone(dir, url string) (string, error) {
 
 	return g.HeadRev(dir)
 }
+
+func (g *GitDriver) SpecialFiles() []string {
+	return []string{
+		".git",
+	}
+}

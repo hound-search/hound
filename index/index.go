@@ -20,10 +20,21 @@ const (
 	manifestFilename = "metadata.gob"
 )
 
+const (
+	reasonDotFile     = "Dot files are excluded."
+	reasonInvalidMode = "Invalid file mode."
+	reasonNotText     = "Not a text file."
+)
+
 type Index struct {
 	Ref *IndexRef
 	idx *index.Index
 	lck sync.RWMutex
+}
+
+type IndexOptions struct {
+	ExcludeDotFiles bool
+	SpecialFiles    []string
 }
 
 type SearchOptions struct {
@@ -270,7 +281,16 @@ func addDirToIndex(dst, src, path string) error {
 	return os.Mkdir(dup, os.ModePerm)
 }
 
-func indexAllFiles(dst, src string) error {
+func isSpecialFile(specialFiles []string, name string) bool {
+	for _, file := range specialFiles {
+		if name == file {
+			return true
+		}
+	}
+	return false
+}
+
+func indexAllFiles(opt *IndexOptions, dst, src string) error {
 	ix := index.Create(filepath.Join(dst, "tri"))
 	var excluded []*ExcludedFile
 
@@ -288,11 +308,24 @@ func indexAllFiles(dst, src string) error {
 			return err
 		}
 
-		if name[0] == '.' {
+		// Is this file considered "special", this means it's not even a part
+		// of the source repository (like .git or .svn).
+		if isSpecialFile(opt.SpecialFiles, name) {
 			if info.IsDir() {
 				return filepath.SkipDir
 			}
-			excluded = append(excluded, &ExcludedFile{rel, "Dot file"})
+			return nil
+		}
+
+		if opt.ExcludeDotFiles && name[0] == '.' {
+			if info.IsDir() {
+				return filepath.SkipDir
+			}
+
+			excluded = append(excluded, &ExcludedFile{
+				rel,
+				reasonDotFile,
+			})
 			return nil
 		}
 
@@ -301,7 +334,10 @@ func indexAllFiles(dst, src string) error {
 		}
 
 		if info.Mode()&os.ModeType != 0 {
-			excluded = append(excluded, &ExcludedFile{rel, "Invalid Mode"})
+			excluded = append(excluded, &ExcludedFile{
+				rel,
+				reasonInvalidMode,
+			})
 			return nil
 		}
 
@@ -311,7 +347,10 @@ func indexAllFiles(dst, src string) error {
 		}
 
 		if !txt {
-			excluded = append(excluded, &ExcludedFile{rel, "Not a text file"})
+			excluded = append(excluded, &ExcludedFile{
+				rel,
+				reasonNotText,
+			})
 			return nil
 		}
 
@@ -359,7 +398,7 @@ func Read(dir string) (*IndexRef, error) {
 	return m, nil
 }
 
-func Build(dst, src, url, rev string) (*IndexRef, error) {
+func Build(opt *IndexOptions, dst, src, url, rev string) (*IndexRef, error) {
 	if _, err := os.Stat(dst); err != nil {
 		if err := os.MkdirAll(dst, os.ModePerm); err != nil {
 			return nil, err
@@ -370,7 +409,7 @@ func Build(dst, src, url, rev string) (*IndexRef, error) {
 		return nil, err
 	}
 
-	if err := indexAllFiles(dst, src); err != nil {
+	if err := indexAllFiles(opt, dst, src); err != nil {
 		return nil, err
 	}
 
