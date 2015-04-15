@@ -25,6 +25,7 @@ type Repo struct {
 	Vcs              string         `json:"vcs"`
 	VcsConfigMessage *SecretMessage `json:"vcs-config"`
 	UrlPattern       *UrlPattern    `json:"url-pattern"`
+	ExcludeDotFiles  bool           `json:"exclude-dot-files"`
 }
 
 type Config struct {

@@ -92,3 +92,9 @@ func (g *SVNDriver) Clone(dir, url string) (string, error) {
 
 	return g.HeadRev(dir)
 }
+
+func (g *SVNDriver) SpecialFiles() []string {
+	return []string{
+		".svn",
+	}
+}

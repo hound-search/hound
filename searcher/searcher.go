@@ -143,9 +143,15 @@ func findExistingRefs(dbpath string) (*foundRefs, error) {
 // Open an index at the given path. If the idxDir is already present, it will
 // simply open and use that index. If, however, the idxDir does not exist a new
 // one will be built.
-func buildAndOpenIndex(dbpath, vcsDir, idxDir, url, rev string) (*index.Index, error) {
+func buildAndOpenIndex(
+	opt *index.IndexOptions,
+	dbpath,
+	vcsDir,
+	idxDir,
+	url,
+	rev string) (*index.Index, error) {
 	if _, err := os.Stat(idxDir); err != nil {
-		r, err := index.Build(idxDir, vcsDir, url, rev)
+		r, err := index.Build(opt, idxDir, vcsDir, url, rev)
 		if err != nil {
 			return nil, err
 		}
@@ -250,6 +256,11 @@ func newSearcher(dbpath, name string, repo *config.Repo, refs *foundRefs) (*Sear
 		return nil, err
 	}
 
+	opt := &index.IndexOptions{
+		ExcludeDotFiles: repo.ExcludeDotFiles,
+		SpecialFiles:    wd.SpecialFiles(),
+	}
+
 	rev, err := wd.PullOrClone(vcsDir, repo.Url)
 	if err != nil {
 		return nil, err
@@ -264,7 +275,13 @@ func newSearcher(dbpath, name string, repo *config.Repo, refs *foundRefs) (*Sear
 		refs.claim(ref)
 	}
 
-	idx, err := buildAndOpenIndex(dbpath, vcsDir, idxDir, repo.Url, rev)
+	idx, err := buildAndOpenIndex(
+		opt,
+		dbpath,
+		vcsDir,
+		idxDir,
+		repo.Url,
+		rev)
 	if err != nil {
 		return nil, err
 	}
@@ -295,6 +312,7 @@ func newSearcher(dbpath, name string, repo *config.Repo, refs *foundRefs) (*Sear
 
 			log.Printf("Rebuilding %s for %s", name, newRev)
 			idx, err := buildAndOpenIndex(
+				opt,
 				dbpath,
 				vcsDir,
 				nextIndexDir(dbpath),
