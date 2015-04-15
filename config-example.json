@@ -6,7 +6,8 @@
         },
         "AnotherGitRepo" : {
             "url" : "https://www.github.com/YourOrganization/RepoOne.git",
-            "ms-between-poll": 10000
+            "ms-between-poll": 10000,
+            "excluded-dot-files": true
         },
         "SomeMercurialRepo" : {
             "url" : "https://www.example.com/foo/hg",
