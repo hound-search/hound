@@ -16,8 +16,9 @@ import (
 )
 
 const (
-	matchLimit       = 5000
-	manifestFilename = "metadata.gob"
+	matchLimit               = 5000
+	manifestFilename         = "metadata.gob"
+	excludedFileJsonFilename = "excluded_files.json"
 )
 
 type Index struct {
@@ -270,9 +271,21 @@ func addDirToIndex(dst, src, path string) error {
 	return os.Mkdir(dup, os.ModePerm)
 }
 
+// write the list of excluded files to the given filename.
+func writeExcludedFilesJson(filename string, files []*ExcludedFile) error {
+	w, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer w.Close()
+
+	return json.NewEncoder(w).Encode(files)
+}
+
 func indexAllFiles(dst, src string) error {
 	ix := index.Create(filepath.Join(dst, "tri"))
-	var excluded []*ExcludedFile
+
+	excluded := []*ExcludedFile{}
 
 	// Make a file to store the excluded files for this repo
 	fileHandle, err := os.Create(filepath.Join(dst, "excluded_files.json"))
@@ -328,7 +341,9 @@ func indexAllFiles(dst, src string) error {
 		return err
 	}
 
-	if err := json.NewEncoder(fileHandle).Encode(excluded); err != nil {
+	if err := writeExcludedFilesJson(
+		filepath.Join(dst, excludedFileJsonFilename),
+		excluded); err != nil {
 		return err
 	}
 
