@@ -40,6 +40,10 @@
                 "base-url" : "{url}/files/{path}{anchor}",
                 "anchor" : "#line={line}"
             }
+        },
+        "RepoWithPollingDisabled" : {
+            "url" : "https://www.github.com/YourOrganization/RepoOne.git",
+            "poll-enabled" : false
         }
     }
 }

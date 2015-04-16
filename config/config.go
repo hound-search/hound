@@ -9,6 +9,8 @@ import (
 
 const (
 	defaultMsBetweenPoll = 30000
+	defaultPushEnabled   = true
+	defaultPollEnabled   = true
 	defaultVcs           = "git"
 	defaultBaseUrl       = "{url}/blob/master/{path}{anchor}"
 	defaultAnchor        = "#L{line}"
@@ -20,12 +22,17 @@ type UrlPattern struct {
 }
 
 type Repo struct {
-	Url              string         `json:"url"`
-	MsBetweenPolls   int            `json:"ms-between-poll"`
-	Vcs              string         `json:"vcs"`
-	VcsConfigMessage *SecretMessage `json:"vcs-config"`
-	UrlPattern       *UrlPattern    `json:"url-pattern"`
-	ExcludeDotFiles  bool           `json:"exclude-dot-files"`
+	Url                 string         `json:"url"`
+	MsBetweenPolls      int            `json:"ms-between-poll"`
+	PushEnabledInternal *bool          `json:"push-enabled"`
+	PollEnabledInternal *bool          `json:"poll-enabled"`
+	Vcs                 string         `json:"vcs"`
+	VcsConfigMessage    *SecretMessage `json:"vcs-config"`
+	UrlPattern          *UrlPattern    `json:"url-pattern"`
+	ExcludeDotFiles     bool           `json:"exclude-dot-files"`
+
+	PushEnabled bool
+	PollEnabled bool
 }
 
 type Config struct {
@@ -65,6 +72,20 @@ func (r *Repo) VcsConfig() []byte {
 func initRepo(r *Repo) {
 	if r.MsBetweenPolls == 0 {
 		r.MsBetweenPolls = defaultMsBetweenPoll
+	}
+
+	// Push/PollEnabledInternal must be *bool, or we'd be unable to distinguish values
+	// that are unset and set to false.
+	if r.PushEnabledInternal == nil {
+		r.PushEnabled = defaultPushEnabled
+	} else {
+		r.PushEnabled = *r.PushEnabledInternal
+	}
+
+	if r.PollEnabledInternal == nil {
+		r.PollEnabled = defaultPollEnabled
+	} else {
+		r.PollEnabled = *r.PollEnabledInternal
 	}
 
 	if r.Vcs == "" {

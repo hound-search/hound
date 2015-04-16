@@ -19,10 +19,11 @@ import (
 )
 
 type Searcher struct {
-	idx  *index.Index
-	lck  sync.RWMutex
-	beg  chan bool
-	Repo *config.Repo
+	idx      *index.Index
+	lck      sync.RWMutex
+	beg      chan bool
+	updateCh chan time.Time
+	Repo     *config.Repo
 }
 
 /**
@@ -103,6 +104,18 @@ func (s *Searcher) GetExcludedFiles() string {
 		log.Printf("Couldn't read excluded_files.json %v\n", err)
 	}
 	return string(dat)
+}
+
+// Triggers an immediate poll of the repository.
+func (s *Searcher) Update() bool {
+	if s.Repo.PushEnabled {
+		go func() {
+			s.updateCh <- time.Now()
+		}()
+		return true
+	}
+
+	return false
 }
 
 // Signal the searcher that it is ok to begin polling the repository.
@@ -287,9 +300,14 @@ func newSearcher(dbpath, name string, repo *config.Repo, refs *foundRefs) (*Sear
 	}
 
 	s := &Searcher{
-		idx:  idx,
-		beg:  make(chan bool),
-		Repo: repo,
+		idx:      idx,
+		beg:      make(chan bool),
+		updateCh: make(chan time.Time),
+		Repo:     repo,
+	}
+
+	if !repo.PollEnabled && !repo.PushEnabled {
+		return s, nil
 	}
 
 	go func() {
@@ -297,9 +315,25 @@ func newSearcher(dbpath, name string, repo *config.Repo, refs *foundRefs) (*Sear
 		// each searcher's poller is held until begin is called.
 		<-s.beg
 
-		for {
-			time.Sleep(time.Duration(repo.MsBetweenPolls) * time.Millisecond)
+		var pollCh <-chan time.Time
+		var t time.Time
+		last := time.Now()
 
+		for {
+			if repo.PollEnabled {
+				pollCh = time.After(time.Duration(repo.MsBetweenPolls) * time.Millisecond)
+			}
+
+			select {
+			case t = <-pollCh:
+			case t = <-s.updateCh:
+			}
+
+			if t.Before(last) {
+				continue
+			}
+
+			log.Printf("Polling repo %s", name)
 			newRev, err := wd.PullOrClone(vcsDir, repo.Url)
 			if err != nil {
 				log.Printf("vcs pull error (%s - %s): %s", name, repo.Url, err)

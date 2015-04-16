@@ -37,6 +37,11 @@ func writeError(w http.ResponseWriter, err error) {
 	})
 }
 
+func writeErrorWithCode(w http.ResponseWriter, err error, code int) {
+	w.WriteHeader(code)
+	writeError(w, err)
+}
+
 type searchResponse struct {
 	repo string
 	res  *index.SearchResponse
@@ -209,5 +214,24 @@ func Setup(m *http.ServeMux, idx map[string]*searcher.Searcher) {
 		w.Header().Set("Content-Type", "application/json;charset=utf-8")
 		w.Header().Set("Access-Control-Allow", "*")
 		fmt.Fprint(w, res)
+	})
+
+	m.HandleFunc("/api/v1/update", func(w http.ResponseWriter, r *http.Request) {
+		repo := r.FormValue("repo")
+
+		if searcher, ok := idx[repo]; ok {
+			if processed := searcher.Update(); processed {
+				w.WriteHeader(http.StatusOK)
+			} else {
+				writeErrorWithCode(w,
+					fmt.Errorf("Push updates are not enabled for repository %s", repo),
+					http.StatusForbidden)
+			}
+		} else {
+			writeErrorWithCode(w,
+				fmt.Errorf("No such repository: %s", repo),
+				http.StatusNotFound)
+		}
+
 	})
 }
