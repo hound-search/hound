@@ -16,8 +16,9 @@ import (
 )
 
 const (
-	matchLimit       = 5000
-	manifestFilename = "metadata.gob"
+	matchLimit               = 5000
+	manifestFilename         = "metadata.gob"
+	excludedFileJsonFilename = "excluded_files.json"
 )
 
 const (
@@ -281,9 +282,20 @@ func addDirToIndex(dst, src, path string) error {
 	return os.Mkdir(dup, os.ModePerm)
 }
 
-func isSpecialFile(specialFiles []string, name string) bool {
-	for _, file := range specialFiles {
-		if name == file {
+// write the list of excluded files to the given filename.
+func writeExcludedFilesJson(filename string, files []*ExcludedFile) error {
+	w, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer w.Close()
+
+	return json.NewEncoder(w).Encode(files)
+}
+
+func containsString(haystack []string, needle string) bool {
+	for i, n := 0, len(haystack); i < n; i++ {
+		if haystack[i] == needle {
 			return true
 		}
 	}
@@ -292,7 +304,8 @@ func isSpecialFile(specialFiles []string, name string) bool {
 
 func indexAllFiles(opt *IndexOptions, dst, src string) error {
 	ix := index.Create(filepath.Join(dst, "tri"))
-	var excluded []*ExcludedFile
+
+	excluded := []*ExcludedFile{}
 
 	// Make a file to store the excluded files for this repo
 	fileHandle, err := os.Create(filepath.Join(dst, "excluded_files.json"))
@@ -310,7 +323,7 @@ func indexAllFiles(opt *IndexOptions, dst, src string) error {
 
 		// Is this file considered "special", this means it's not even a part
 		// of the source repository (like .git or .svn).
-		if isSpecialFile(opt.SpecialFiles, name) {
+		if containsString(opt.SpecialFiles, name) {
 			if info.IsDir() {
 				return filepath.SkipDir
 			}
@@ -367,7 +380,9 @@ func indexAllFiles(opt *IndexOptions, dst, src string) error {
 		return err
 	}
 
-	if err := json.NewEncoder(fileHandle).Encode(excluded); err != nil {
+	if err := writeExcludedFilesJson(
+		filepath.Join(dst, excludedFileJsonFilename),
+		excluded); err != nil {
 		return err
 	}
 
