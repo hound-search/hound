@@ -333,7 +333,6 @@ func newSearcher(dbpath, name string, repo *config.Repo, refs *foundRefs) (*Sear
 				continue
 			}
 
-			log.Printf("Polling repo %s", name)
 			newRev, err := wd.PullOrClone(vcsDir, repo.Url)
 			if err != nil {
 				log.Printf("vcs pull error (%s - %s): %s", name, repo.Url, err)
