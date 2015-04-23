@@ -1,3 +1,4 @@
 .vagrant
 .build
-config.json
+config.json*
+.DS_Store

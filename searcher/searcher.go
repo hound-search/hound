@@ -199,7 +199,7 @@ func init() {
 // NOTE: The keys in the searcher map will be normalized to lower case, but not such
 // transformation will be done on the error map to make it easier to match those errors
 // back to the original repo name.
-func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error) {
+func MakeAll(cfg *config.Config, connectionLimiter) (map[string]*Searcher, map[string]error, error) {
 	errs := map[string]error{}
 	searchers := map[string]*Searcher{}
 
@@ -209,7 +209,7 @@ func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error)
 	}
 
 	for name, repo := range cfg.Repos {
-		s, err := newSearcher(cfg.DbPath, name, repo, refs)
+		s, err := newSearcher(cfg.DbPath, name, repo, refs, connectionLimiter)
 		if err != nil {
 			log.Print(err)
 			errs[name] = err
@@ -233,8 +233,8 @@ func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error)
 
 // Creates a new Searcher that is available for searches as soon as this returns.
 // This will pull or clone the target repo and start watching the repo for changes.
-func New(dbpath, name string, repo *config.Repo) (*Searcher, error) {
-	s, err := newSearcher(dbpath, name, repo, &foundRefs{})
+func New(dbpath, name string, repo *config.Repo, connectionLimiter chan int) (*Searcher, error) {
+	s, err := newSearcher(dbpath, name, repo, &foundRefs{}, connectionLimiter)
 	if err != nil {
 		return nil, err
 	}
@@ -246,7 +246,7 @@ func New(dbpath, name string, repo *config.Repo) (*Searcher, error) {
 
 // Creates a new Searcher that is capable of re-claiming an existing index directory
 // from a set of existing manifests.
-func newSearcher(dbpath, name string, repo *config.Repo, refs *foundRefs) (*Searcher, error) {
+func newSearcher(dbpath, name string, repo *config.Repo, refs *foundRefs, connectionLimiter chan int) (*Searcher, error) {
 	vcsDir := filepath.Join(dbpath, vcsDirFor(repo))
 
 	log.Printf("Searcher started for %s", name)
@@ -300,7 +300,10 @@ func newSearcher(dbpath, name string, repo *config.Repo, refs *foundRefs) (*Sear
 		for {
 			time.Sleep(time.Duration(repo.MsBetweenPolls) * time.Millisecond)
 
+			connectionLimiter <- 1
 			newRev, err := wd.PullOrClone(vcsDir, repo.Url)
+			<-connectionLimiter
+
 			if err != nil {
 				log.Printf("vcs pull error (%s - %s): %s", name, repo.Url, err)
 				continue
