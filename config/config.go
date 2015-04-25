@@ -9,7 +9,7 @@ import (
 
 const (
 	defaultMsBetweenPoll = 30000
-	defaultPushEnabled   = true
+	defaultPushEnabled   = false
 	defaultPollEnabled   = true
 	defaultVcs           = "git"
 	defaultBaseUrl       = "{url}/blob/master/{path}{anchor}"
@@ -43,12 +43,12 @@ func optionToBool(val *bool, def bool) bool {
 
 // Are polling based updates enabled on this repo?
 func (r *Repo) PollUpdatesEnabled() bool {
-	return optionToBool(r.EnablePollUpdates, true)
+	return optionToBool(r.EnablePollUpdates, defaultPollEnabled)
 }
 
 // Are push based updates enabled on this repo?
 func (r *Repo) PushUpdatesEnabled() bool {
-	return optionToBool(r.EnablePushUpdates, false)
+	return optionToBool(r.EnablePushUpdates, defaultPushEnabled)
 }
 
 type Config struct {

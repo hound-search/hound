@@ -15,7 +15,6 @@ import (
 	"runtime"
 	"strings"
 	"sync"
-	"sync/atomic"
 	"time"
 )
 
@@ -26,10 +25,9 @@ type Searcher struct {
 
 	// The channel is used to request updates from the API and
 	// to signal that it is ok for searchers to begin polling.
-	// updatePending is a mechanism for coalescing update requests
-	// to prevent excess queuing.
-	updateCh      chan time.Time
-	updatePending uint64
+	// It has a buffer size of 1 to allow at most one pending
+	// update at a time.
+	updateCh chan time.Time
 }
 
 /**
@@ -118,14 +116,12 @@ func (s *Searcher) Update() bool {
 		return false
 	}
 
-	// is there an update already pending?
-	if !atomic.CompareAndSwapUint64(&s.updatePending, 0, 1) {
-		return true
+	// schedule an update if one is not already scheduled
+	select {
+	case s.updateCh <- time.Now():
+	default:
+		// don't wait to enqueue another update
 	}
-
-	go func() {
-		s.updateCh <- time.Now()
-	}()
 
 	return true
 }
@@ -143,9 +139,6 @@ func (s *Searcher) waitForUpdate(delay time.Duration) {
 	case <-s.updateCh:
 	case <-tch:
 	}
-
-	// clear the pending flag so the next arriving request will wait.
-	atomic.StoreUint64(&s.updatePending, 0)
 }
 
 // Signal the searcher that it is ok to begin polling the repository.
@@ -328,7 +321,7 @@ func newSearcher(dbpath, name string, repo *config.Repo, refs *foundRefs) (*Sear
 
 	s := &Searcher{
 		idx:      idx,
-		updateCh: make(chan time.Time),
+		updateCh: make(chan time.Time, 1),
 		Repo:     repo,
 	}
 
