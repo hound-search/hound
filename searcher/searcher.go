@@ -15,15 +15,21 @@ import (
 	"runtime"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
 type Searcher struct {
-	idx      *index.Index
-	lck      sync.RWMutex
-	beg      chan bool
-	updateCh chan time.Time
-	Repo     *config.Repo
+	idx  *index.Index
+	lck  sync.RWMutex
+	Repo *config.Repo
+
+	// The channel is used to request updates from the API and
+	// to signal that it is ok for searchers to begin polling.
+	// updatePending is a mechanism for coalescing update requests
+	// to prevent excess queuing.
+	updateCh      chan time.Time
+	updatePending uint64
 }
 
 /**
@@ -108,22 +114,43 @@ func (s *Searcher) GetExcludedFiles() string {
 
 // Triggers an immediate poll of the repository.
 func (s *Searcher) Update() bool {
-	if s.Repo.PushEnabled {
-		go func() {
-			s.updateCh <- time.Now()
-		}()
+	if !s.Repo.PushUpdatesEnabled() {
+		return false
+	}
+
+	// is there an update already pending?
+	if !atomic.CompareAndSwapUint64(&s.updatePending, 0, 1) {
 		return true
 	}
 
-	return false
+	go func() {
+		s.updateCh <- time.Now()
+	}()
+
+	return true
+}
+
+// Wait for either the delay period to expire or an update request to
+// arrive. Note that an empty delay will result in an infinite timeout.
+func (s *Searcher) waitForUpdate(delay time.Duration) {
+	var tch <-chan time.Time
+	if delay.Nanoseconds() > 0 {
+		tch = time.After(delay)
+	}
+
+	// wait for either the timeout or the update channel signal
+	select {
+	case <-s.updateCh:
+	case <-tch:
+	}
+
+	// clear the pending flag so the next arriving request will wait.
+	atomic.StoreUint64(&s.updatePending, 0)
 }
 
 // Signal the searcher that it is ok to begin polling the repository.
 func (s *Searcher) begin() {
-	if s.beg != nil {
-		s.beg <- true
-		s.beg = nil
-	}
+	s.updateCh <- time.Now()
 }
 
 // Generate a new index directory in the dbpath. The names are based
@@ -301,37 +328,29 @@ func newSearcher(dbpath, name string, repo *config.Repo, refs *foundRefs) (*Sear
 
 	s := &Searcher{
 		idx:      idx,
-		beg:      make(chan bool),
 		updateCh: make(chan time.Time),
 		Repo:     repo,
-	}
-
-	if !repo.PollEnabled && !repo.PushEnabled {
-		return s, nil
 	}
 
 	go func() {
 
 		// each searcher's poller is held until begin is called.
-		<-s.beg
+		<-s.updateCh
 
-		var pollCh <-chan time.Time
-		var t time.Time
-		last := time.Now()
+		// if all forms of updating are turned off, we're done here.
+		if !repo.PollUpdatesEnabled() && !repo.PushUpdatesEnabled() {
+			return
+		}
+
+		var delay time.Duration
+		if repo.PollUpdatesEnabled() {
+			delay = time.Duration(repo.MsBetweenPolls) * time.Millisecond
+		}
 
 		for {
-			if repo.PollEnabled {
-				pollCh = time.After(time.Duration(repo.MsBetweenPolls) * time.Millisecond)
-			}
 
-			select {
-			case t = <-pollCh:
-			case t = <-s.updateCh:
-			}
-
-			if t.Before(last) {
-				continue
-			}
+			// Wait for a signal to proceed
+			s.waitForUpdate(delay)
 
 			newRev, err := wd.PullOrClone(vcsDir, repo.Url)
 			if err != nil {

@@ -22,17 +22,33 @@ type UrlPattern struct {
 }
 
 type Repo struct {
-	Url                 string         `json:"url"`
-	MsBetweenPolls      int            `json:"ms-between-poll"`
-	PushEnabledInternal *bool          `json:"push-enabled"`
-	PollEnabledInternal *bool          `json:"poll-enabled"`
-	Vcs                 string         `json:"vcs"`
-	VcsConfigMessage    *SecretMessage `json:"vcs-config"`
-	UrlPattern          *UrlPattern    `json:"url-pattern"`
-	ExcludeDotFiles     bool           `json:"exclude-dot-files"`
+	Url               string         `json:"url"`
+	MsBetweenPolls    int            `json:"ms-between-poll"`
+	Vcs               string         `json:"vcs"`
+	VcsConfigMessage  *SecretMessage `json:"vcs-config"`
+	UrlPattern        *UrlPattern    `json:"url-pattern"`
+	ExcludeDotFiles   bool           `json:"exclude-dot-files"`
+	EnablePollUpdates *bool          `json:"enable-poll-updates"`
+	EnablePushUpdates *bool          `json:"enable-push-updates"`
+}
 
-	PushEnabled bool
-	PollEnabled bool
+// Used for interpreting the config value for fields that use *bool. If a value
+// is present, that value is returned. Otherwise, the default is returned.
+func optionToBool(val *bool, def bool) bool {
+	if val == nil {
+		return def
+	}
+	return *val
+}
+
+// Are polling based updates enabled on this repo?
+func (r *Repo) PollUpdatesEnabled() bool {
+	return optionToBool(r.EnablePollUpdates, true)
+}
+
+// Are push based updates enabled on this repo?
+func (r *Repo) PushUpdatesEnabled() bool {
+	return optionToBool(r.EnablePushUpdates, false)
 }
 
 type Config struct {
@@ -72,20 +88,6 @@ func (r *Repo) VcsConfig() []byte {
 func initRepo(r *Repo) {
 	if r.MsBetweenPolls == 0 {
 		r.MsBetweenPolls = defaultMsBetweenPoll
-	}
-
-	// Push/PollEnabledInternal must be *bool, or we'd be unable to distinguish values
-	// that are unset and set to false.
-	if r.PushEnabledInternal == nil {
-		r.PushEnabled = defaultPushEnabled
-	} else {
-		r.PushEnabled = *r.PushEnabledInternal
-	}
-
-	if r.PollEnabledInternal == nil {
-		r.PollEnabled = defaultPollEnabled
-	} else {
-		r.PollEnabled = *r.PollEnabledInternal
 	}
 
 	if r.Vcs == "" {

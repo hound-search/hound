@@ -43,7 +43,11 @@
         },
         "RepoWithPollingDisabled" : {
             "url" : "https://www.github.com/YourOrganization/RepoOne.git",
-            "poll-enabled" : false
+            "enable-poll-updates" : false
+        },
+        "RepoWithPushingEnaabled" : {
+            "url" : "https://www.github.com/YourOrganization/RepoOne.git",
+            "enable-push-updates" : true
         }
     }
 }

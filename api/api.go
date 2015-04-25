@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/etsy/hound/config"
 	"github.com/etsy/hound/index"
@@ -23,23 +24,23 @@ type Stats struct {
 	Duration    int
 }
 
-func writeJson(w http.ResponseWriter, data interface{}) {
+func writeJson(w http.ResponseWriter, data interface{}, status int) {
 	w.Header().Set("Content-Type", "application/json;charset=utf-8")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.WriteHeader(status)
 	if err := json.NewEncoder(w).Encode(data); err != nil {
 		log.Panicf("Failed to encode JSON: %v\n", err)
 	}
 }
 
-func writeError(w http.ResponseWriter, err error) {
-	writeJson(w, map[string]interface{}{
-		"Error": fmt.Sprint(err),
-	})
+func writeResp(w http.ResponseWriter, data interface{}) {
+	writeJson(w, data, http.StatusOK)
 }
 
-func writeErrorWithCode(w http.ResponseWriter, err error, code int) {
-	w.WriteHeader(code)
-	writeError(w, err)
+func writeError(w http.ResponseWriter, err error, status int) {
+	writeJson(w, map[string]string{
+		"Error": err.Error(),
+	}, status)
 }
 
 type searchResponse struct {
@@ -165,7 +166,7 @@ func Setup(m *http.ServeMux, idx map[string]*searcher.Searcher) {
 			res[name] = srch.Repo
 		}
 
-		writeJson(w, res)
+		writeResp(w, res)
 	})
 
 	m.HandleFunc("/api/v1/search", func(w http.ResponseWriter, r *http.Request) {
@@ -188,7 +189,8 @@ func Setup(m *http.ServeMux, idx map[string]*searcher.Searcher) {
 
 		results, err := searchAll(query, &opt, repos, idx, &filesOpened, &durationMs)
 		if err != nil {
-			writeError(w, err)
+			// TODO(knorton): Return ok status because the UI expects it for now.
+			writeError(w, err, http.StatusOK)
 			return
 		}
 
@@ -205,7 +207,7 @@ func Setup(m *http.ServeMux, idx map[string]*searcher.Searcher) {
 			}
 		}
 
-		writeJson(w, &res)
+		writeResp(w, &res)
 	})
 
 	m.HandleFunc("/api/v1/excludes", func(w http.ResponseWriter, r *http.Request) {
@@ -217,21 +219,33 @@ func Setup(m *http.ServeMux, idx map[string]*searcher.Searcher) {
 	})
 
 	m.HandleFunc("/api/v1/update", func(w http.ResponseWriter, r *http.Request) {
-		repo := r.FormValue("repo")
-
-		if searcher, ok := idx[repo]; ok {
-			if processed := searcher.Update(); processed {
-				w.WriteHeader(http.StatusOK)
-			} else {
-				writeErrorWithCode(w,
-					fmt.Errorf("Push updates are not enabled for repository %s", repo),
-					http.StatusForbidden)
-			}
-		} else {
-			writeErrorWithCode(w,
-				fmt.Errorf("No such repository: %s", repo),
-				http.StatusNotFound)
+		if r.Method != "POST" {
+			writeError(w,
+				errors.New(http.StatusText(http.StatusMethodNotAllowed)),
+				http.StatusMethodNotAllowed)
+			return
 		}
 
+		repos := parseAsRepoList(r.FormValue("repos"), idx)
+
+		for _, repo := range repos {
+			searcher := idx[repo]
+			if searcher == nil {
+				writeError(w,
+					fmt.Errorf("No such repository: %s", repo),
+					http.StatusNotFound)
+				return
+			}
+
+			if !searcher.Update() {
+				writeError(w,
+					fmt.Errorf("Push updates are not enabled for repository %s", repo),
+					http.StatusForbidden)
+				return
+
+			}
+		}
+
+		writeResp(w, "ok")
 	})
 }
