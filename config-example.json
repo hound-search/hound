@@ -1,4 +1,5 @@
 {
+    "max-connections" : 25,
     "dbpath" : "data",
     "repos" : {
         "SomeGitRepo" : {

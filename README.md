@@ -83,6 +83,14 @@ not work.
 
 By default Hound polls the URL in the config for updates every 30 seconds. You can override this value by setting the `ms-between-poll` key on a per repo basis in the config. You can see how this works in the [example config](config-example.json).
 
+### Connection Limiting
+
+During the update phase, Hound will limit the number of concurrent connections open against your vcs system to 1. 
+To override this setting, add a "max-connections" value to your top-level config.json file. When going against an 
+internal service, you can probably set this value to whatever you want, but against an externally-hosted provider, 
+we recommend limiting the connections to 20 or 50. We recommend working with your eternal host to find the right 
+value for your organization.
+
 ## Editor Integration
 
 Currently the following editors have plugins that support Hound:

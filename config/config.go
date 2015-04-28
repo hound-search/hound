@@ -52,8 +52,9 @@ func (r *Repo) PushUpdatesEnabled() bool {
 }
 
 type Config struct {
-	DbPath string           `json:"dbpath"`
-	Repos  map[string]*Repo `json:"repos"`
+	DbPath                      string           `json:"dbpath"`
+	MaxConcurrentVCSConnections int              `json:"max-connections"`
+	Repos                       map[string]*Repo `json:"repos"`
 }
 
 // SecretMessage is just like json.RawMessage but it will not
