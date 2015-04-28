@@ -8,12 +8,13 @@ import (
 )
 
 const (
-	defaultMsBetweenPoll = 30000
-	defaultPushEnabled   = false
-	defaultPollEnabled   = true
-	defaultVcs           = "git"
-	defaultBaseUrl       = "{url}/blob/master/{path}{anchor}"
-	defaultAnchor        = "#L{line}"
+	defaultMsBetweenPoll         = 30000
+	defaultMaxConcurrentIndexers = 2
+	defaultPushEnabled           = false
+	defaultPollEnabled           = true
+	defaultVcs                   = "git"
+	defaultBaseUrl               = "{url}/blob/master/{path}{anchor}"
+	defaultAnchor                = "#L{line}"
 )
 
 type UrlPattern struct {
@@ -52,9 +53,9 @@ func (r *Repo) PushUpdatesEnabled() bool {
 }
 
 type Config struct {
-	DbPath                      string           `json:"dbpath"`
-	MaxConcurrentVCSConnections int              `json:"max-connections"`
-	Repos                       map[string]*Repo `json:"repos"`
+	DbPath                string           `json:"dbpath"`
+	Repos                 map[string]*Repo `json:"repos"`
+	MaxConcurrentIndexers int              `json:"max-concurrent-indexers"`
 }
 
 // SecretMessage is just like json.RawMessage but it will not
@@ -111,6 +112,13 @@ func initRepo(r *Repo) {
 	}
 }
 
+// Populate missing config values with default values.
+func initConfig(c *Config) {
+	if c.MaxConcurrentIndexers == 0 {
+		c.MaxConcurrentIndexers = defaultMaxConcurrentIndexers
+	}
+}
+
 func (c *Config) LoadFromFile(filename string) error {
 	r, err := os.Open(filename)
 	if err != nil {
@@ -134,6 +142,8 @@ func (c *Config) LoadFromFile(filename string) error {
 	for _, repo := range c.Repos {
 		initRepo(repo)
 	}
+
+	initConfig(c)
 
 	return nil
 }

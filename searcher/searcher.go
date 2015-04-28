@@ -30,6 +30,8 @@ type Searcher struct {
 	updateCh chan time.Time
 }
 
+type limiter chan bool
+
 /**
  * Holds a set of IndexRefs that were found in the dbpath at startup,
  * these indexes can be 'claimed' and re-used by newly created searchers.
@@ -37,6 +39,18 @@ type Searcher struct {
 type foundRefs struct {
 	refs    []*index.IndexRef
 	claimed map[*index.IndexRef]bool
+}
+
+func makeLimiter(n int) limiter {
+	return limiter(make(chan bool, n))
+}
+
+func (l limiter) Acquire() {
+	l <- true
+}
+
+func (l limiter) Release() {
+	<-l
 }
 
 /**
@@ -232,7 +246,7 @@ func init() {
 // NOTE: The keys in the searcher map will be normalized to lower case, but not such
 // transformation will be done on the error map to make it easier to match those errors
 // back to the original repo name.
-func MakeAll(cfg *config.Config, connectionLimiter) (map[string]*Searcher, map[string]error, error) {
+func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error) {
 	errs := map[string]error{}
 	searchers := map[string]*Searcher{}
 
@@ -241,8 +255,10 @@ func MakeAll(cfg *config.Config, connectionLimiter) (map[string]*Searcher, map[s
 		return nil, nil, err
 	}
 
+	lim := makeLimiter(cfg.MaxConcurrentIndexers)
+
 	for name, repo := range cfg.Repos {
-		s, err := newSearcher(cfg.DbPath, name, repo, refs, connectionLimiter)
+		s, err := newSearcher(cfg.DbPath, name, repo, refs, lim)
 		if err != nil {
 			log.Print(err)
 			errs[name] = err
@@ -266,8 +282,8 @@ func MakeAll(cfg *config.Config, connectionLimiter) (map[string]*Searcher, map[s
 
 // Creates a new Searcher that is available for searches as soon as this returns.
 // This will pull or clone the target repo and start watching the repo for changes.
-func New(dbpath, name string, repo *config.Repo, connectionLimiter chan int) (*Searcher, error) {
-	s, err := newSearcher(dbpath, name, repo, &foundRefs{}, connectionLimiter)
+func New(dbpath, name string, repo *config.Repo) (*Searcher, error) {
+	s, err := newSearcher(dbpath, name, repo, &foundRefs{}, makeLimiter(1))
 	if err != nil {
 		return nil, err
 	}
@@ -277,9 +293,65 @@ func New(dbpath, name string, repo *config.Repo, connectionLimiter chan int) (*S
 	return s, nil
 }
 
+// Update the vcs and reindex the given repo.
+func updateAndReindex(
+	s *Searcher,
+	dbpath,
+	vcsDir,
+	name,
+	rev string,
+	wd *vcs.WorkDir,
+	opt *index.IndexOptions,
+	lim limiter) (string, bool) {
+
+	// acquire a token from the rate limiter
+	lim.Acquire()
+	defer lim.Release()
+
+	repo := s.Repo
+	newRev, err := wd.PullOrClone(vcsDir, repo.Url)
+
+	if err != nil {
+		log.Printf("vcs pull error (%s - %s): %s", name, repo.Url, err)
+		return rev, false
+	}
+
+	if newRev == rev {
+		return rev, false
+	}
+
+	log.Printf("Rebuilding %s for %s", name, newRev)
+	idx, err := buildAndOpenIndex(
+		opt,
+		dbpath,
+		vcsDir,
+		nextIndexDir(dbpath),
+		repo.Url,
+		newRev)
+	if err != nil {
+		log.Printf("failed index build (%s): %s", name, err)
+		return rev, false
+	}
+
+	if err := s.swapIndexes(idx); err != nil {
+		log.Printf("failed index swap (%s): %s", name, err)
+		if err := idx.Destroy(); err != nil {
+			log.Printf("failed to destroy index (%s): %s\n", name, err)
+		}
+		return rev, false
+	}
+
+	return newRev, true
+}
+
 // Creates a new Searcher that is capable of re-claiming an existing index directory
 // from a set of existing manifests.
-func newSearcher(dbpath, name string, repo *config.Repo, refs *foundRefs, connectionLimiter chan int) (*Searcher, error) {
+func newSearcher(
+	dbpath, name string,
+	repo *config.Repo,
+	refs *foundRefs,
+	lim limiter) (*Searcher, error) {
+
 	vcsDir := filepath.Join(dbpath, vcsDirFor(repo))
 
 	log.Printf("Searcher started for %s", name)
@@ -345,37 +417,9 @@ func newSearcher(dbpath, name string, repo *config.Repo, refs *foundRefs, connec
 			// Wait for a signal to proceed
 			s.waitForUpdate(delay)
 
-			connectionLimiter <- 1
-			newRev, err := wd.PullOrClone(vcsDir, repo.Url)
-			<-connectionLimiter
-
-			if err != nil {
-				log.Printf("vcs pull error (%s - %s): %s", name, repo.Url, err)
-				continue
-			}
-
-			if newRev == rev {
-				continue
-			}
-
-			log.Printf("Rebuilding %s for %s", name, newRev)
-			idx, err := buildAndOpenIndex(
-				opt,
-				dbpath,
-				vcsDir,
-				nextIndexDir(dbpath),
-				repo.Url,
-				newRev)
-			if err != nil {
-				log.Printf("failed index build (%s): %s", name, err)
-				continue
-			}
-
-			if err := s.swapIndexes(idx); err != nil {
-				log.Printf("failed index swap (%s): %s", name, err)
-				if err := idx.Destroy(); err != nil {
-					log.Printf("failed to destroy index (%s): %s\n", name, err)
-				}
+			// attempt to update and reindex this searcher
+			newRev, ok := updateAndReindex(s, dbpath, vcsDir, name, rev, wd, opt, lim)
+			if !ok {
 				continue
 			}
 

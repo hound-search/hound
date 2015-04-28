@@ -19,15 +19,6 @@ var (
 	error_log *log.Logger
 )
 
-// Create a channel with either max-connections from the config, or 1 if it's not defined
-func createLimiterChannel(cfg *config.Config) chan int {
-	if cfg.MaxConcurrentVCSConnections == 0 {
-		return make(chan int, 1)
-	} else {
-		return make(chan int, cfg.MaxConcurrentVCSConnections)
-	}
-}
-
 func makeSearchers(cfg *config.Config) (map[string]*searcher.Searcher, bool, error) {
 	// Ensure we have a dbpath
 	if _, err := os.Stat(cfg.DbPath); err != nil {
@@ -36,9 +27,7 @@ func makeSearchers(cfg *config.Config) (map[string]*searcher.Searcher, bool, err
 		}
 	}
 
-	connectionLimiter := createLimiterChannel(cfg)
-
-	searchers, errs, err := searcher.MakeAll(cfg, connectionLimiter)
+	searchers, errs, err := searcher.MakeAll(cfg)
 	if err != nil {
 		return nil, false, err
 	}

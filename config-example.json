@@ -1,5 +1,5 @@
 {
-    "max-connections" : 25,
+    "max-concurrent-indexers" : 2,
     "dbpath" : "data",
     "repos" : {
         "SomeGitRepo" : {
