@@ -16,7 +16,7 @@ Hound is an extremely fast source code search engine. The core is based on this 
     go get github.com/etsy/hound/cmds/...
     ```
 
-2. Create a [config.json](config-example.json) with your list of repositories.
+2. Create a [config.json](config-example.json) at the root of your GOPATH with your list of repositories.
 
 3. Run the Hound server with `houndd` and you should see output similer to:
 ````
