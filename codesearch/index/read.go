@@ -71,7 +71,6 @@ import (
   "os"
   "runtime"
   "sort"
-  "syscall"
 )
 
 const (
@@ -423,10 +422,7 @@ type mmapData struct {
 }
 
 func (m *mmapData) close() error {
-  if err := syscall.Munmap(m.o); err != nil {
-    return err
-  }
-  return m.f.Close()
+  return unmmapFile(m)
 }
 
 // mmap maps the given file into memory.

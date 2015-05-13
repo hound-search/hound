@@ -29,3 +29,15 @@ func mmapFile(f *os.File) mmapData {
   }
   return mmapData{f, data[:n], data}
 }
+
+func unmmapFile(m *mmapData) error {
+  if err := syscall.Munmap(m.o); err != nil {
+    return err
+  }
+
+  return m.f.Close()
+}
+
+func unmmap(d []byte) error {
+  return syscall.Munmap(d)
+}
