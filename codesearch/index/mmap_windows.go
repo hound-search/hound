@@ -36,7 +36,7 @@ func mmapFile(f *os.File) mmapData {
 	return mmapData{f, data[:size], data[:]}
 }
 
-func unnmmapFile(m *mmapData) error {
+func unmmapFile(m *mmapData) error {
 	err := syscall.UnmapViewOfFile(uintptr(unsafe.Pointer(&m.d)))
 	if err != nil {
 		log.Fatalf("UnmapViewOfFile %s: %v", m.f.Name(), err)
