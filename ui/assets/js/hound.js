@@ -335,7 +335,6 @@ var SearchBar = React.createClass({
       break;
     case 13:
       this.submitQuery();
-      this.hideAdvanced();
       break;
     }
   },
@@ -362,6 +361,7 @@ var SearchBar = React.createClass({
     this.showAdvanced();
   },
   submitQuery: function() {
+    this.hideAdvanced();
     this.props.onSearchRequested(this.getParams());
   },
   getRegExp : function() {
@@ -454,7 +454,7 @@ var SearchBar = React.createClass({
               onKeyDown={this.queryGotKeydown}
               onFocus={this.queryGotFocus}/>
           <div className="button-add-on">
-            <button id="dodat" onClick={this.submitQuery&&this.hideAdvanced}></button>
+            <button id="dodat" onClick={this.submitQuery}></button>
           </div>
         </div>
 
