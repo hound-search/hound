@@ -304,6 +304,7 @@ func containsString(haystack []string, needle string) bool {
 
 func indexAllFiles(opt *IndexOptions, dst, src string) error {
 	ix := index.Create(filepath.Join(dst, "tri"))
+	defer ix.Close()
 
 	excluded := []*ExcludedFile{}
 

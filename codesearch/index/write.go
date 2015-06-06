@@ -260,6 +260,10 @@ func (ix *IndexWriter) Flush() {
 	ix.main.flush()
 }
 
+func (ix *IndexWriter) Close() {
+	ix.main.file.Close()
+}
+
 func copyFile(dst, src *bufWriter) {
 	dst.flush()
 	_, err := io.Copy(dst.file, src.finish())
