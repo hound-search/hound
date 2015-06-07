@@ -39,17 +39,10 @@ func mmapFile(f *os.File) mmapData {
 func unmmapFile(m *mmapData) error {
 	err := syscall.UnmapViewOfFile(uintptr(unsafe.Pointer(&m.d[0])))
 	if err != nil {
-		log.Fatalf(err)
 		return err
 	}
 
-	err = m.f.Close()
-	if err != nil {
-		log.Fatal(err)
-		return err
-	}
-
-	return nil
+	return m.f.Close()
 }
 
 func unmmap(d []byte) error {
