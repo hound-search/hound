@@ -480,7 +480,7 @@ var SearchBar = React.createClass({
             <div className="field">
               <label className="multiselect_label">Select Repo</label>
               <div className="field-input">
-                <select id="repos" className="form-control multiselect" multiple={true} size={repoCount} ref="repos">
+                <select id="repos" className="form-control multiselect" multiple={true} size={Math.min(16, repoCount)} ref="repos">
                   {repoOptions}
                 </select>
               </div>
