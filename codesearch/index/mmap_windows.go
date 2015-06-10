@@ -27,11 +27,13 @@ func mmapFile(f *os.File) mmapData {
 	if err != nil {
 		log.Fatalf("CreateFileMapping %s: %v", f.Name(), err)
 	}
+	defer syscall.CloseHandle(syscall.Handle(h))
 
 	addr, err := syscall.MapViewOfFile(h, syscall.FILE_MAP_READ, 0, 0, 0)
 	if err != nil {
 		log.Fatalf("MapViewOfFile %s: %v", f.Name(), err)
 	}
+
 	data := (*[1 << 30]byte)(unsafe.Pointer(addr))
 	return mmapData{f, data[:size], data[:]}
 }
