@@ -15,8 +15,9 @@ func init() {
 }
 
 type SVNDriver struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username        string `json:"username"`
+	Password        string `json:"password"`
+	IgnoreExternals bool   `json:"ignore-externals"`
 }
 
 func newSvn(b []byte) (Driver, error) {
@@ -55,13 +56,19 @@ func (g *SVNDriver) HeadRev(dir string) (string, error) {
 }
 
 func (g *SVNDriver) Pull(dir string) (string, error) {
+	ignore := ""
+	if g.IgnoreExternals {
+		ignore = "--ignore-externals"
+	}
 	cmd := exec.Command(
 		"svn",
 		"update",
 		"--username",
 		g.Username,
 		"--password",
-		g.Password)
+		g.Password,
+		ignore,
+	)
 	cmd.Dir = dir
 	out, err := cmd.CombinedOutput()
 	if err != nil {
@@ -73,6 +80,10 @@ func (g *SVNDriver) Pull(dir string) (string, error) {
 }
 
 func (g *SVNDriver) Clone(dir, url string) (string, error) {
+	ignore := ""
+	if g.IgnoreExternals {
+		ignore = "--ignore-externals"
+	}
 	par, rep := filepath.Split(dir)
 	cmd := exec.Command(
 		"svn",
@@ -82,7 +93,9 @@ func (g *SVNDriver) Clone(dir, url string) (string, error) {
 		"--password",
 		g.Password,
 		url,
-		rep)
+		rep,
+		ignore,
+	)
 	cmd.Dir = par
 	out, err := cmd.CombinedOutput()
 	if err != nil {
