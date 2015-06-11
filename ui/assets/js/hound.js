@@ -400,7 +400,11 @@ var SearchBar = React.createClass({
     files.value = params.files;
   },
   hasAdvancedValues: function() {
-    return this.refs.files.getDOMNode().value.trim() !== '' || this.refs.icase.getDOMNode().checked || this.refs.repos.getDOMNode().value !== '';
+    if(isIgnoreCaseCookieEnabled()) {
+      return this.refs.files.getDOMNode().value.trim() !== '' || this.refs.repos.getDOMNode().value !== '';
+    }else{
+      return this.refs.files.getDOMNode().value.trim() !== '' || this.refs.icase.getDOMNode().checked || this.refs.repos.getDOMNode().value !== '';
+    }
   },
   showAdvanced: function() {
     var adv = this.refs.adv.getDOMNode(),
