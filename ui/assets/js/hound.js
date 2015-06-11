@@ -360,7 +360,14 @@ var SearchBar = React.createClass({
   filesGotFocus: function(event) {
     this.showAdvanced();
   },
+  isAutoHideEnabled: function() {
+    return ParamValueToBool(docCookies.getItem('autoHideAdvanced'));
+  },
   submitQuery: function() {
+    var isEnabled = this.isAutoHideEnabled();
+    if(isEnabled) {
+      this.hideAdvanced();
+    }
     this.props.onSearchRequested(this.getParams());
   },
   getRegExp : function() {
@@ -415,6 +422,13 @@ var SearchBar = React.createClass({
 
     q.focus();
   },
+  ignoreCaseChanged: function(event) {
+    var isChecked = this.refs.icase.getDOMNode().checked;
+    docCookies.setItem('ignoreCase', isChecked);
+    this.setState({
+      i: isChecked
+    });
+  },
   render: function() {
     var repoCount = this.state.allRepos.length,
         repoOptions = [];
@@ -426,7 +440,7 @@ var SearchBar = React.createClass({
     var statsView = '';
     if (stats) {
       statsView = (
-        <div className="stats">
+        <span>
           <div className="stats-left">
             <a href="/excluded_files.html"
               className="link-gray">
@@ -438,7 +452,7 @@ var SearchBar = React.createClass({
             <div className="val">{FormatNumber(stats.Server)}ms server</div> /
             <div className="val">{stats.Files} files</div>
           </div>
-        </div>
+        </span>
       );
     }
 
@@ -474,7 +488,7 @@ var SearchBar = React.createClass({
             <div className="field">
               <label>Ignore Case</label>
               <div className="field-input">
-                <input type="checkbox" ref="icase" />
+                <input type="checkbox" ref="icase" checked={ParamValueToBool(docCookies.getItem('ignoreCase'))} onClick={this.ignoreCaseChanged} />
               </div>
             </div>
             <div className="field">
@@ -490,7 +504,12 @@ var SearchBar = React.createClass({
             <em>Advanced:</em> ignore case, filter by path, stuff like that.
           </div>
         </div>
-        {statsView}
+        <div className="stats">
+          <div className="stats-left">
+            <a href="/preferences.html" className="link-gray">Preferences</a>
+          </div>
+          {statsView}
+        </div>
       </div>
     );
   }
@@ -782,7 +801,19 @@ var App = React.createClass({
       '&repos=' + params.repos;
     history.pushState({path:path}, '', path);
   },
+  initPreferences: function() {
+    var ignoreCase = docCookies.getItem('ignoreCase');
+    var hideAdvanced = docCookies.getItem('autoHideAdvanced');
+
+    if(ignoreCase == null) {
+      docCookies.setItem('ignoreCase', false);
+    }
+    if(hideAdvanced == null) {
+      docCookies.setItem('autoHideAdvanced', false);
+    }
+  },
   render: function() {
+    this.initPreferences();
     return (
       <div>
         <SearchBar ref="searchBar"

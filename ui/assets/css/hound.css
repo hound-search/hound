@@ -352,3 +352,39 @@ button:focus {
   margin-bottom: 40px;
 }
 
+#preferences_container {
+  margin-top: 40px;
+  margin-bottom: 40px; 
+}
+
+#preferences {
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Media object clearfix */
+#preferences > .field {
+  overflow: hidden;
+}
+
+#preferences > .field > label {
+  /* Media object left */
+  float: left;
+  width: 150px;
+  color: #999;
+}
+
+#preferences > .field > .field-input {
+  /* New block formatting context for media object */
+  overflow: hidden;
+}
+
+#preferences > .field input[type=text] {
+  line-height: 24px;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0 10px;
+  color: #666;
+}
+
+
