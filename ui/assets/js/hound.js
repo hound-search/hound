@@ -84,8 +84,20 @@ var ParamsFromUrl = function(params) {
 };
 
 var ParamValueToBool = function(v) {
+  if(v == null) {
+    return false;
+  }
+
   v = v.toLowerCase();
   return v == 'fosho' || v == 'true' || v == '1';
+};
+
+var isAutoHideEnabled = function() {
+  return ParamValueToBool(docCookies.getItem('autoHideAdvanced'));
+};
+
+var isIgnoreCaseCookieEnabled = function() {
+  return ParamValueToBool(docCookies.getItem('ignoreCase'));
 };
 
 /**
@@ -360,11 +372,8 @@ var SearchBar = React.createClass({
   filesGotFocus: function(event) {
     this.showAdvanced();
   },
-  isAutoHideEnabled: function() {
-    return ParamValueToBool(docCookies.getItem('autoHideAdvanced'));
-  },
   submitQuery: function() {
-    var isEnabled = this.isAutoHideEnabled();
+    var isEnabled = isAutoHideEnabled();
     if(isEnabled) {
       this.hideAdvanced();
     }
@@ -387,7 +396,7 @@ var SearchBar = React.createClass({
         files = this.refs.files.getDOMNode();
 
     q.value = params.q;
-    i.checked = ParamValueToBool(params.i);
+    i.checked = ParamValueToBool(params.i) || isIgnoreCaseCookieEnabled();
     files.value = params.files;
   },
   hasAdvancedValues: function() {
@@ -422,9 +431,8 @@ var SearchBar = React.createClass({
 
     q.focus();
   },
-  ignoreCaseChanged: function(event) {
+  ignoreCaseChanged: function() {
     var isChecked = this.refs.icase.getDOMNode().checked;
-    docCookies.setItem('ignoreCase', isChecked);
     this.setState({
       i: isChecked
     });
@@ -488,7 +496,7 @@ var SearchBar = React.createClass({
             <div className="field">
               <label>Ignore Case</label>
               <div className="field-input">
-                <input type="checkbox" ref="icase" checked={ParamValueToBool(docCookies.getItem('ignoreCase'))} onClick={this.ignoreCaseChanged} />
+                <input type="checkbox" ref="icase" checked={this.state.i} onClick={this.ignoreCaseChanged} />
               </div>
             </div>
             <div className="field">
@@ -750,7 +758,7 @@ var App = React.createClass({
     var params = ParamsFromUrl();
     this.setState({
       q: params.q,
-      i: params.i,
+      i: (params.i || isIgnoreCaseCookieEnabled()),
       files: params.files,
       repos: params.repos
     });
