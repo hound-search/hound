@@ -34,7 +34,6 @@ func init() {
 			template: "index.tpl.html",
 			sources: []string{
 				"js/common.js",
-				"js/cookies.js",
 				"js/hound.js",
 			},
 		},
@@ -43,7 +42,6 @@ func init() {
 			template: "excluded_files.tpl.html",
 			sources: []string{
 				"js/common.js",
-				"js/cookies.js",
 				"js/excluded_files.js",
 			},
 		},
@@ -51,7 +49,6 @@ func init() {
 			template: "preferences.tpl.html",
 			sources: []string{
 				"js/common.js",
-				"js/cookies.js",
 				"js/preferences.js",
 			},
 		},

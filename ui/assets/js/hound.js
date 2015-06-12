@@ -93,11 +93,11 @@ var ParamValueToBool = function(v) {
 };
 
 var isAutoHideEnabled = function() {
-  return ParamValueToBool(docCookies.getItem('autoHideAdvanced'));
+  return ParamValueToBool(localStorage.getItem('autoHideAdvanced'));
 };
 
 var isIgnoreCaseCookieEnabled = function() {
-  return ParamValueToBool(docCookies.getItem('ignoreCase'));
+  return ParamValueToBool(localStorage.getItem('ignoreCase'));
 };
 
 /**
@@ -814,8 +814,8 @@ var App = React.createClass({
     history.pushState({path:path}, '', path);
   },
   initPreferences: function() {
-    var ignoreCase = docCookies.getItem('ignoreCase');
-    var hideAdvanced = docCookies.getItem('autoHideAdvanced');
+    var ignoreCase = localStorage.getItem('ignoreCase');
+    var hideAdvanced = localStorage.getItem('autoHideAdvanced');
 
     if(ignoreCase == null) {
       docCookies.setItem('ignoreCase', false);
