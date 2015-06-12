@@ -96,7 +96,7 @@ var isAutoHideEnabled = function() {
   return ParamValueToBool(localStorage.getItem('autoHideAdvanced'));
 };
 
-var isIgnoreCaseCookieEnabled = function() {
+var isIgnoreCasePrefEnabled = function() {
   return ParamValueToBool(localStorage.getItem('ignoreCase'));
 };
 
@@ -396,11 +396,11 @@ var SearchBar = React.createClass({
         files = this.refs.files.getDOMNode();
 
     q.value = params.q;
-    i.checked = ParamValueToBool(params.i) || isIgnoreCaseCookieEnabled();
+    i.checked = ParamValueToBool(params.i) || isIgnoreCasePrefEnabled();
     files.value = params.files;
   },
   hasAdvancedValues: function() {
-    if(isIgnoreCaseCookieEnabled()) {
+    if(isIgnoreCasePrefEnabled()) {
       return this.refs.files.getDOMNode().value.trim() !== '' || this.refs.repos.getDOMNode().value !== '';
     }else{
       return this.refs.files.getDOMNode().value.trim() !== '' || this.refs.icase.getDOMNode().checked || this.refs.repos.getDOMNode().value !== '';
@@ -762,7 +762,7 @@ var App = React.createClass({
     var params = ParamsFromUrl();
     this.setState({
       q: params.q,
-      i: (params.i || isIgnoreCaseCookieEnabled()),
+      i: (params.i || isIgnoreCasePrefEnabled()),
       files: params.files,
       repos: params.repos
     });
@@ -818,10 +818,10 @@ var App = React.createClass({
     var hideAdvanced = localStorage.getItem('autoHideAdvanced');
 
     if(ignoreCase == null) {
-      docCookies.setItem('ignoreCase', false);
+      localStorage.setItem('ignoreCase', false);
     }
     if(hideAdvanced == null) {
-      docCookies.setItem('autoHideAdvanced', false);
+      localStorage.setItem('autoHideAdvanced', false);
     }
   },
   render: function() {
