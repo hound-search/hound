@@ -3,13 +3,14 @@ package ui
 import (
 	"bytes"
 	"fmt"
-	"github.com/etsy/hound/config"
 	"html/template"
 	"io"
 	"log"
 	"net/http"
 	"path/filepath"
 	"runtime"
+
+	"github.com/etsy/hound/config"
 )
 
 // An http.Handler for the dev-mode case.

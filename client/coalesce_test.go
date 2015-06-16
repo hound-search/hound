@@ -1,8 +1,9 @@
 package client
 
 import (
-	"github.com/etsy/hound/index"
 	"testing"
+
+	"github.com/etsy/hound/index"
 )
 
 // TODO(knorton):

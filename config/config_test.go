@@ -1,10 +1,11 @@
 package config
 
 import (
-	"github.com/etsy/hound/vcs"
 	"path/filepath"
 	"runtime"
 	"testing"
+
+	"github.com/etsy/hound/vcs"
 )
 
 const exampleConfigFile = "config-example.json"

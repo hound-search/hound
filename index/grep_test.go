@@ -3,9 +3,10 @@ package index
 import (
 	"bytes"
 	"fmt"
-	"github.com/etsy/hound/codesearch/regexp"
 	"strings"
 	"testing"
+
+	"github.com/etsy/hound/codesearch/regexp"
 )
 
 var (
