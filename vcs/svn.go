@@ -58,6 +58,7 @@ func (g *SVNDriver) Pull(dir string) (string, error) {
 	cmd := exec.Command(
 		"svn",
 		"update",
+		"--ignore-externals",
 		"--username",
 		g.Username,
 		"--password",
@@ -77,6 +78,7 @@ func (g *SVNDriver) Clone(dir, url string) (string, error) {
 	cmd := exec.Command(
 		"svn",
 		"checkout",
+		"--ignore-externals",
 		"--username",
 		g.Username,
 		"--password",
