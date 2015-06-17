@@ -45,5 +45,12 @@ func init() {
 				"js/excluded_files.js",
 			},
 		},
+		"/preferences.html": &content{
+			template: "preferences.tpl.html",
+			sources: []string{
+				"js/common.js",
+				"js/preferences.js",
+			},
+		},
 	}
 }
