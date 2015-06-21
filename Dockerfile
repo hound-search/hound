@@ -1,7 +1,7 @@
 FROM golang
 
 COPY . /go/src/github.com/etsy/hound
-COPY config.json /hound/
+ONBUILD COPY config.json /hound/
 RUN go-wrapper install github.com/etsy/hound/cmds/houndd
 
 EXPOSE 6080
