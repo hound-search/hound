@@ -3,12 +3,13 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"github.com/etsy/hound/client"
-	"github.com/etsy/hound/index"
 	"log"
 	"os"
 	"os/user"
 	"regexp"
+
+	"github.com/etsy/hound/client"
+	"github.com/etsy/hound/index"
 )
 
 // A uninitialized variable that can be defined during the build process with

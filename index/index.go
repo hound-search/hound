@@ -5,14 +5,15 @@ import (
 	"encoding/gob"
 	"encoding/json"
 	"fmt"
-	"github.com/etsy/hound/codesearch/index"
-	"github.com/etsy/hound/codesearch/regexp"
 	"io"
 	"os"
 	"path/filepath"
 	"sync"
 	"time"
 	"unicode/utf8"
+
+	"github.com/etsy/hound/codesearch/index"
+	"github.com/etsy/hound/codesearch/regexp"
 )
 
 const (
