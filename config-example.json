@@ -46,7 +46,7 @@
             "url" : "https://www.github.com/YourOrganization/RepoOne.git",
             "enable-poll-updates" : false
         },
-        "RepoWithPushingEnaabled" : {
+        "RepoWithPushingEnabled" : {
             "url" : "https://www.github.com/YourOrganization/RepoOne.git",
             "enable-push-updates" : true
         }
