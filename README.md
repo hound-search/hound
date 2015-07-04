@@ -36,13 +36,7 @@ We've used many similar tools in the past, and most of them are either too slow,
 Which brings us to...
 
 ## Requirements
-
-### Hard Requirements
 * Go 1.3+
-
-### Optional, Recommended Software
-* Make (for building the binaries, not strictly required)
-* nodejs (for the command line react-tools)
 
 Yup, that's it. You can proxy requests to the Go service through Apache/nginx/etc., but that's not required.
 
@@ -95,12 +89,18 @@ Currently the following editors have plugins that support Hound:
 
 ### Editing & Building
 
-Hound uses the standard Go tools for development, so your favorite Go workflow should work. If you are looking for something that will work, here is one option:
+#### Requirements:
+ * make
+ * Node.js ([Installation Instructions](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager))
+ * React-tools (install w/ `npm -g install react-tools`)
+
+Hound includes tools to make building locally easy. It is recommended that you use these tools if you are working on Hound. To get setup and build, just run the following commands:
 
 ```
-git clone https://github.com/etsy/Hound.git hound/src/github.com/etsy/hound
+git clone https://github.com/etsy/Hound.git hound/src/github.com/etsy/Hound
 cd hound
-GOPATH=`pwd` go install github.com/etsy/hound/cmds/...
+src/github.com/etsy/Hound/tools/setup
+make
 ```
 
 ### Testing
@@ -108,25 +108,18 @@ GOPATH=`pwd` go install github.com/etsy/hound/cmds/...
 There are an increasing number of tests in each of the packages in Hound. Please make sure these pass before uploading your Pull Request. You can run the tests with the following command.
 
 ```
-GOPATH=`pwd` go test github.com/etsy/hound/...
+make test
 ```
 
 ### Working on the web UI
 
-Hound includes a web UI that is composed of several files (html, css, javascript, etc.). To make sure hound works seamlessly with the standard Go tools, these resources are all built inside of the `houndd` binary. This adds a small burden on developers to re-package the UI files after each change. If you make changes to the UI, please follow these steps:
+Hound includes a web UI that is composed of several files (html, css, javascript, etc.). To make sure hound works seamlessly with the standard Go tools, these resources are all bundled inside of the `houndd` binary. Note that changes to the UI will result in local changes to the `ui/bindata.go` file. You must includes these changes in your Pull Request.
 
-1. To make development easier, there is a flag that will read the files from the file system (allowing the much-loved edit/refresh cycle).
+To make development easier, there is a flag that will read the files from the file system (allowing the much-loved edit/refresh cycle).
 
-    ```
-    bin/houndd --dev
-    ```
-
-2. Before uploading a Pull Request, please run the following command. This should regenerate the file `ui/bindata.go` which should be included in your Pull Request.
-
-    ```
-    cd src/github.com/etsy/hound
-    make
-    ```
+```
+bin/houndd --dev
+```
 
 ## Get in Touch
 
