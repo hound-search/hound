@@ -24,7 +24,7 @@ def process(src, dst, filenames, op):
 def main():
 	tools = get_tools_directory()
 	if not has_valid_location(tools):
-		print >> sys.stderr, "The Hound repository should be in a diretory like:"
+		print >> sys.stderr, "The Hound repository should be in a directory like:"
 		print >> sys.stderr, "src/github.com/etsy/Hound"
 		print >> sys.stderr, ""
 		print >> sys.stderr, "Follow the directions at https://github.com/etsy/Hound#editing--building"
