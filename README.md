@@ -13,7 +13,10 @@ Hound is an extremely fast source code search engine. The core is based on this 
 
 1. Create a [config.json](config-example.json) in a directory with your list of repositories.
 
-2. Run ```docker run -it --rm -p 0.0.0.0:6080:6080 --name houndd -v $(pwd):/hound etsy/hound```
+2. Run 
+    ```
+    docker run -it --rm -p 0.0.0.0:6080:6080 --name houndd -v $(pwd):/hound etsy/hound
+    ```
 
 You should be able to navigate to [http://localhost:6080/](http://localhost:6080/) as usual.
 
