@@ -9,10 +9,10 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/etsy/hound/api"
-	"github.com/etsy/hound/config"
-	"github.com/etsy/hound/searcher"
-	"github.com/etsy/hound/ui"
+	"github.com/etsy/Hound/api"
+	"github.com/etsy/Hound/config"
+	"github.com/etsy/Hound/searcher"
+	"github.com/etsy/Hound/ui"
 )
 
 var (
