@@ -5,7 +5,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/etsy/hound/vcs"
+	"github.com/etsy/Hound/vcs"
 )
 
 const exampleConfigFile = "config-example.json"

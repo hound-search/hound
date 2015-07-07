@@ -13,7 +13,7 @@ Hound is an extremely fast source code search engine. The core is based on this 
 1. Use the Go tools to install Hound. The binaries `houndd` (server) and `hound` (cli) will be installed in your $GOPATH.
 
     ```
-    go get github.com/etsy/hound/cmds/...
+    go get github.com/etsy/Hound/cmds/...
     ```
 
 2. Create a [config.json](config-example.json) at the root of your GOPATH with your list of repositories.
