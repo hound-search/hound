@@ -113,7 +113,7 @@ make test
 
 ### Working on the web UI
 
-Hound includes a web UI that is composed of several files (html, css, javascript, etc.). To make sure hound works seamlessly with the standard Go tools, these resources are all bundled inside of the `houndd` binary. Note that changes to the UI will result in local changes to the `ui/bindata.go` file. You must includes these changes in your Pull Request.
+Hound includes a web UI that is composed of several files (html, css, javascript, etc.). To make sure hound works seamlessly with the standard Go tools, these resources are all bundled inside of the `houndd` binary. Note that changes to the UI will result in local changes to the `ui/bindata.go` file. You must include these changes in your Pull Request.
 
 To make development easier, there is a flag that will read the files from the file system (allowing the much-loved edit/refresh cycle).
 
