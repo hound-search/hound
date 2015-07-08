@@ -25,9 +25,9 @@ def main():
 	tools = get_tools_directory()
 	if not has_valid_location(tools):
 		print >> sys.stderr, "The Hound repository should be in a directory like:"
-		print >> sys.stderr, "src/github.com/etsy/Hound"
+		print >> sys.stderr, "src/github.com/etsy/hound"
 		print >> sys.stderr, ""
-		print >> sys.stderr, "Follow the directions at https://github.com/etsy/Hound#editing--building"
+		print >> sys.stderr, "Follow the directions at https://github.com/etsy/hound#editing--building"
 		return 1
 	work = os.path.join(tools, '..', '..', '..', '..', '..')
 
