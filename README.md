@@ -9,6 +9,19 @@ Hound is an extremely fast source code search engine. The core is based on this 
 ![Hound Screen Capture](screen_capture.gif)
 
 ## Quick Start Guide
+* docker 1.4+
+
+1. Create a [config.json](config-example.json) in a directory with your list of repositories.
+
+2. Run 
+    ```
+    docker run -it --rm -p 6080:6080 --name houndd -v $(pwd):/hound etsy/hound
+    ```
+
+You should be able to navigate to [http://localhost:6080/](http://localhost:6080/) as usual.
+
+
+## Build from source
 
 1. Use the Go tools to install Hound. The binaries `houndd` (server) and `hound` (cli) will be installed in your $GOPATH.
 
@@ -16,7 +29,7 @@ Hound is an extremely fast source code search engine. The core is based on this 
     go get github.com/etsy/hound/cmds/...
     ```
 
-2. Create a [config.json](config-example.json) at the root of your GOPATH with your list of repositories.
+2. Create a [config.json](config-example.json) in a directory with your list of repositories.
 
 3. Run the Hound server with `houndd` and you should see output similer to:
 ````
@@ -40,15 +53,6 @@ Which brings us to...
 
 Yup, that's it. You can proxy requests to the Go service through Apache/nginx/etc., but that's not required.
 
-## Docker
-* docker 1.4+
-
-You should follow the quickstart guide up to step (3) and then run:
-
-    $ docker build -t houndd .
-    $ docker run -it --rm -p 0.0.0.0:6080:6080 --name houndd houndd
-
-You should be able to navigate to [http://localhost:6080/](http://localhost:6080/) as usual.
 
 ## Support
 
