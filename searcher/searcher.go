@@ -4,9 +4,6 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
-	"github.com/etsy/hound/config"
-	"github.com/etsy/hound/index"
-	"github.com/etsy/hound/vcs"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -16,6 +13,10 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/etsy/hound/config"
+	"github.com/etsy/hound/index"
+	"github.com/etsy/hound/vcs"
 )
 
 type Searcher struct {

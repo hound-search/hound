@@ -3,10 +3,11 @@ package client
 import (
 	"bytes"
 	"fmt"
-	"github.com/etsy/hound/ansi"
-	"github.com/etsy/hound/config"
 	"os"
 	"regexp"
+
+	"github.com/etsy/hound/ansi"
+	"github.com/etsy/hound/config"
 )
 
 type ackPresenter struct {

@@ -2,10 +2,11 @@ package client
 
 import (
 	"fmt"
-	"github.com/etsy/hound/ansi"
-	"github.com/etsy/hound/config"
 	"os"
 	"regexp"
+
+	"github.com/etsy/hound/ansi"
+	"github.com/etsy/hound/config"
 )
 
 type grepPresenter struct {

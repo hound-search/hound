@@ -61,6 +61,7 @@ func (g *GitDriver) Clone(dir, url string) (string, error) {
 	cmd := exec.Command(
 		"git",
 		"clone",
+		"--depth", "1",
 		url,
 		rep)
 	cmd.Dir = par

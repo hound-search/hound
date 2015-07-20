@@ -3,9 +3,10 @@ package index
 import (
 	"bytes"
 	"compress/gzip"
-	"github.com/etsy/hound/codesearch/regexp"
 	"io"
 	"os"
+
+	"github.com/etsy/hound/codesearch/regexp"
 )
 
 var nl = []byte{'\n'}

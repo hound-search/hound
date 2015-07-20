@@ -3,15 +3,16 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"github.com/etsy/hound/api"
-	"github.com/etsy/hound/config"
-	"github.com/etsy/hound/searcher"
-	"github.com/etsy/hound/ui"
 	"log"
 	"net/http"
 	"os"
 	"runtime"
 	"strings"
+
+	"github.com/etsy/hound/api"
+	"github.com/etsy/hound/config"
+	"github.com/etsy/hound/searcher"
+	"github.com/etsy/hound/ui"
 )
 
 var (
