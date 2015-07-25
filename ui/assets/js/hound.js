@@ -68,6 +68,8 @@ var ParamsFromQueryString = function(qs, params) {
 
   if (params["repos"] === '') {
     params["repos"] = '*';
+  } else {
+    params["repos"] = params["repos"].toString();
   }
 
   return params;
@@ -76,7 +78,7 @@ var ParamsFromQueryString = function(qs, params) {
 var ParamsFromUrl = function(params) {
   params = params || {
     q: '',
-    i: 'nope',
+    i: '',
     files: '',
     repos: '*'
   };
@@ -148,11 +150,7 @@ var Model = {
     var _this = this,
         startedAt = Date.now();
 
-    params = $.extend({
-      stats: 'fosho',
-      repos: '*',
-      rng: ':20',
-    }, params);
+    params = $.extend(params, { rng: ':20', stats: 'fosho' });
 
     if (params.repos === '') {
       params.repos = '*';
@@ -167,7 +165,7 @@ var Model = {
     if (params.q == '') {
       _this.results = [];
       _this.resultsByRepo = {};
-      _this.didSearch.raise(_this, _this.Results);
+      _this.didSearch.raise(_this, _this.results);
       return;
     }
 
@@ -288,20 +286,77 @@ var Model = {
 
 };
 
-var RepoOption = React.createClass({
+var SearchPanel = React.createClass({
+  componentWillMount: function() {
+    this.setState({ q: this.props.q,
+                    i: this.props.i,
+                    files: this.props.files,
+                    repos: this.props.repos });
+  },
+
+  getInitialState: function() {
+    return {
+      q: '',
+      i: false,
+      files: '',
+      repos: ''
+    };
+  },
+
+  submitQuery: function(event) {
+    this.props.onSearchRequested(this.state);
+
+    return false;
+  },
+
+  getRegExp: function() {
+    var flags = (this.state.i) ? 'ig' : 'g';
+    return new RegExp(this.state.q, flags);
+  },
+
+  updateState: function(newState) {
+    this.setState(newState);
+  },
+
   render: function() {
+    var statsView = '';
+    if (this.state.stats) {
+      statsView = (
+        <div className="stats">
+          <div className="stats-left">
+            <a href="/excluded_files.html" className="link-gray">Excluded Files</a>
+          </div>
+          <div className="stats-right">
+            <div className="val">{FormatNumber(this.state.stats.Total)}ms total</div> /
+            <div className="val">{FormatNumber(this.state.stats.Server)}ms server</div> /
+            <div className="val">{this.state.stats.Files} files</div>
+          </div>
+        </div>
+      );
+    }
+
+    var searchParams = { q: this.state.q,
+                         i: this.state.i };
+    var advancedParams = { files: this.state.files,
+                           repos: this.state.repos };
+
     return (
-      <option value={this.props.value}>{this.props.value}</option>
-    )
+      <form id="input" onSubmit={this.submitQuery}>
+        <SearchBar ref="searchBar"
+                   params={searchParams}
+                   updatePanel={this.updateState} />
+        <Advanced ref="advanced"
+                  params={advancedParams}
+                  updatePanel={this.updateState} />
+        {statsView}
+      </form>
+    );
   }
 });
 
 var SearchBar = React.createClass({
   componentWillMount: function() {
-    var _this = this;
-    Model.didLoadRepos.tap(function(model, repos) {
-      _this.setState({ allRepos: Object.keys(repos) });
-    });
+    this.setState({ query: this.props.params.q });
   },
 
   componentDidMount: function() {
@@ -309,190 +364,236 @@ var SearchBar = React.createClass({
 
     // TODO(knorton): Can't set this in jsx
     q.setAttribute('autocomplete', 'off');
-
-    this.setParams(this.props);
-
-    if (this.hasAdvancedValues()) {
-      this.showAdvanced();
-    }
-
     q.focus();
   },
+
+  handleChange: function(event) {
+    this.props.updatePanel({ q: event.target.value.trim() });
+
+    this.setState({ query: event.target.value });
+  },
+
+  render: function() {
+    return (
+      <div id="ina">
+        <div id="toggles">
+          <SearchToggle id="case-toggle"
+                        src="images/case.svg"
+                        title="Case-sensitive"
+                        option="i"
+                        initialChecked={this.props.params.i}
+                        updatePanel={this.props.updatePanel} />
+        </div>
+        <input type="text"
+               ref="q"
+               autocomplete="off"
+               placeholder="Search by regex or simple match"
+               value={this.state.query}
+               onChange={this.handleChange} />
+        <div className="button-add-on">
+          <button id="dodat" type="submit"></button>
+        </div>
+      </div>
+    );
+  }
+});
+
+var SearchToggle = React.createClass({
   getInitialState: function() {
     return {
-      state: null,
+      checked: this.props.initialChecked
+    };
+  },
+
+  handleChange: function(event) {
+    var newState = {};
+    newState[this.props.option] = event.target.checked;
+    this.props.updatePanel(newState);
+
+    this.setState({ checked: event.target.checked });
+  },
+
+  render: function() {
+    return (
+      <div className="toggle">
+        <input type="checkbox"
+               id={this.props.id}
+               checked={this.state.checked}
+               onChange={this.handleChange} />
+        <label htmlFor={this.props.id} title={this.props.title}>
+          <img src={this.props.src} alt={this.props.id} />
+        </label>
+      </div>
+    );
+  }
+});
+
+var Advanced = React.createClass({
+  componentDidMount: function() {
+    if (this.hasValues()) this.show();
+  },
+
+  getInitialState: function() {
+    return {
+      showAdv: false,
+      showBan: true
+    };
+  },
+
+  hasValues: function() {
+    return this.props.params.repos != '*' || this.props.params.files != '';
+  },
+
+  toggleShown: function() {
+    this.setState({ showAdv: !this.state.showAdv, showBan: !this.state.showBan });
+  },
+
+  show: function() {
+    this.setState({ showAdv: true, showBan: false });
+  },
+
+  render: function() {
+    var showAdv = (this.state.showAdv) ? 'is-shown' : '';
+    var showBan = (this.state.showBan) ? 'ban is-shown' : 'ban';
+
+    return (
+      <div id="inb">
+        <div id="adv" className={showAdv}>
+          <span className="octicon octicon-chevron-up"
+                onClick={this.toggleShown} />
+          <div className="field">
+            <label>File Path:</label>
+            <RepoSelect repos={this.props.params.repos}
+                        updatePanel={this.props.updatePanel}
+                        showAdvanced={this.show} />
+            <span className="slash-delimiter">/</span>
+            <FilePath files={this.props.params.files}
+                      updatePanel={this.props.updatePanel}
+                      showAdvanced={this.show} />
+          </div>
+        </div>
+        <div className={showBan} onClick={this.toggleShown}>
+          <span className="octicon octicon-chevron-down" />
+          <em> Advanced:</em> filter by repo(s) or file-path, stuff like that.
+        </div>
+      </div>
+    );
+  }
+});
+
+var FilePath = React.createClass({
+  componentWillMount: function() {
+    this.setState({ files: this.props.files });
+  },
+
+  handleChange: function(event) {
+    this.props.updatePanel({ files: event.target.value.trim() });
+    this.setState({ files: event.target.value });
+  },
+
+  render: function() {
+    return (
+      <div className="field-input file-path">
+        <input type="text"
+               value={this.state.files}
+               onFocus={this.props.showAdvanced}
+               onChange={this.handleChange} />
+      </div>
+    );
+  }
+});
+
+var RepoSelect = React.createClass({
+  componentWillMount: function() {
+    this.setState({ value: this.props.repos.toString() });
+
+    var _this = this;
+    Model.didLoadRepos.tap(function(model, repos) {
+      _this.setState({ allRepos: Object.keys(repos) });
+    });
+  },
+
+  getInitialState: function() {
+    return {
+      showRepos: false,
       allRepos: []
     };
   },
-  queryGotKeydown: function(event) {
-    switch (event.keyCode) {
-    case 40:
-      // this will cause advanced to expand if it is not expanded.
-      this.refs.files.getDOMNode().focus();
-      break;
-    case 38:
-      this.hideAdvanced();
-      break;
-    case 13:
-      this.submitQuery();
-      break;
+
+  toggleRepos: function() {
+    this.setState({ showRepos: !this.state.showRepos });
+  },
+
+  showRepos: function() {
+    this.setState({ showRepos: true });
+  },
+
+  preview: function() {
+    var dir = (this.state.showRepos) ? 'up' : 'down';
+    var chevron = '<div class="octicon octicon-chevron-'+dir+'"></div>';
+
+    if (this.state.value == '' || this.state.value == '*') {
+      return { __html: '<span>All Repos</span>'+chevron };
+    }
+    return { __html: '<span>'+this.state.value+'</span>'+chevron };
+  },
+
+  focusSelect: function(event) {
+    if (event.keyCode != 9 && event.keyCode != 32) {
+      this.showRepos();
+      this.refs.input.getDOMNode().focus();
     }
   },
-  queryGotFocus: function(event) {
-    if (!this.hasAdvancedValues()) {
-      this.hideAdvanced();
-    }
-  },
-  filesGotKeydown: function(event) {
-    switch (event.keyCode) {
-    case 38:
-      // if advanced is empty, close it up.
-      if (this.refs.files.getDOMNode().value.trim() === '') {
-        this.hideAdvanced();
-      }
-      this.refs.q.getDOMNode().focus();
-      break;
-    case 13:
-      this.submitQuery();
-      break;
-    }
-  },
-  filesGotFocus: function(event) {
-    this.showAdvanced();
-  },
-  submitQuery: function() {
-    this.props.onSearchRequested(this.getParams());
-  },
-  getRegExp : function() {
-    return new RegExp(this.refs.q.getDOMNode().value.trim(), "ig");
-  },
-  getParams: function() {
-    return {
-      q : this.refs.q.getDOMNode().value.trim(),
-      files : this.refs.files.getDOMNode().value.trim(),
-      repos : this.refs.repos.state.value.join(','),
-      i: this.refs.icase.getDOMNode().checked ? 'fosho' : 'nope'
-    };
-  },
-  setParams: function(params) {
-    var q = this.refs.q.getDOMNode(),
-        i = this.refs.icase.getDOMNode(),
-        files = this.refs.files.getDOMNode();
 
-    q.value = params.q;
-    i.checked = ParamValueToBool(params.i);
-    files.value = params.files;
+  handleChange: function(event) {
+    var newState = {};
+    var selected = [].map.call(event.target.selectedOptions, function(opt) {
+      return opt.value;
+    }).toString();
+
+    this.props.updatePanel({ repos: selected });
+    this.setState({ value: selected });
   },
-  hasAdvancedValues: function() {
-    return this.refs.files.getDOMNode().value.trim() !== '' || this.refs.icase.getDOMNode().checked || this.refs.repos.getDOMNode().value !== '';
-  },
-  showAdvanced: function() {
-    var adv = this.refs.adv.getDOMNode(),
-        ban = this.refs.ban.getDOMNode(),
-        q = this.refs.q.getDOMNode(),
-        files = this.refs.files.getDOMNode();
 
-    css(adv, 'height', 'auto');
-    css(adv, 'padding', '10px 0');
-
-    css(ban, 'max-height', '0');
-    css(ban, 'opacity', '0');
-
-    if (q.value.trim() !== '') {
-      files.focus();
-    }
-  },
-  hideAdvanced: function() {
-    var adv = this.refs.adv.getDOMNode(),
-        ban = this.refs.ban.getDOMNode(),
-        q = this.refs.q.getDOMNode();
-
-    css(adv, 'height', '0');
-    css(adv, 'padding', '0');
-
-    css(ban, 'max-height', '100px');
-    css(ban, 'opacity', '1');
-
-    q.focus();
-  },
   render: function() {
-    var repoCount = this.state.allRepos.length,
-        repoOptions = [];
+    var repoOptions = [];
     this.state.allRepos.forEach(function(repoName){
-      repoOptions.push(<RepoOption value={repoName} />);
-    });
+      repoOptions.push(<RepoOption value={repoName} initial={this.state.value} />);
+    }, this);
 
-    var stats = this.state.stats;
-    var statsView = '';
-    if (stats) {
-      statsView = (
-        <div className="stats">
-          <div className="stats-left">
-            <a href="/excluded_files.html"
-              className="link-gray">
-                Excluded Files
-            </a>
-          </div>
-          <div className="stats-right">
-            <div className="val">{FormatNumber(stats.Total)}ms total</div> /
-            <div className="val">{FormatNumber(stats.Server)}ms server</div> /
-            <div className="val">{stats.Files} files</div>
-          </div>
-        </div>
-      );
-    }
+    var showRepos = (this.state.showRepos) ? 'multiselect is-shown' : 'multiselect';
+    var initialValue = (this.props.repos) ? this.props.repos.toString() : '';
 
     return (
-      <div id="input">
-        <div id="ina">
-          <input id="q"
-              type="text"
-              placeholder="Search by Regexp"
-              ref="q"
-              autocomplete="off"
-              onKeyDown={this.queryGotKeydown}
-              onFocus={this.queryGotFocus}/>
-          <div className="button-add-on">
-            <button id="dodat" onClick={this.submitQuery}></button>
-          </div>
-        </div>
-
-        <div id="inb">
-          <div id="adv" ref="adv">
-            <span className="octicon octicon-chevron-up hide-adv" onClick={this.hideAdvanced}></span>
-            <div className="field">
-              <label>File Path</label>
-              <div className="field-input">
-                <input type="text"
-                    id="files"
-                    placeholder="/regexp/"
-                    ref="files"
-                    onKeyDown={this.filesGotKeydown}
-                    onFocus={this.filesGotFocus} />
-              </div>
-            </div>
-            <div className="field">
-              <label>Ignore Case</label>
-              <div className="field-input">
-                <input type="checkbox" ref="icase" />
-              </div>
-            </div>
-            <div className="field">
-              <label className="multiselect_label">Select Repo</label>
-              <div className="field-input">
-                <select id="repos" className="form-control multiselect" multiple={true} size={Math.min(16, repoCount)} ref="repos">
-                  {repoOptions}
-                </select>
-              </div>
-            </div>
-          </div>
-          <div className="ban" ref="ban" onClick={this.showAdvanced}>
-            <em>Advanced:</em> ignore case, filter by path, stuff like that.
-          </div>
-        </div>
-        {statsView}
+      <div className="field-input repos">
+        <button type="button"
+                className="repo-preview"
+                onClick={this.toggleRepos}
+                onKeyDown={this.focusSelect}
+                onFocus={this.props.showAdvanced}
+                dangerouslySetInnerHTML={this.preview()} />
+        <select ref="input"
+                className={showRepos}
+                multiple={true}
+                size={Math.min(10, this.state.allRepos.length)}
+                defaultValue={initialValue}
+                onChange={this.handleChange}>
+          {repoOptions}
+        </select>
       </div>
     );
+  }
+});
+
+var RepoOption = React.createClass({
+  isSelected: function() {
+    return this.props.initial.split(',').indexOf(this.props.value) > -1;
+  },
+
+  render: function() {
+    return (
+      <option value={this.props.value} selected={this.isSelected()}>{this.props.value}</option>
+    )
   }
 });
 
@@ -731,20 +832,20 @@ var App = React.createClass({
     var params = ParamsFromUrl();
     this.setState({
       q: params.q,
-      i: params.i,
+      i: ParamValueToBool(params.i),
       files: params.files,
       repos: params.repos
     });
 
     var _this = this;
     Model.didSearch.tap(function(model, results, stats) {
-      _this.refs.searchBar.setState({
+      _this.refs.searchPanel.setState({
         stats: stats
       });
 
       _this.refs.resultView.setState({
         results: results,
-        regexp: _this.refs.searchBar.getRegExp(),
+        regexp: _this.refs.searchPanel.getRegExp(),
         error: null
       });
     });
@@ -752,7 +853,7 @@ var App = React.createClass({
     Model.didLoadMore.tap(function(model, repo, results) {
       _this.refs.resultView.setState({
         results: results,
-        regexp: _this.refs.searchBar.getRegExp(),
+        regexp: _this.refs.searchPanel.getRegExp(),
         error: null
       });
     });
@@ -766,32 +867,35 @@ var App = React.createClass({
 
     window.addEventListener('popstate', function(e) {
       var params = ParamsFromUrl();
-      _this.refs.searchBar.setParams(params);
       Model.Search(params);
     });
   },
+
   onSearchRequested: function(params) {
     this.updateHistory(params);
-    Model.Search(this.refs.searchBar.getParams());
+    Model.Search(params);
   },
+
   updateHistory: function(params) {
     var path = location.pathname +
-      '?q=' + encodeURIComponent(params.q) +
-      '&i=' + encodeURIComponent(params.i) +
-      '&files=' + encodeURIComponent(params.files) +
-      '&repos=' + params.repos;
+               '?q=' + encodeURIComponent(params.q) +
+               '&i=' + encodeURIComponent(params.i) +
+               '&files=' + encodeURIComponent(params.files) +
+               '&repos=' + params.repos;
     history.pushState({path:path}, '', path);
   },
+
   render: function() {
     return (
       <div>
-        <SearchBar ref="searchBar"
-            q={this.state.q}
-            i={this.state.i}
-            files={this.state.files}
-            repos={this.state.repos}
-            onSearchRequested={this.onSearchRequested} />
-        <ResultView ref="resultView" q={this.state.q} />
+        <SearchPanel ref="searchPanel"
+                     q={this.state.q}
+                     i={this.state.i}
+                     files={this.state.files}
+                     repos={this.state.repos}
+                     onSearchRequested={this.onSearchRequested} />
+        <ResultView ref="resultView"
+                    q={this.state.q} />
       </div>
     );
   }

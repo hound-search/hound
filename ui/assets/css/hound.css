@@ -1,4 +1,3 @@
-
 body {
   margin: 0;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -58,35 +57,94 @@ button:focus {
   width: 100%;
   position: relative;
   z-index: 1;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.2);
+}
+
+/* Search toggle options */
+#toggles {
+  display : inline-block;
+  height: 55px;
+  vertical-align: top;
+}
+
+.toggle:first-child {
+  border-radius: 3px 0 0 3px;
+  border-left: 1px solid #ccc;
+}
+
+.toggle:not(:last-child) {
+  border-right: 1px solid #ccc;
+}
+
+.toggle {
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  display: inline-block;
+  height: 53px;;
+
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+input[type="checkbox"] {
+  display: none;
+}
+
+input[type="checkbox"] + label {
+  display: block;
+  height: 100%;
+  padding: 0 10px;
+  vertical-align: middle;
+  cursor: pointer;
+  background-color: #9da5b4;
+}
+
+input[type="checkbox"]:checked + label {
+  background-color: #09f;
+}
+
+#case-toggle[type="checkbox"] + label {
+  background-color: #09f;
+}
+
+#case-toggle[type="checkbox"]:checked + label {
+  background-color: #9da5b4;
+}
+
+input[type="checkbox"] + label > img {
+  display: block;
+  margin: 0  auto;
+  padding: 18px 0;
 }
 
 /* Search input */
 #ina > input {
   height: 55px;
+  width: calc(91% - 41px);
   padding: 0 7px;
   border-right: 0;
-  border-radius: 3px 0 0 3px;
+  border-left: 0;
   box-sizing: border-box;
   color: #666;
   font-size: 18px;
   font-weight: 300;
-  display: table-cell;
-  width: 100%;
-  vertical-align: middle;
+  display: inline-block;
+  vertical-align: top;
 }
 
 #ina > .button-add-on {
-  display: table-cell;
-  vertical-align: middle;
-  width: 1%;
+  display: inline-block;
+  vertical-align: top;
+  width: 9%;
 }
 
 /* Search submit button */
 #dodat {
   border-radius: 0 3px 3px 0;
   height: 55px;
-  width: 72px;
+  width: 100%;
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAiCAYAAAA6RwvCAAABVUlEQVRYw+2YQRGEMAxFkVAJlYAEJCABCUhAQiWshJWABCRUAg7+XsrMTkibNDBdDvtnek0fSfqToQPQPeE8AuK5IDkBGAC8AESctQEIAHxXKTUIgB7ACr0CAHcrCIAJNm0A+ltALkAc2jWlKoKkcnCKCdCR0i3p4lNmroJwPRGEgC6VhGo2gaTXUQUhwEQryKsmUOaZU40WEOoTk8Eb3iTGYgGhcgaQmcRYL4N0BjHl+RnIeDuI1iFJ8EBivC0gm7bRCsGj1ktKIIGx6pohNjNZ9RYQnxliTgHRM1a/XrH4kIEZhEzstT0mgeTmBpJZzemJjgk65naTO9aAPvOFtavAWMqKdjHyhcxIW9quGRVVO2uh/lTr8fWMqbEw1cvzV/AlXXico2c884IgwZhADMY2STBNQDQwzUAkmKYgAoxvClKAGZqDMDBb89IwRjlI0/f/W+ID3tQLQPib2qQAAAAASUVORK5CYII=);
   background-repeat: no-repeat;
   background-position: center center;
@@ -103,7 +161,6 @@ button:focus {
   color: #aaa;
   font-size: 12px;
   line-height: 24px;
-  cursor: pointer;
   background-color: #fff;
 }
 
@@ -115,28 +172,80 @@ button:focus {
   transition: height, padding 0.1s ease-in-out;
 }
 
-.hide-adv {
-  cursor:pointer;
+#adv.is-shown {
+  height: auto;
+  padding: 10px 0;
 }
 
-/* Media object clearfix */
+.octicon-chevron-up, .octicon-chevron-down {
+  cursor: pointer;
+}
+
 #adv > .field {
-  overflow: hidden;
+  padding: 5px 0;
 }
 
 #adv > .field > label {
-  /* Media object left */
-  float: left;
-  width: 90px;
+  display: inline-block;
   color: #999;
+  vertical-align: top;
+  width: 90px;
 }
 
-#adv > .field > .field-input {
-  /* New block formatting context for media object */
+.field > .field-input {
+  display: inline-block;
+  vertical-align: top;
+  width: calc(100% - 90px);
+}
+
+.field > .field-input.repos {
+  width: calc(35% - 60px);
+}
+
+.field > .field-input.file-path {
+  width: calc(65% - 50px);
+}
+
+button.repo-preview {
+    border: 1px solid lightgray;
+    border-radius: 0;
+    cursor: pointer;
+    display: block;
+    font-size: 12px;
+    height: 26px;
+    position: relative;
+    text-align: center;
+    width: calc(100% + 2px);
+}
+
+button.repo-preview:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(0,153,255,1);
+}
+
+button.repo-preview > span {
+  display: block;
   overflow: hidden;
+  text-overflow: ellipsis;
+  width: calc(100% - 10px);
+  white-space: nowrap;
+}
+
+button.repo-preview > .octicon {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+}
+
+.slash-delimiter {
+  display: inline-block;
+  font-size: 25px;
+  padding: 0 5px;
+  vertical-align: top;
 }
 
 #adv > .field input[type=text] {
+  height: 26px;
   line-height: 24px;
   box-sizing: border-box;
   width: 100%;
@@ -144,19 +253,86 @@ button:focus {
   color: #666;
 }
 
-.multiselect {
-  box-sizing: border-box;
-  width: 100%;
-  margin-top:5px;
-  padding:5px;
+button.file-mode {
   border: 1px solid #ccc;
+  border-left: none;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  font-size: 12px;
+  height: 26px;
+  vertical-align: top;
+  width: 15%;
+}
+
+button.file-mode:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(0,153,255,1);
+}
+
+.multiselect {
+  /* zeroing border-widths to hide default border */
+  border-top-width: 0;
+  border-bottom-width: 0;
+  border-left: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  box-sizing: border-box;
   color: #666;
+  display: block;
+  max-height: 0;
+  vertical-align: top;
+  visibility: hidden;
+  width: calc(100% + 2px);
+  transition: max-height 0.15s linear, visibility 0s step-end 0.15s;
+}
+
+.multiselect:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(0,153,255,1);
+}
+
+.multiselect.is-shown {
+  border-bottom: 1px solid #ccc;
+  max-height: 50em;
+  transition: max-height 0.15s linear, visibility 0s step-end;
+  visibility: visible;
+}
+
+.multiselect > option {
+  cursor: pointer;
+  font-size: 12px;
+  padding: 5px;
+}
+
+@media(max-width: 500px) {
+  #adv > .field > label {
+    display: block;
+    width: 100%;
+  }
+
+  .field > .field-input {
+    width: 100%;
+  }
+
+  .field > .field-input.repos {
+    width: calc(40% - 15px);
+  }
+
+  .field > .field-input.file-path {
+    width: calc(60% - 5px);
+  }
 }
 
 #inb > .ban {
   transition: max-height, opacity 0.1s ease-in-out;
-  opacity: 1;
+  max-height: 0px;
+  opacity: 0;
   overflow: hidden;
+  cursor: pointer;
+}
+
+#inb > .ban.is-shown {
+    max-height: 100px;
+    opacity: 1;
 }
 
 #inb > .ban > em {
