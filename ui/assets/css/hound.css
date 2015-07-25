@@ -122,7 +122,7 @@ input[type="checkbox"] + label > img {
 /* Search input */
 #ina > input {
   height: 55px;
-  width: calc(91% - 41px);
+  width: calc(91% - 123px);
   padding: 0 7px;
   border-right: 0;
   border-left: 0;
@@ -248,25 +248,63 @@ button.repo-preview > .octicon {
   height: 26px;
   line-height: 24px;
   box-sizing: border-box;
-  width: 100%;
+  width: calc(100% - 115px);
   padding: 0 10px;
   color: #666;
 }
 
+.field-input.file-path > .simple-tip {
+  display: none;
+  line-height: 15px;
+  padding-top: 5px;
+  width: calc(100% - 115px);
+}
+
+.field-input.file-path > .simple-tip.is-shown {
+  display: inherit;
+}
+
 button.file-mode {
   border: 1px solid #ccc;
-  border-left: none;
-  border-top-left-radius: 0px;
-  border-bottom-left-radius: 0px;
   font-size: 12px;
   height: 26px;
+  line-height: 24px;
+  margin-left: 5px;
+  padding: 0;
+  position: relative;
   vertical-align: top;
-  width: 15%;
+  width: 110px;
 }
 
 button.file-mode:focus {
   outline: none;
   box-shadow: 0 0 5px rgba(0,153,255,1);
+}
+
+button.file-mode > div {
+  height: 24px;
+  width: 54px;
+}
+
+button.file-mode > .regex {
+  float: left;
+}
+
+button.file-mode > .simple {
+  float: right;
+}
+
+button.file-mode > .slider {
+  background-color: #eee;
+  border-radius: 2px;
+  color: #333;
+  position: absolute;
+  margin-left: 54px;
+  transition: margin-left 0.1s ease-in-out;
+}
+
+button.file-mode > .slider.simple {
+  margin-left: 0px;
 }
 
 .multiselect {

@@ -37,6 +37,47 @@ var css = function(el, n, v) {
   el.style.setProperty(n, v, '');
 };
 
+var EncodeURLQuery = function(query, regex, wholeWord) {
+  if (!(regex == true)) {
+    // copied from stackoverflow / google's closure lib
+    query = query.replace(/([-()\[\]{}+?*.$\^|,:#<!\\])/g, '\\$1');
+  }
+  if (wholeWord) {
+    query = "\\b" + query + "\\b";
+  }
+  return query;
+};
+
+var DecodeURLQuery = function(query, regex, wholeWord) {
+  if (wholeWord) {
+    query = query.replace(/\\b/g, "");
+  }
+  if (!regex) {
+    query = query.replace(/\\(.)/mg, "$1");
+  }
+  return query;
+};
+
+var EncodeURLFiles = function(files, mode) {
+  if (mode === "simple") {
+    files = files.replace(/\./g, "\\.");
+    files = files.replace(/\*/g, ".*");
+    return files.replace(/\,\s*/g, "|");
+  } else {
+    return files;
+  }
+};
+
+var DecodeURLFiles =  function(files, mode) {
+  if (mode === "simple") {
+    files = files.replace(/\|/g, ", ");
+    files = files.replace(/\.\*/g, "*");
+    return files.replace(/\\\./g, ".");
+  } else {
+    return files;
+  }
+};
+
 var FormatNumber = function(t) {
   var s = '' + (t|0),
       b = [];
@@ -78,7 +119,10 @@ var ParamsFromQueryString = function(qs, params) {
 var ParamsFromUrl = function(params) {
   params = params || {
     q: '',
+    r: '',
     i: '',
+    w: '',
+    mode: 'regex',
     files: '',
     repos: '*'
   };
@@ -288,30 +332,46 @@ var Model = {
 
 var SearchPanel = React.createClass({
   componentWillMount: function() {
-    this.setState({ q: this.props.q,
-                    i: this.props.i,
-                    files: this.props.files,
-                    repos: this.props.repos });
+    this.setState({
+      q: DecodeURLQuery(this.props.q, this.props.r, this.props.w),
+      r: this.props.r,
+      i: this.props.i,
+      w: this.props.w,
+      mode: this.props.mode,
+      files: this.props.files,
+      repos: this.props.repos
+    });
   },
 
   getInitialState: function() {
     return {
       q: '',
+      r: false,
       i: false,
+      w: false,
+      mode: 'regex',
       files: '',
       repos: ''
     };
   },
 
   submitQuery: function(event) {
-    this.props.onSearchRequested(this.state);
+    // deep-copy current state and encode query and files
+    encodedState = $.extend(true, {}, this.state);
+    encodedState.q = this.getEncodedQuery();
+    encodedState.files = EncodeURLFiles(this.state.files, this.state.mode);
+    this.props.onSearchRequested(encodedState);
 
     return false;
   },
 
+  getEncodedQuery: function() {
+    return EncodeURLQuery(this.state.q, this.state.r, this.state.w);
+  },
+
   getRegExp: function() {
     var flags = (this.state.i) ? 'ig' : 'g';
-    return new RegExp(this.state.q, flags);
+    return new RegExp(this.getEncodedQuery(), flags);
   },
 
   updateState: function(newState) {
@@ -336,8 +396,11 @@ var SearchPanel = React.createClass({
     }
 
     var searchParams = { q: this.state.q,
-                         i: this.state.i };
-    var advancedParams = { files: this.state.files,
+                         i: this.state.i,
+                         r: this.state.r,
+                         w: this.state.w };
+    var advancedParams = { mode:  this.state.mode,
+                           files: this.state.files,
                            repos: this.state.repos };
 
     return (
@@ -377,11 +440,23 @@ var SearchBar = React.createClass({
     return (
       <div id="ina">
         <div id="toggles">
+          <SearchToggle id="regex-toggle"
+                        src="images/regex.svg"
+                        option="r"
+                        title="Regex"
+                        initialChecked={this.props.params.r}
+                        updatePanel={this.props.updatePanel} />
           <SearchToggle id="case-toggle"
                         src="images/case.svg"
                         title="Case-sensitive"
                         option="i"
                         initialChecked={this.props.params.i}
+                        updatePanel={this.props.updatePanel} />
+          <SearchToggle id="word-toggle"
+                        src="images/wholeWord.svg"
+                        title="Whole word"
+                        option="w"
+                        initialChecked={this.props.params.w}
                         updatePanel={this.props.updatePanel} />
         </div>
         <input type="text"
@@ -428,6 +503,12 @@ var SearchToggle = React.createClass({
   }
 });
 
+/* The Advanced dropdown gives the users two modes of searching
+ * their files: regex and simple. Regex lets the user simply enter
+ * a regex of their choosing to match filePaths while Simple lets the user
+ * user a sublime-familiar interface of *.js and filepaths to match
+ * their selection.
+ */
 var Advanced = React.createClass({
   componentDidMount: function() {
     if (this.hasValues()) this.show();
@@ -443,6 +524,7 @@ var Advanced = React.createClass({
   hasValues: function() {
     return this.props.params.repos != '*' || this.props.params.files != '';
   },
+
 
   toggleShown: function() {
     this.setState({ showAdv: !this.state.showAdv, showBan: !this.state.showBan });
@@ -468,6 +550,7 @@ var Advanced = React.createClass({
                         showAdvanced={this.show} />
             <span className="slash-delimiter">/</span>
             <FilePath files={this.props.params.files}
+                      mode={this.props.params.mode}
                       updatePanel={this.props.updatePanel}
                       showAdvanced={this.show} />
           </div>
@@ -483,7 +566,15 @@ var Advanced = React.createClass({
 
 var FilePath = React.createClass({
   componentWillMount: function() {
-    this.setState({ files: this.props.files });
+    var decodedFiles = DecodeURLFiles(this.props.files, this.props.mode);
+    this.setState({ files: decodedFiles, mode: this.props.mode });
+  },
+
+  switchMode: function() {
+    newMode = (this.state.mode != 'regex') ? 'regex' : 'simple';
+    this.props.updatePanel({ mode: newMode });
+
+    this.setState({ mode: newMode });
   },
 
   handleChange: function(event) {
@@ -492,12 +583,28 @@ var FilePath = React.createClass({
   },
 
   render: function() {
+    var altText = (this.state.mode == 'regex') ? "htdocs\\/.*\\.(php|js)$"
+                                               : "htdocs/*.php, htdocs/*.js";
+    var sliderState = (this.state.mode == 'regex') ? "slider" : "slider simple";
+    var showTip = (this.state.mode == 'regex') ? "simple-tip"
+                                               : "simple-tip is-shown";
+
     return (
       <div className="field-input file-path">
         <input type="text"
                value={this.state.files}
+               placeholder={altText}
                onFocus={this.props.showAdvanced}
                onChange={this.handleChange} />
+        <button type="button"
+                className="file-mode"
+                onClick={this.switchMode}>
+          <div className="regex">regex</div>
+          <div className="simple">simple</div>
+          <div className={sliderState}></div>
+        </button>
+        <div className={showTip}>Tip: you can use * as a wildcard, and
+        comma-delimit multiple options, e.g. "*.js, *.py"</div>
       </div>
     );
   }
@@ -531,7 +638,6 @@ var RepoSelect = React.createClass({
   preview: function() {
     var dir = (this.state.showRepos) ? 'up' : 'down';
     var chevron = '<div class="octicon octicon-chevron-'+dir+'"></div>';
-
     if (this.state.value == '' || this.state.value == '*') {
       return { __html: '<span>All Repos</span>'+chevron };
     }
@@ -832,7 +938,10 @@ var App = React.createClass({
     var params = ParamsFromUrl();
     this.setState({
       q: params.q,
+      r: ParamValueToBool(params.r),
       i: ParamValueToBool(params.i),
+      w: ParamValueToBool(params.w),
+      mode: params.mode,
       files: params.files,
       repos: params.repos
     });
@@ -879,7 +988,10 @@ var App = React.createClass({
   updateHistory: function(params) {
     var path = location.pathname +
                '?q=' + encodeURIComponent(params.q) +
+               '&r=' + encodeURIComponent(params.r) +
                '&i=' + encodeURIComponent(params.i) +
+               '&w=' + encodeURIComponent(params.w) +
+               '&mode=' + encodeURIComponent(params.mode) +
                '&files=' + encodeURIComponent(params.files) +
                '&repos=' + params.repos;
     history.pushState({path:path}, '', path);
@@ -890,7 +1002,10 @@ var App = React.createClass({
       <div>
         <SearchPanel ref="searchPanel"
                      q={this.state.q}
+                     r={this.state.r}
                      i={this.state.i}
+                     w={this.state.w}
+                     mode={this.state.mode}
                      files={this.state.files}
                      repos={this.state.repos}
                      onSearchRequested={this.onSearchRequested} />
