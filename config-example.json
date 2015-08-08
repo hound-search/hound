@@ -42,6 +42,13 @@
                 "anchor" : "#line={line}"
             }
         },
+        "BitbucketCustomUrl" : {
+            "url" : "git@bitbucket.org:organization/project.git",
+            "url-pattern" : {
+                "base-url" : "{url}/src/master/{path}{anchor}",
+                "anchor" : "#{filename}-{line}"
+            }
+        },
         "RepoWithPollingDisabled" : {
             "url" : "https://www.github.com/YourOrganization/RepoOne.git",
             "enable-poll-updates" : false
