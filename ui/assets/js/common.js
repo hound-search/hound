@@ -13,7 +13,7 @@ var lib = {
     UrlToRepo: function(repo, path, line, rev) {
         var url = repo.url.replace(/\.git$/, ''),
             pattern = repo['url-pattern'],
-            filename = path.replace(/^.*\//, ''),
+            filename = path.substring(path.lastIndexOf('/') + 1),
             anchor = line ? lib.ExpandVars(pattern.anchor, { line : line, filename : filename }) : '';
 
         // Hacky solution to fix _some more_ of the 404's when using SSH style URLs.
