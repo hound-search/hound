@@ -53,14 +53,14 @@ func (h *devHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// If so, render the HTML
 	w.Header().Set("Content-Type", "text/html;charset=utf-8")
-	if err := renderForDev(w, h.root, cr, h.cfg); err != nil {
+	if err := renderForDev(w, h.root, cr, h.cfg, r); err != nil {
 		log.Panic(err)
 	}
 }
 
 // Renders a templated asset in dev-mode. This simply embeds external script tags
 // for the source elements.
-func renderForDev(w io.Writer, root string, c *content, cfg *config.Config) error {
+func renderForDev(w io.Writer, root string, c *content, cfg *config.Config, r *http.Request) error {
 	t, err := template.ParseFiles(
 		filepath.Join(root, c.template))
 	if err != nil {
@@ -89,6 +89,7 @@ func renderForDev(w io.Writer, root string, c *content, cfg *config.Config) erro
 		"jQueryVersion": JQueryVersion,
 		"ReposAsJson":   json,
 		"Source":        template.HTML(buf.String()),
+		"Host":          r.Host,
 	})
 }
 
@@ -117,7 +118,7 @@ func (h *prdHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ct := h.content[p]
 	if ct != nil {
 		// if so, render it
-		if err := renderForPrd(w, ct, h.cfgJson); err != nil {
+		if err := renderForPrd(w, ct, h.cfgJson, r); err != nil {
 			log.Panic(err)
 		}
 		return
@@ -131,7 +132,7 @@ func (h *prdHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // Renders a templated asset in prd-mode. This strategy will embed
 // the sources directly in a script tag on the templated page.
-func renderForPrd(w io.Writer, c *content, cfgJson string) error {
+func renderForPrd(w io.Writer, c *content, cfgJson string, r *http.Request) error {
 
 	var buf bytes.Buffer
 	buf.WriteString("<script>")
@@ -149,6 +150,7 @@ func renderForPrd(w io.Writer, c *content, cfgJson string) error {
 		"jQueryVersion": JQueryVersion,
 		"ReposAsJson":   cfgJson,
 		"Source":        template.HTML(buf.String()),
+		"Host":          r.Host,
 	})
 }
 
