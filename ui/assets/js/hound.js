@@ -364,7 +364,7 @@ var SearchBar = React.createClass({
     this.props.onSearchRequested(this.getParams());
   },
   getRegExp : function() {
-    return new RegExp(this.refs.q.getDOMNode().value.trim(), "ig");
+    return new RegExp(this.refs.q.getDOMNode().value.trim(), (this.refs.icase.getDOMNode().checked ? "i" : "") + "g");
   },
   getParams: function() {
     return {
