@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/etsy/hound/limiter"
 )
 
 // A collection that maps vcs names to their underlying
@@ -32,6 +34,7 @@ type Driver interface {
 // what clients will interact with.
 type WorkDir struct {
 	Driver
+	limiter.Limiter
 }
 
 // Register a new vcs driver under 1 or more names.
@@ -57,7 +60,9 @@ func New(name string, cfg []byte) (*WorkDir, error) {
 		return nil, err
 	}
 
-	return &WorkDir{d}, nil
+	l := limiter.New(10)
+
+	return &WorkDir{d, l}, nil
 }
 
 func exists(path string) bool {
@@ -70,6 +75,8 @@ func exists(path string) bool {
 // A utility method that carries out the common operation of cloning
 // if the working directory is absent and pulling otherwise.
 func (w *WorkDir) PullOrClone(dir, url string) (string, error) {
+	w.Acquire()
+	defer w.Release()
 	if exists(dir) {
 		return w.Pull(dir)
 	}

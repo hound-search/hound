@@ -16,6 +16,7 @@ import (
 
 	"github.com/etsy/hound/config"
 	"github.com/etsy/hound/index"
+	"github.com/etsy/hound/limiter"
 	"github.com/etsy/hound/vcs"
 )
 
@@ -31,8 +32,6 @@ type Searcher struct {
 	updateCh chan time.Time
 }
 
-type limiter chan bool
-
 /**
  * Holds a set of IndexRefs that were found in the dbpath at startup,
  * these indexes can be 'claimed' and re-used by newly created searchers.
@@ -40,18 +39,6 @@ type limiter chan bool
 type foundRefs struct {
 	refs    []*index.IndexRef
 	claimed map[*index.IndexRef]bool
-}
-
-func makeLimiter(n int) limiter {
-	return limiter(make(chan bool, n))
-}
-
-func (l limiter) Acquire() {
-	l <- true
-}
-
-func (l limiter) Release() {
-	<-l
 }
 
 /**
@@ -256,7 +243,7 @@ func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error)
 		return nil, nil, err
 	}
 
-	lim := makeLimiter(cfg.MaxConcurrentIndexers)
+	lim := limiter.New(cfg.MaxConcurrentIndexers)
 
 	for name, repo := range cfg.Repos {
 		s, err := newSearcher(cfg.DbPath, name, repo, refs, lim)
