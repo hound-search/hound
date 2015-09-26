@@ -1,0 +1,5 @@
+
+FROM    golang:1.5
+WORKDIR /go/src/github.com/etsy/hound
+ENV     CGO_ENABLED=0
+CMD     go-wrapper install -a github.com/etsy/hound/cmds/houndd

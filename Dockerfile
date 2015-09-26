@@ -1,9 +1,8 @@
-FROM golang
 
-COPY . /go/src/github.com/etsy/hound
-ONBUILD COPY config.json /hound/
-RUN go-wrapper install github.com/etsy/hound/cmds/houndd
-
-EXPOSE 6080
-
-ENTRYPOINT ["/go/bin/houndd", "-conf", "/hound/config.json"]
+FROM    alpine:edge
+RUN     apk -U add git
+COPY    dist/bin/houndd /houndd
+COPY    config.json /hound/config.json
+VOLUME  /hound/data
+EXPOSE  6080
+ENTRYPOINT ["/houndd", "-conf", "/hound/config.json"]
