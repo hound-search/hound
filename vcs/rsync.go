@@ -29,7 +29,7 @@ func (g *RsyncDriver) Clone(dir, url string) (string, error) {
 	cmd := exec.Command(
 		"rsync",
 		"-r",
-		url[7:],
+		url,
 		rep)
 	cmd.Dir = par
 	cmd.Stdout = ioutil.Discard
