@@ -16,10 +16,13 @@
         </div>
 
         <script>
-        var ModelData = {{ .ReposAsJson }};
+            var ModelData = {{ .ReposAsJson }};
         </script>
-        <script src="js/react-{{.ReactVersion}}.min.js"></script>
+        <script src="js/react-with-addons-{{.ReactVersion}}.min.js"></script>
+        <script src="js/react-dom-{{.ReactVersion}}.min.js"></script>
         <script src="js/jquery-{{.jQueryVersion}}.min.js"></script>
+        <script src="js/babel-core.5.8.23.browser.min.js"></script>
+        <script src="js/common.js"></script>
         {{ .Source }}
     </body>
 </html>

@@ -1,5 +1,3 @@
-/** @jsx React.DOM */
-
 var Signal = function() {
 };
 
@@ -629,9 +627,13 @@ var FilesView = React.createClass({
           var content = ContentFor(line, regexp);
           return (
             <div className="line">
-              <a href={Model.UrlToRepo(repo, filename, line.Number, rev)}
-                  className="lnum"
-                  target="_blank">{line.Number}</a>
+              <a
+                href={Model.UrlToRepo(repo, filename, line.Number, rev)}
+                className="lnum"
+                target="_blank"
+              >
+                {line.Number}
+              </a>
               <span className="lval" dangerouslySetInnerHTML={{__html:content}} />
             </div>
           );
@@ -645,7 +647,10 @@ var FilesView = React.createClass({
       return (
         <div className="file">
           <div className="title">
-            <a href={Model.UrlToRepo(repo, match.Filename, null, rev)}>
+            <a
+              href={Model.UrlToRepo(repo, match.Filename, null, rev)}
+              target="_blank"
+            >
               {match.Filename}
             </a>
           </div>
@@ -799,7 +804,7 @@ var App = React.createClass({
   }
 });
 
-React.renderComponent(
+ReactDOM.render(
   <App />,
   document.getElementById('root')
 );

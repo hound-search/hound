@@ -1,5 +1,3 @@
-/** @jsx React.DOM */
-
 var ExcludedRow = React.createClass({
   render: function() {
     var url = lib.UrlToRepo(this.props.repo, this.props.file.Filename, this.props.rev);
@@ -132,7 +130,7 @@ var FilterableExcludedFiles = React.createClass({
   }
 });
 
-React.renderComponent(
+ReactDOM.render(
   <FilterableExcludedFiles />,
   document.getElementById('root')
 );
