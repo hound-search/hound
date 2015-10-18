@@ -47,7 +47,6 @@ var RepoButton = React.createClass({
     this.props.onRepoClick(repoName);
   },
   render: function() {
-    console.log(this.props)
     var className = 'repo-button';
     if (this.props.currentRepo === this.props.repo) {
       className += ' selected';
