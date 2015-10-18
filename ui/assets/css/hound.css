@@ -2,7 +2,7 @@
 body {
   margin: 0;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  color: #333;
+  color: #333333;
   background-color: #fff;
 }
 
@@ -10,7 +10,7 @@ a {
   color: #09f;
 }
 
-.link-gray { color: #aaa }
+.link-gray { color: #333333 }
 
 input {
   font-family: inherit;
@@ -68,7 +68,7 @@ button:focus {
   border-right: 0;
   border-radius: 3px 0 0 3px;
   box-sizing: border-box;
-  color: #666;
+  color: #333333;
   font-size: 18px;
   font-weight: 300;
   display: table-cell;
@@ -100,7 +100,7 @@ button:focus {
   padding: 4px 8px;
   position: relative;
   box-shadow: 0 1px 6px rgba(0,0,0,0.2);
-  color: #aaa;
+  color: #333333;
   font-size: 12px;
   line-height: 24px;
   cursor: pointer;
@@ -128,7 +128,7 @@ button:focus {
   /* Media object left */
   float: left;
   width: 90px;
-  color: #999;
+  color: #333333;
 }
 
 #adv > .field > .field-input {
@@ -161,7 +161,7 @@ button:focus {
 
 #inb > .ban > em {
   font-style: normal;
-  color: #aaa;
+  color: #333333;
 }
 
 #input > .stats {
@@ -169,7 +169,7 @@ button:focus {
   font-size: 12px;
   padding: 4px 0;
   margin: 0 auto;
-  color: #aaa;
+  color: #333333;
 }
 
 /* Clearfix .stats */
@@ -221,7 +221,7 @@ button:focus {
 }
 
 .repo > .title {
-  color: #666;
+  color: #333333;
   font-size: 24px;
   padding-bottom: 5px;
 }
@@ -255,7 +255,7 @@ button:focus {
 }
 
 .title a {
-  color: #666;
+  color: #333333;
 }
 
 .file-body {
@@ -288,7 +288,7 @@ button:focus {
   border-right: 1px solid #eee;
   display: inline-block;
   font-size: 14px;
-  color: #aaa;
+  color: #333333;
 }
 
 .match > .line:last-child > .lnum {
