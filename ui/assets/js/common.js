@@ -37,3 +37,12 @@ var lib = {
         });
     }
 };
+
+
+try {
+  if (localStorage["useDarkTheme"] === "true") {
+    document.getElementById('theme').href="css/hound-dark.css";
+  }
+} catch (e) {
+
+}

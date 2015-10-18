@@ -1,7 +1,4 @@
-
 body {
-  margin: 0;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   color: #333333;
   background-color: #fff;
 }
@@ -10,257 +7,90 @@ a {
   color: #09f;
 }
 
-.link-gray { color: #333333 }
+.link-gray {
+  color: #333333;
+}
 
 input {
-  font-family: inherit;
   background-color: #fff;
   border: 1px solid #ccc;
 }
 
 input:focus {
-  outline: none;
   border-color: #09f;
   box-shadow: 0 0 5px rgba(0,153,255,.5);
 }
 
 button {
-  font-family: inherit;
-  font-size: 14px;
-  text-align: center;
-  display: inline-block;
   color: #fff;
   background-color: #09f;
-  border: 0;
-  border-radius: 3px;
-  cursor: pointer;
 }
 
 button:focus {
   box-shadow: 0 0 6px rgba(0,153,255,.75);
 }
 
-#root {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 0 20px 20px 20px;
-}
-
-
-#input {
-  margin-top: 40px;
-  margin-bottom: 40px;
-}
-
-/* Search container */
-#ina {
-  display: table;
-  width: 100%;
-  position: relative;
-  z-index: 1;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.2);
-}
-
 /* Search input */
 #ina > input {
-  height: 55px;
-  padding: 0 7px;
-  border-right: 0;
-  border-radius: 3px 0 0 3px;
-  box-sizing: border-box;
   color: #333333;
-  font-size: 18px;
-  font-weight: 300;
-  display: table-cell;
-  width: 100%;
-  vertical-align: middle;
-}
-
-#ina > .button-add-on {
-  display: table-cell;
-  vertical-align: middle;
-  width: 1%;
-}
-
-/* Search submit button */
-#dodat {
-  border-radius: 0 3px 3px 0;
-  height: 55px;
-  width: 72px;
-  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAiCAYAAAA6RwvCAAABVUlEQVRYw+2YQRGEMAxFkVAJlYAEJCABCUhAQiWshJWABCRUAg7+XsrMTkibNDBdDvtnek0fSfqToQPQPeE8AuK5IDkBGAC8AESctQEIAHxXKTUIgB7ACr0CAHcrCIAJNm0A+ltALkAc2jWlKoKkcnCKCdCR0i3p4lNmroJwPRGEgC6VhGo2gaTXUQUhwEQryKsmUOaZU40WEOoTk8Eb3iTGYgGhcgaQmcRYL4N0BjHl+RnIeDuI1iFJ8EBivC0gm7bRCsGj1ktKIIGx6pohNjNZ9RYQnxliTgHRM1a/XrH4kIEZhEzstT0mgeTmBpJZzemJjgk65naTO9aAPvOFtavAWMqKdjHyhcxIW9quGRVVO2uh/lTr8fWMqbEw1cvzV/AlXXico2c884IgwZhADMY2STBNQDQwzUAkmKYgAoxvClKAGZqDMDBb89IwRjlI0/f/W+ID3tQLQPib2qQAAAAASUVORK5CYII=);
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: 17px;
 }
 
 #inb {
-  box-sizing: border-box;
-  width: 95%;
-  margin: 0 auto;
-  padding: 4px 8px;
-  position: relative;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.2);
   color: #333333;
-  font-size: 12px;
-  line-height: 24px;
-  cursor: pointer;
   background-color: #fff;
-}
-
-#adv {
-  box-sizing: border-box;
-  overflow: hidden;
-  height: 0;
-  padding: 0;
-  transition: height, padding 0.1s ease-in-out;
-}
-
-.hide-adv {
-  cursor:pointer;
-}
-
-/* Media object clearfix */
-#adv > .field {
-  overflow: hidden;
 }
 
 #adv > .field > label {
   /* Media object left */
-  float: left;
-  width: 90px;
   color: #333333;
 }
 
-#adv > .field > .field-input {
-  /* New block formatting context for media object */
-  overflow: hidden;
-}
-
 #adv > .field input[type=text] {
-  line-height: 24px;
-  box-sizing: border-box;
-  width: 100%;
-  padding: 0 10px;
   color: #666;
 }
 
 .multiselect {
-  box-sizing: border-box;
-  width: 100%;
-  margin-top:5px;
-  padding:5px;
   border: 1px solid #ccc;
   color: #666;
 }
 
-#inb > .ban {
-  transition: max-height, opacity 0.1s ease-in-out;
-  opacity: 1;
-  overflow: hidden;
-}
-
 #inb > .ban > em {
-  font-style: normal;
   color: #333333;
 }
 
 #input > .stats {
-  width: 95%;
-  font-size: 12px;
-  padding: 4px 0;
-  margin: 0 auto;
   color: #333333;
 }
 
-/* Clearfix .stats */
-.stats:before,
-.stats:after {
-  content: " ";
-  display: table;
-}
-.stats:after {
-  clear: both;
-}
-
-.stats-left { float: left }
-.stats-right { float: right }
-
-#input > .stats .val,
-#input > .stats a {
-  display: inline-block;
-  margin: 5px;
-}
-
 #no-result {
-  margin: 0 auto;
-  font-size: 24px;
-  text-align: center;
-  margin-top: 100px;
   color: #999;
   text-shadow: 1px 1px 0 #fff;
-}
-
-#no-result > div {
-  font-size: 12px;
 }
 
 #no-result.error {
   color: #8a6d3b;
   background-color: #fcf8e3;
   border: 1px solid #faebcc;
-  padding: 10px 0;
-  border-radius: 3px;
-}
-
-#no-result.error > strong {
-  margin-right: 10px;
-}
-
-.repo {
-  margin-bottom: 100px;
 }
 
 .repo > .title {
   color: #333333;
-  font-size: 24px;
-  padding-bottom: 5px;
-}
-
-.repo > .title > .name {
-  vertical-align: top;
 }
 
 .repo > .title > .octicon-repo {
   color: #bbb;
-  margin-right: 10px;
-}
-
-.files > .moar {
-  height: 55px;
-  vertical-align: top;
-  width: 100%;
 }
 
 .file {
-  margin: 10px 0 20px;
-  border-radius: 3px;
   border: 1px solid #d8d8d8;
 }
 
 .file > .title {
-  padding: 10px 10px 10px 20px;
-  display: block;
-  line-height: 30px;
   background-color: #f5f5f5;
 }
 
 .title a {
   color: #333333;
-}
-
-.file-body {
-  /* Allow horizontal scrolling in code, similar to github.com */
-  overflow: auto;
 }
 
 .match {
@@ -275,80 +105,28 @@ button:focus {
   border-bottom: 1px solid #d8d8d8;
 }
 
-.match > .line {
-  white-space: pre;
-}
-
 .match > .line > .lnum {
-  font-family: 'Source Code Pro', monospace;
-  font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
-  width: 40px;
-  text-align: right;
-  padding: 3px 5px 3px 0;
   border-right: 1px solid #eee;
-  display: inline-block;
-  font-size: 14px;
   color: #333333;
 }
 
-.match > .line:last-child > .lnum {
-  padding-bottom: 8px;
-}
-
-.match > .line:first-child > .lnum {
-  padding-top: 8px;
-}
-
 .match > .line > .lnum:hover {
-  text-decoration: underline;
   background-color: #eee;
 }
 
-.match > .line > .lval {
-  font-family: 'Source Code Pro', monospace;
-  font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
-  padding: 3px 0 3px 5px;
-  font-size: 14px;
-  white-space: pre;
-}
-
 .match > .line > .lval > em {
-  font-style: normal;
-  font-weight: bold;
   color: #333;
   background-color: rgba(255,255,140,0.5);
 }
 
-.table-container table {
-  width:100%;
-  border-collapse: collapse;
-}
-
 .table-container th {
   background-color: #eee;
-  padding: 10px;
-  text-align: left;
 }
 
 .table-container .list td {
-  padding:5px;
   border: 1px solid #eee
-}
-
-.table-container .list .reason {
-  white-space: nowrap;
-}
-
-.repo-button {
-  margin:0 5px 5px 0;
 }
 
 .repo-button.selected {
   background-color: gray;
 }
-
-#excluded_container {
-  margin-top: 40px;
-  margin-bottom: 40px;
-}
-

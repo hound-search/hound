@@ -311,9 +311,24 @@ var SearchBar = React.createClass({
   },
 
   getInitialState: function() {
+    var useDarkTheme;
+
+    try {
+      useDarkTheme = localStorage["useDarkTheme"];
+      if (!useDarkTheme || useDarkTheme === "false") {
+        useDarkTheme = false;
+      } else {
+        useDarkTheme = true;
+      }
+    } catch (e) {
+      useDarkTheme = false;
+    }
+
+
     return {
       state: null,
-      allRepos: []
+      allRepos: [],
+      useDarkTheme: useDarkTheme
     };
   },
 
@@ -417,10 +432,20 @@ var SearchBar = React.createClass({
     }
   },
 
-  hideAdvanced: function() {
+  hideAdvanced: function(evt) {
     var adv = this.refs.adv,
         ban = this.refs.ban,
-        q = this.refs.q;
+        q = this.refs.q,
+        files = this.refs.files,
+        icase = this.refs.icase,
+        repos = this.refs.repos;
+
+    if(ReactDOM.findDOMNode(files).contains(evt.target) ||
+      ReactDOM.findDOMNode(icase).contains(evt.target) ||
+      ReactDOM.findDOMNode(repos).contains(evt.target) ) {
+        // Probably clicking into an input don't close advanced options
+        return;
+    }
 
     css(adv, 'height', '0');
     css(adv, 'padding', '0');
@@ -429,6 +454,21 @@ var SearchBar = React.createClass({
     css(ban, 'opacity', '1');
 
     q.focus();
+  },
+
+  changeTheme: function(evt) {
+    var useDarkTheme = evt.target.checked;
+    if (useDarkTheme) {
+      document.getElementById('theme').href="css/hound-dark.css";
+    } else {
+      document.getElementById('theme').href="css/hound-light.css";
+    }
+    try {
+      localStorage["useDarkTheme"] = useDarkTheme;
+    } catch (e) {
+      console.error("Cannot set theme to localStorage!")
+    }
+    this.setState({useDarkTheme: useDarkTheme})
   },
 
   render: function() {
@@ -458,17 +498,19 @@ var SearchBar = React.createClass({
         </div>
 
         <div id="inb">
-          <div id="adv" ref="adv">
+          <div id="adv" ref="adv" onClick={this.hideAdvanced}>
             <span className="octicon octicon-chevron-up hide-adv" onClick={this.hideAdvanced}></span>
             <div className="field">
               <label>File Path</label>
               <div className="field-input">
-                <input type="text"
-                    id="files"
-                    placeholder="/regexp/"
-                    ref="files"
-                    onKeyDown={this.filesGotKeydown}
-                    onFocus={this.filesGotFocus} />
+                <input
+                  type="text"
+                  id="files"
+                  placeholder="/regexp/"
+                  ref="files"
+                  onKeyDown={this.filesGotKeydown}
+                  onFocus={this.filesGotFocus}
+                />
               </div>
             </div>
             <div className="field">
@@ -490,7 +532,19 @@ var SearchBar = React.createClass({
             <em>Advanced:</em> ignore case, filter by path, stuff like that.
           </div>
         </div>
-        {this.renderStats()}
+        <div className="stats">
+          <div className="stats-left">
+            <a href="/excluded_files.html"
+              className="link-gray">
+                Excluded Files
+            </a>
+            <label className="change-theme">
+              <input type="checkbox" onChange={this.changeTheme} checked={this.state.useDarkTheme} /> Use Dark Theme
+            </label>
+          </div>
+          {this.renderStats()}
+        </div>
+
       </div>
     );
   },
@@ -503,18 +557,10 @@ var SearchBar = React.createClass({
     }
 
     return (
-      <div className="stats">
-        <div className="stats-left">
-          <a href="/excluded_files.html"
-            className="link-gray">
-              Excluded Files
-          </a>
-        </div>
-        <div className="stats-right">
-          <div className="val">{FormatNumber(stats.Total)}ms total</div> /
-          <div className="val">{FormatNumber(stats.Server)}ms server</div> /
-          <div className="val">{stats.Files} files</div>
-        </div>
+      <div className="stats-right">
+        <div className="val">{FormatNumber(stats.Total)}ms total</div> /
+        <div className="val">{FormatNumber(stats.Server)}ms server</div> /
+        <div className="val">{stats.Files} files</div>
       </div>
     );
   }
@@ -739,6 +785,7 @@ var ResultView = React.createClass({
 
     var regexp = this.state.regexp,
         results = this.state.results || [];
+
     var repos = results.map(function(result, index) {
       return (
         <div key={result.repo+"-"+index} className="repo">
