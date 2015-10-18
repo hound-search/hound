@@ -21,7 +21,7 @@ var ExcludedTable = React.createClass({
 
     var rows = [];
     this.props.files.forEach(function(file) {
-      rows.push(<ExcludedRow file={file} repo={_this.props.repo} />);
+      rows.push(<ExcludedRow key={file.Filename} file={file} repo={_this.props.repo} />);
     });
 
     return (
@@ -61,7 +61,7 @@ var RepoList = React.createClass({
     var repos = [],
         _this = this;
     this.props.repos.forEach(function(repo){
-      repos.push(<RepoButton repo={repo} onRepoClick={_this.props.onRepoClick} currentRepo={_this.props.repo} />);
+      repos.push(<RepoButton key={repo} repo={repo} onRepoClick={_this.props.onRepoClick} currentRepo={_this.props.repo} />);
     });
 
     return (
