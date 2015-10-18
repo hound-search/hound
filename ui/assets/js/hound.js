@@ -440,9 +440,9 @@ var SearchBar = React.createClass({
         icase = this.refs.icase,
         repos = this.refs.repos;
 
-    if(ReactDOM.findDOMNode(files).contains(evt.target) ||
+    if(evt && (ReactDOM.findDOMNode(files).contains(evt.target) ||
       ReactDOM.findDOMNode(icase).contains(evt.target) ||
-      ReactDOM.findDOMNode(repos).contains(evt.target) ) {
+      ReactDOM.findDOMNode(repos).contains(evt.target)) ) {
         // Probably clicking into an input don't close advanced options
         return;
     }
