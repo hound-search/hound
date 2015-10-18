@@ -303,30 +303,25 @@ var SearchBar = React.createClass({
   },
 
   componentDidMount: function() {
-    var q = this.refs.q.getDOMNode();
-
-    // TODO(knorton): Can't set this in jsx
-    q.setAttribute('autocomplete', 'off');
-
     this.setParams(this.props);
 
     if (this.hasAdvancedValues()) {
       this.showAdvanced();
     }
-
-    q.focus();
   },
+
   getInitialState: function() {
     return {
       state: null,
       allRepos: []
     };
   },
+
   queryGotKeydown: function(event) {
     switch (event.keyCode) {
     case 40:
       // this will cause advanced to expand if it is not expanded.
-      this.refs.files.getDOMNode().focus();
+      this.refs.files.focus();
       break;
     case 38:
       this.hideAdvanced();
@@ -336,61 +331,80 @@ var SearchBar = React.createClass({
       break;
     }
   },
+
   queryGotFocus: function(event) {
     if (!this.hasAdvancedValues()) {
       this.hideAdvanced();
     }
   },
+
   filesGotKeydown: function(event) {
     switch (event.keyCode) {
     case 38:
       // if advanced is empty, close it up.
-      if (this.refs.files.getDOMNode().value.trim() === '') {
+      if (this.refs.files.value.trim() === '') {
         this.hideAdvanced();
       }
-      this.refs.q.getDOMNode().focus();
+      this.refs.q.focus();
       break;
     case 13:
       this.submitQuery();
       break;
     }
   },
+
   filesGotFocus: function(event) {
     this.showAdvanced();
   },
+
   submitQuery: function() {
     this.props.onSearchRequested(this.getParams());
   },
+
   getRegExp : function() {
     return new RegExp(
-      this.refs.q.getDOMNode().value.trim(),
-      this.refs.icase.getDOMNode().checked ? 'ig' : 'g');
+      this.refs.q.value.trim(),
+      this.refs.icase.checked ? 'ig' : 'g');
   },
+
+  getSelectedRepos() {
+    var repos = "";
+    if (this.refs.repos.selectedOptions.length) {
+      for (var i = this.refs.repos.selectedOptions.length - 1; i >= 0; i--) {
+        repos += this.refs.repos.selectedOptions[i].value + ",";
+      }
+    }
+    return repos;
+  },
+
   getParams: function() {
     return {
-      q : this.refs.q.getDOMNode().value.trim(),
-      files : this.refs.files.getDOMNode().value.trim(),
-      repos : this.refs.repos.state.value.join(','),
-      i: this.refs.icase.getDOMNode().checked ? 'fosho' : 'nope'
+      q : this.refs.q.value.trim(),
+      files : this.refs.files.value.trim(),
+      repos : this.getSelectedRepos(),
+      i: this.refs.icase.checked ? 'fosho' : 'nope'
     };
   },
+
   setParams: function(params) {
-    var q = this.refs.q.getDOMNode(),
-        i = this.refs.icase.getDOMNode(),
-        files = this.refs.files.getDOMNode();
+    var q = this.refs.q,
+        i = this.refs.icase,
+        files = this.refs.files;
 
     q.value = params.q;
     i.checked = ParamValueToBool(params.i);
     files.value = params.files;
   },
+
   hasAdvancedValues: function() {
-    return this.refs.files.getDOMNode().value.trim() !== '' || this.refs.icase.getDOMNode().checked || this.refs.repos.getDOMNode().value !== '';
+    return this.refs.files.value.trim() !== '' || this.refs.icase.checked || this.refs.repos.value !== '';
   },
+
   showAdvanced: function() {
-    var adv = this.refs.adv.getDOMNode(),
-        ban = this.refs.ban.getDOMNode(),
-        q = this.refs.q.getDOMNode(),
-        files = this.refs.files.getDOMNode();
+    var adv = this.refs.adv,
+        ban = this.refs.ban,
+        q = this.refs.q,
+        files = this.refs.files;
 
     css(adv, 'height', 'auto');
     css(adv, 'padding', '10px 0');
@@ -402,10 +416,11 @@ var SearchBar = React.createClass({
       files.focus();
     }
   },
+
   hideAdvanced: function() {
-    var adv = this.refs.adv.getDOMNode(),
-        ban = this.refs.ban.getDOMNode(),
-        q = this.refs.q.getDOMNode();
+    var adv = this.refs.adv,
+        ban = this.refs.ban,
+        q = this.refs.q;
 
     css(adv, 'height', '0');
     css(adv, 'padding', '0');
@@ -415,43 +430,28 @@ var SearchBar = React.createClass({
 
     q.focus();
   },
+
   render: function() {
     var repoCount = this.state.allRepos.length,
         repoOptions = [];
-    this.state.allRepos.forEach(function(repoName){
-      repoOptions.push(<RepoOption value={repoName} />);
-    });
 
-    var stats = this.state.stats;
-    var statsView = '';
-    if (stats) {
-      statsView = (
-        <div className="stats">
-          <div className="stats-left">
-            <a href="/excluded_files.html"
-              className="link-gray">
-                Excluded Files
-            </a>
-          </div>
-          <div className="stats-right">
-            <div className="val">{FormatNumber(stats.Total)}ms total</div> /
-            <div className="val">{FormatNumber(stats.Server)}ms server</div> /
-            <div className="val">{stats.Files} files</div>
-          </div>
-        </div>
-      );
-    }
+    this.state.allRepos.forEach(function(repoName, index){
+      repoOptions.push(<RepoOption key={repoName+"-"+index} value={repoName} />);
+    });
 
     return (
       <div id="input">
         <div id="ina">
-          <input id="q"
-              type="text"
-              placeholder="Search by Regexp"
-              ref="q"
-              autocomplete="off"
-              onKeyDown={this.queryGotKeydown}
-              onFocus={this.queryGotFocus}/>
+          <input
+            id="q"
+            type="text"
+            placeholder="Search by Regexp"
+            ref="q"
+            autoComplete="off"
+            onKeyDown={this.queryGotKeydown}
+            onFocus={this.queryGotFocus}
+            autoFocus
+          />
           <div className="button-add-on">
             <button id="dodat" onClick={this.submitQuery}></button>
           </div>
@@ -490,7 +490,31 @@ var SearchBar = React.createClass({
             <em>Advanced:</em> ignore case, filter by path, stuff like that.
           </div>
         </div>
-        {statsView}
+        {this.renderStats()}
+      </div>
+    );
+  },
+
+  renderStats() {
+    var stats = this.state.stats;
+
+    if (!stats) {
+      return null;
+    }
+
+    return (
+      <div className="stats">
+        <div className="stats-left">
+          <a href="/excluded_files.html"
+            className="link-gray">
+              Excluded Files
+          </a>
+        </div>
+        <div className="stats-right">
+          <div className="val">{FormatNumber(stats.Total)}ms total</div> /
+          <div className="val">{FormatNumber(stats.Server)}ms server</div> /
+          <div className="val">{stats.Files} files</div>
+        </div>
       </div>
     );
   }
@@ -619,14 +643,17 @@ var FilesView = React.createClass({
         regexp = this.props.regexp,
         matches = this.props.matches,
         totalMatches = this.props.totalMatches;
+
     var files = matches.map(function(match, index) {
       var filename = match.Filename,
           blocks = CoalesceMatches(match.Matches);
-      var matches = blocks.map(function(block) {
+
+      var matches = blocks.map(function(block, index) {
+
         var lines = block.map(function(line) {
           var content = ContentFor(line, regexp);
           return (
-            <div className="line">
+            <div key={match.Filename+"-line-"+line.Number} className="line">
               <a
                 href={Model.UrlToRepo(repo, filename, line.Number, rev)}
                 className="lnum"
@@ -640,12 +667,12 @@ var FilesView = React.createClass({
         });
 
         return (
-          <div className="match">{lines}</div>
+          <div key={match.Filename+"-block-"+index} className="match">{lines}</div>
         );
       });
 
       return (
-        <div className="file">
+        <div key={match.Filename} className="file">
           <div className="title">
             <a
               href={Model.UrlToRepo(repo, match.Filename, null, rev)}
@@ -714,16 +741,18 @@ var ResultView = React.createClass({
         results = this.state.results || [];
     var repos = results.map(function(result, index) {
       return (
-        <div className="repo">
+        <div key={result.repo+"-"+index} className="repo">
           <div className="title">
             <span className="mega-octicon octicon-repo"></span>
             <span className="name">{Model.NameForRepo(result.Repo)}</span>
           </div>
-          <FilesView matches={result.Matches}
-              rev={result.Rev}
-              repo={result.Repo}
-              regexp={regexp}
-              totalMatches={result.FilesWithMatch} />
+          <FilesView
+            matches={result.Matches}
+            rev={result.Rev}
+            repo={result.Repo}
+            regexp={regexp}
+            totalMatches={result.FilesWithMatch}
+          />
         </div>
       );
     });
@@ -792,12 +821,14 @@ var App = React.createClass({
   render: function() {
     return (
       <div>
-        <SearchBar ref="searchBar"
-            q={this.state.q}
-            i={this.state.i}
-            files={this.state.files}
-            repos={this.state.repos}
-            onSearchRequested={this.onSearchRequested} />
+        <SearchBar
+          ref="searchBar"
+          q={this.state.q}
+          i={this.state.i}
+          files={this.state.files}
+          repos={this.state.repos}
+          onSearchRequested={this.onSearchRequested}
+        />
         <ResultView ref="resultView" q={this.state.q} />
       </div>
     );
