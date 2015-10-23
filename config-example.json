@@ -56,6 +56,12 @@
         "RepoWithPushingEnabled" : {
             "url" : "https://www.github.com/YourOrganization/RepoOne.git",
             "enable-push-updates" : true
+        },
+        "RepoIsGitHubWiki" : {
+          "url" : "https://github.com/YourOrganization/RepoWithWiki.wiki.git",
+          "url-pattern" : {
+              "base-url" : "{url}/{path}"
+          }
         }
     }
 }
