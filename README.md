@@ -1,6 +1,6 @@
 # Hound
 
-[![Join the chat at https://gitter.im/etsy/Hound](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/etsy/Hound?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.org/etsy/hound.svg?branch=master)](https://travis-ci.org/etsy/hound) [![Join the chat at https://gitter.im/etsy/Hound](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/etsy/Hound?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Hound is an extremely fast source code search engine. The core is based on this article (and code) from Russ Cox:
 [Regular Expression Matching with a Trigram Index](http://swtch.com/~rsc/regexp/regexp4.html). Hound itself is a static
