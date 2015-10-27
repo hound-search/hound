@@ -16,6 +16,14 @@ var lib = {
             filename = path.substring(path.lastIndexOf('/') + 1),
             anchor = line ? lib.ExpandVars(pattern.anchor, { line : line, filename : filename }) : '';
 
+        // Determine if the URL passed is a GitHub wiki
+        var wikiUrl = /\.wiki$/.exec(url);
+        if (wikiUrl) {
+          url = url.replace(/\.wiki/, '/wiki')
+          path = path.replace(/\.md$/, '')
+          anchor = '' // wikis do not support direct line linking
+        }
+
         // Hacky solution to fix _some more_ of the 404's when using SSH style URLs.
         // This works for both github style URLs (git@github.com:username/Foo.git) and
         // bitbucket style URLs (ssh://hg@bitbucket.org/username/Foo).
