@@ -73,7 +73,10 @@ func renderForDev(w io.Writer, root string, c *content, cfg *config.Config, r *h
 	}
 
 	var buf bytes.Buffer
-
+	fmt.Fprintf(
+		&buf,
+		"<script src=\"/js/babel-core.%s.browser.min.js\"></script>\n",
+		BabelCoreVersion)
 	for _, path := range c.sources {
 		fmt.Fprintf(
 			&buf,
@@ -84,6 +87,7 @@ func renderForDev(w io.Writer, root string, c *content, cfg *config.Config, r *h
 	return t.Execute(w, map[string]interface{}{
 		"ReactVersion":  ReactVersion,
 		"jQueryVersion": JQueryVersion,
+		"BabelCoreVersion": BabelCoreVersion,
 		"ReposAsJson":   json,
 		"Source":        template.HTML(buf.String()),
 		"Host":          r.Host,

@@ -45,3 +45,5 @@ var lib = {
         });
     }
 };
+
+window.lib = lib;

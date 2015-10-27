@@ -724,7 +724,7 @@ var ResultView = React.createClass({
       );
     }
 
-    if (this.state.results !== null && this.state.results.length === 0) {
+    if (typeof this.state.results !== "undefined" && this.state.results !== null && this.state.results.length === 0) {
       // TODO(knorton): We need something better here. :-(
       return (
         <div id="no-result">&ldquo;Nothing for you, Dawg.&rdquo;<div>0 results</div></div>

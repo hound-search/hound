@@ -6,6 +6,7 @@ import "html/template"
 const (
 	ReactVersion  = "0.14.0"
 	JQueryVersion = "2.1.3"
+	BabelCoreVersion = "5.8.23"
 )
 
 var contents map[string]*content
@@ -33,6 +34,7 @@ func init() {
 		"/": &content{
 			template: "index.tpl.html",
 			sources: []string{
+				"js/common.js",
 				"js/hound.js",
 			},
 		},
@@ -44,6 +46,7 @@ func init() {
 		"/excluded_files.html": &content{
 			template: "excluded_files.tpl.html",
 			sources: []string{
+				"js/common.js",
 				"js/excluded_files.js",
 			},
 		},
