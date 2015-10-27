@@ -152,7 +152,7 @@ func cssHoundCss() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "css/hound.css", size: 6037, mode: os.FileMode(420), modTime: time.Unix(1445908175, 0)}
+	info := bindataFileInfo{name: "css/hound.css", size: 6037, mode: os.FileMode(420), modTime: time.Unix(1445908425, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -172,7 +172,7 @@ func cssOcticonsLicenseTxt() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "css/octicons/LICENSE.txt", size: 293, mode: os.FileMode(420), modTime: time.Unix(1445908175, 0)}
+	info := bindataFileInfo{name: "css/octicons/LICENSE.txt", size: 293, mode: os.FileMode(420), modTime: time.Unix(1445908425, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -192,7 +192,7 @@ func cssOcticonsReadmeMd() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "css/octicons/README.md", size: 200, mode: os.FileMode(420), modTime: time.Unix(1445908175, 0)}
+	info := bindataFileInfo{name: "css/octicons/README.md", size: 200, mode: os.FileMode(420), modTime: time.Unix(1445908425, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -212,7 +212,7 @@ func cssOcticonsOcticonsLocalTtf() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "css/octicons/octicons-local.ttf", size: 52764, mode: os.FileMode(420), modTime: time.Unix(1445908175, 0)}
+	info := bindataFileInfo{name: "css/octicons/octicons-local.ttf", size: 52764, mode: os.FileMode(420), modTime: time.Unix(1445908425, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -232,7 +232,7 @@ func cssOcticonsOcticonsCss() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "css/octicons/octicons.css", size: 11740, mode: os.FileMode(420), modTime: time.Unix(1445908175, 0)}
+	info := bindataFileInfo{name: "css/octicons/octicons.css", size: 11740, mode: os.FileMode(420), modTime: time.Unix(1445908425, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -252,7 +252,7 @@ func cssOcticonsOcticonsEot() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "css/octicons/octicons.eot", size: 31440, mode: os.FileMode(420), modTime: time.Unix(1445908175, 0)}
+	info := bindataFileInfo{name: "css/octicons/octicons.eot", size: 31440, mode: os.FileMode(420), modTime: time.Unix(1445908425, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -272,7 +272,7 @@ func cssOcticonsOcticonsLess() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "css/octicons/octicons.less", size: 12018, mode: os.FileMode(420), modTime: time.Unix(1445908175, 0)}
+	info := bindataFileInfo{name: "css/octicons/octicons.less", size: 12018, mode: os.FileMode(420), modTime: time.Unix(1445908425, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -292,7 +292,7 @@ func cssOcticonsOcticonsSvg() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "css/octicons/octicons.svg", size: 86997, mode: os.FileMode(420), modTime: time.Unix(1445908175, 0)}
+	info := bindataFileInfo{name: "css/octicons/octicons.svg", size: 86997, mode: os.FileMode(420), modTime: time.Unix(1445908425, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -312,7 +312,7 @@ func cssOcticonsOcticonsTtf() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "css/octicons/octicons.ttf", size: 31272, mode: os.FileMode(420), modTime: time.Unix(1445908175, 0)}
+	info := bindataFileInfo{name: "css/octicons/octicons.ttf", size: 31272, mode: os.FileMode(420), modTime: time.Unix(1445908425, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -332,7 +332,7 @@ func cssOcticonsOcticonsWoff() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "css/octicons/octicons.woff", size: 17492, mode: os.FileMode(420), modTime: time.Unix(1445908175, 0)}
+	info := bindataFileInfo{name: "css/octicons/octicons.woff", size: 17492, mode: os.FileMode(420), modTime: time.Unix(1445908425, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -352,12 +352,12 @@ func cssOcticonsSprocketsOcticonsScss() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "css/octicons/sprockets-octicons.scss", size: 11758, mode: os.FileMode(420), modTime: time.Unix(1445908175, 0)}
+	info := bindataFileInfo{name: "css/octicons/sprockets-octicons.scss", size: 11758, mode: os.FileMode(420), modTime: time.Unix(1445908425, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
 
-var _excluded_filesTplHtml = "\x1f\x8b\x08\x00\x00\x09\x6e\x88\x00\xff\xa4\x92\x4d\x4b\xf4\x30\x10\xc7\xef\xfb\x29\xf2\xe4\xde\x14\x1e\x11\xf6\x90\xf6\xa2\x2b\xde\x7c\x45\xf0\xd8\x26\xb3\x24\x35\xed\xe8\x64\xea\xba\x94\x7e\x77\xd3\xad\xd0\xbd\x88\xac\xe6\x92\x79\xf9\xcf\x8f\x09\xff\xe8\x7f\x97\x37\x17\x8f\xcf\xb7\x1b\xe1\xb8\x0d\xe5\x4a\xcf\x97\x48\x47\x3b\xa8\xec\x1c\x1e\xd2\x16\xb8\x12\xc6\x55\x14\x81\x0b\xd9\xf3\x36\x5b\xcb\xa3\x36\x7b\x0e\x50\x5e\x63\xdf\x59\x91\x89\xcd\x87\x09\xbd\x05\x2b\xae\x7c\x80\xa8\xf3\xb9\xbb\xa8\x83\xef\x5e\x04\x41\x28\x64\xe4\x7d\x52\x38\x00\x96\xc2\x11\x6c\x0b\x69\x62\xcc\xd1\xb0\x37\xd8\x2d\x81\x4a\x55\x79\x02\xc0\x4d\x8b\x1c\x0d\xe9\x7c\x79\x8e\xae\xd1\xee\x8f\x58\xd6\xbf\x0b\x6f\x0b\x49\x88\x2c\x4b\x9d\xa7\xbc\x5c\x2d\xed\x68\xc8\xbf\xb2\x88\x64\x0a\xd9\xc4\x9c\xa0\x32\x9c\xed\x3c\xbb\xac\xb2\x36\xad\x96\x0d\x83\xba\x9f\x8a\x4f\x40\xd1\x63\x37\x8e\xaa\xf5\x9d\x6a\xe2\xc4\x9a\x87\xcb\x1f\x68\x16\xdb\x3f\x51\x9a\xb7\x1e\x68\x3f\x21\x9a\xbb\x29\xfa\x0d\xa3\xae\x6a\x08\x99\x41\x02\x75\xae\xd6\xea\xff\x99\xaa\x09\x77\x11\xe8\x04\x86\xc1\xb6\xc5\xef\xc4\xc3\x20\xd4\x03\xf6\x64\x40\x8c\xe3\x97\x29\xb3\x13\xc9\x9c\xc3\xb7\xfb\x0c\x00\x00\xff\xff\xd5\xee\x7e\x9d\x8e\x02\x00\x00"
+var _excluded_filesTplHtml = "\x1f\x8b\x08\x00\x00\x09\x6e\x88\x00\xff\x94\x91\x4f\x4f\xc4\x20\x10\xc5\xef\xfb\x29\x46\xee\xb4\x57\x0f\xb4\x17\x5d\xe3\xcd\xbf\x31\xf1\x58\x99\xd9\x40\xa5\xa0\x30\x55\x37\x4d\xbf\xbb\x74\x31\x69\x2f\x26\xca\x85\x79\xf3\x86\x5f\xe6\x05\x75\x76\x79\x73\xf1\xf8\x7c\xbb\x07\xc3\x83\x6b\x77\xaa\x5c\x90\x8f\x32\xd4\x61\x29\x4f\x72\x20\xee\x40\x9b\x2e\x26\xe2\x46\x8c\x7c\x90\xe7\x62\x63\xb3\x65\x47\xed\x75\x18\x3d\x82\x84\xfd\x97\x76\x23\x12\xc2\x95\x75\x94\x54\x5d\xdc\x75\xda\x59\xff\x0a\x91\x5c\x23\x12\x1f\xf3\x84\x21\x62\x01\x26\xd2\xa1\x11\x3a\xa5\x3a\x68\xb6\x3a\xf8\xb5\xa8\x72\x57\xfc\x03\x60\x96\x45\x36\x8f\x54\xbd\xc6\x51\x2f\x01\x8f\x1b\x16\xda\x0f\xb0\xd8\x88\x18\x02\x8b\x56\xd5\x59\xb7\xbb\xd5\x4e\x3a\xda\x37\x86\x14\x75\x23\xfa\x54\x47\xea\x34\xcb\x4f\xcb\x46\x76\x88\x79\x35\xd9\x79\x94\xa5\x8b\x61\x90\xd3\x54\xdd\x2f\xe2\x89\x62\xb2\xc1\xcf\x73\x35\x58\x5f\xf5\x69\x21\x17\x54\xfb\x2b\xbb\x7f\x1f\x29\x1e\x17\x44\x7f\xb7\x54\x7f\x61\x4c\x13\x54\x0f\x61\x8c\x9a\x60\x9e\x7f\xb2\x96\x80\x39\xf3\xe9\x37\xbf\x03\x00\x00\xff\xff\x04\x00\x4e\x2f\xe5\x01\x00\x00"
 
 func excluded_filesTplHtmlBytes() ([]byte, error) {
 	return bindataRead(
@@ -372,7 +372,7 @@ func excluded_filesTplHtml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "excluded_files.tpl.html", size: 654, mode: os.FileMode(420), modTime: time.Unix(1445908175, 0)}
+	info := bindataFileInfo{name: "excluded_files.tpl.html", size: 485, mode: os.FileMode(420), modTime: time.Unix(1445908425, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -392,7 +392,7 @@ func faviconIco() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "favicon.ico", size: 1150, mode: os.FileMode(420), modTime: time.Unix(1445908175, 0)}
+	info := bindataFileInfo{name: "favicon.ico", size: 1150, mode: os.FileMode(420), modTime: time.Unix(1445908425, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -412,7 +412,7 @@ func imagesBusyGif() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "images/busy.gif", size: 4178, mode: os.FileMode(420), modTime: time.Unix(1445908175, 0)}
+	info := bindataFileInfo{name: "images/busy.gif", size: 4178, mode: os.FileMode(420), modTime: time.Unix(1445908425, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -432,7 +432,7 @@ func indexTplHtml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "index.tpl.html", size: 763, mode: os.FileMode(420), modTime: time.Unix(1445908175, 0)}
+	info := bindataFileInfo{name: "index.tpl.html", size: 763, mode: os.FileMode(420), modTime: time.Unix(1445908425, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -452,7 +452,7 @@ func jsDs_store() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "js/.DS_Store", size: 8196, mode: os.FileMode(420), modTime: time.Unix(1445908175, 0)}
+	info := bindataFileInfo{name: "js/.DS_Store", size: 8196, mode: os.FileMode(420), modTime: time.Unix(1445908425, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -492,7 +492,7 @@ func jsBabelCore5823BrowserMinJs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "js/babel-core.5.8.23.browser.min.js", size: 1358603, mode: os.FileMode(420), modTime: time.Unix(1445908178, 0)}
+	info := bindataFileInfo{name: "js/babel-core.5.8.23.browser.min.js", size: 1358603, mode: os.FileMode(420), modTime: time.Unix(1445908428, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -512,7 +512,7 @@ func jsCommonJs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "js/common.js", size: 1760, mode: os.FileMode(420), modTime: time.Unix(1445908178, 0)}
+	info := bindataFileInfo{name: "js/common.js", size: 1760, mode: os.FileMode(420), modTime: time.Unix(1445908428, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -532,7 +532,7 @@ func jsExcluded_filesJs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "js/excluded_files.js", size: 3950, mode: os.FileMode(420), modTime: time.Unix(1445908178, 0)}
+	info := bindataFileInfo{name: "js/excluded_files.js", size: 3950, mode: os.FileMode(420), modTime: time.Unix(1445908428, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -552,7 +552,7 @@ func jsHoundJs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "js/hound.js", size: 22101, mode: os.FileMode(420), modTime: time.Unix(1445908178, 0)}
+	info := bindataFileInfo{name: "js/hound.js", size: 22101, mode: os.FileMode(420), modTime: time.Unix(1445908428, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -572,7 +572,7 @@ func jsJquery213MinJs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "js/jquery-2.1.3.min.js", size: 84320, mode: os.FileMode(420), modTime: time.Unix(1445908178, 0)}
+	info := bindataFileInfo{name: "js/jquery-2.1.3.min.js", size: 84320, mode: os.FileMode(420), modTime: time.Unix(1445908428, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -672,7 +672,7 @@ func jsReactWithAddonsAndReactDom0140MinJs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "js/react-with-addons-and-react-dom-0.14.0.min.js", size: 148307, mode: os.FileMode(420), modTime: time.Unix(1445908178, 0)}
+	info := bindataFileInfo{name: "js/react-with-addons-and-react-dom-0.14.0.min.js", size: 148307, mode: os.FileMode(420), modTime: time.Unix(1445908428, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -692,7 +692,7 @@ func open_searchTplXml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "open_search.tpl.xml", size: 351, mode: os.FileMode(420), modTime: time.Unix(1445908175, 0)}
+	info := bindataFileInfo{name: "open_search.tpl.xml", size: 351, mode: os.FileMode(420), modTime: time.Unix(1445908425, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
