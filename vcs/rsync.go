@@ -32,7 +32,6 @@ func (g *RsyncDriver) Clone(dir, url string) (string, error) {
 		url,
 		rep)
 	cmd.Dir = par
-	cmd.Stdout = ioutil.Discard
 	if err := cmd.Run(); err != nil {
 		return "", err
 	}
