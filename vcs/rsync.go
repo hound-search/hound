@@ -1,7 +1,6 @@
 package vcs
 
 import (
-	"io/ioutil"
 	"os/exec"
 	"path/filepath"
 )
