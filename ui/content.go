@@ -38,6 +38,10 @@ func init() {
 			},
 		},
 
+		"/open_search.xml": &content{
+			template: "open_search.tpl.xml",
+		},
+
 		"/excluded_files.html": &content{
 			template: "excluded_files.tpl.html",
 			sources: []string{
@@ -45,6 +49,7 @@ func init() {
 				"js/excluded_files.js",
 			},
 		},
+
 		"/preferences.html": &content{
 			template: "preferences.tpl.html",
 			sources: []string{
