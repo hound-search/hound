@@ -71,7 +71,17 @@ func exists(path string) bool {
 // if the working directory is absent and pulling otherwise.
 func (w *WorkDir) PullOrClone(dir, url string) (string, error) {
 	if exists(dir) {
-		return w.Pull(dir)
+		newRev, err := w.Pull(dir)
+
+		if err == nil {
+			return newRev, err
+		}
+
+		log.Printf("vcs pull error (%s - %s): %s removing directory and re-cloning", dir, url, err)
+		if err := os.RemoveAll(dir); err != nil {
+			log.Printf("Error removing %s: %s", dir, err)
+		}
 	}
+
 	return w.Clone(dir, url)
 }
