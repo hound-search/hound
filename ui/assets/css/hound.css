@@ -254,6 +254,10 @@ button:focus {
   background-color: #f5f5f5;
 }
 
+.file > .title > .matches-count {
+  color: #666;
+}
+
 .title a {
   color: #666;
 }
@@ -317,6 +321,10 @@ button:focus {
   font-weight: bold;
   color: #333;
   background-color: rgba(255,255,140,0.5);
+}
+
+.matches-count {
+    float: right;
 }
 
 .table-container table {
