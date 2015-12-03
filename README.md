@@ -76,7 +76,7 @@ There are a couple of ways to get Hound to index private repositories:
 and then reference the files directly. The downside here is that the polling to keep the repo up to date will
 not work.
 * Use SSH style URLs in the config: `"url" : "git@github.com:foo/bar.git"`. As long as you have your 
-[SSH keys](https://help.github.com/articles/generating-ssh-keys/) set up on the box where Hound is running this will work. There is currently an [issue](https://github.com/etsy/Hound/issues/19) with URLs in this case that we hope to fix soon.
+[SSH keys](https://help.github.com/articles/generating-ssh-keys/) set up on the box where Hound is running this will work.
 
 ## Keeping Repos Updated
 
