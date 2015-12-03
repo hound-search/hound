@@ -463,7 +463,7 @@ var SearchBar = React.createClass({
           <div id="adv" ref="adv">
             <span className="octicon octicon-chevron-up hide-adv" onClick={this.hideAdvanced}></span>
             <div className="field">
-              <label>File Path</label>
+              <label htmlFor="files">File Path</label>
               <div className="field-input">
                 <input type="text"
                     id="files"
@@ -474,13 +474,13 @@ var SearchBar = React.createClass({
               </div>
             </div>
             <div className="field">
-              <label>Ignore Case</label>
+              <label htmlFor="ignore-case">Ignore Case</label>
               <div className="field-input">
-                <input type="checkbox" ref="icase" />
+                <input id="ignore-case" type="checkbox" ref="icase" />
               </div>
             </div>
             <div className="field">
-              <label className="multiselect_label">Select Repo</label>
+              <label className="multiselect_label" htmlFor="repos">Select Repo</label>
               <div className="field-input">
                 <select id="repos" className="form-control multiselect" multiple={true} size={Math.min(16, repoCount)} ref="repos">
                   {repoOptions}
