@@ -62,6 +62,11 @@
           "url-pattern" : {
               "base-url" : "{url}/{path}"
           }
+        },
+        "LocalDirectory" : {
+            "url" : "file:///absolute/path/to/directory",
+            "vcs" : "local"
         }
+
     }
 }

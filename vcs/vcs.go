@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/etsy/hound/config"
 )
 
 // A collection that maps vcs names to their underlying
@@ -14,6 +16,8 @@ var drivers = make(map[string]func(c []byte) (Driver, error))
 // A "plugin" for each vcs that supports the very limited set of vcs
 // operations that hound needs.
 type Driver interface {
+	// Constructs the path for the working dir corresponding to the repo.
+	WorkingDirForRepo(dbpath string, repo *config.Repo) (string, error)
 
 	// Clone a new working directory.
 	Clone(dir, url string) (string, error)

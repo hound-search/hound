@@ -8,6 +8,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/etsy/hound/config"
 )
 
 func init() {
@@ -29,6 +31,10 @@ func newSvn(b []byte) (Driver, error) {
 	}
 
 	return &d, nil
+}
+
+func (g *SVNDriver) WorkingDirForRepo(dbpath string, repo *config.Repo) (string, error) {
+	return generateWorkingDir(dbpath, repo.Url), nil
 }
 
 func (g *SVNDriver) HeadRev(dir string) (string, error) {
