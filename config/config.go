@@ -33,6 +33,11 @@ type Repo struct {
 	EnablePushUpdates *bool          `json:"enable-push-updates"`
 }
 
+type RepoDefaults struct {
+	MsBetweenPolls int    `json:"ms-between-poll"`
+	Vcs            string `json:"vcs"`
+}
+
 // Used for interpreting the config value for fields that use *bool. If a value
 // is present, that value is returned. Otherwise, the default is returned.
 func optionToBool(val *bool, def bool) bool {
@@ -56,6 +61,7 @@ type Config struct {
 	DbPath                string           `json:"dbpath"`
 	Repos                 map[string]*Repo `json:"repos"`
 	MaxConcurrentIndexers int              `json:"max-concurrent-indexers"`
+	RepoDefault           *RepoDefaults    `json:"repo-defaults"`
 }
 
 // SecretMessage is just like json.RawMessage but it will not
@@ -87,13 +93,13 @@ func (r *Repo) VcsConfig() []byte {
 }
 
 // Populate missing config values with default values.
-func initRepo(r *Repo) {
+func initRepo(r *Repo, d *RepoDefaults) {
 	if r.MsBetweenPolls == 0 {
-		r.MsBetweenPolls = defaultMsBetweenPoll
+		r.MsBetweenPolls = d.MsBetweenPolls
 	}
 
 	if r.Vcs == "" {
-		r.Vcs = defaultVcs
+		r.Vcs = d.Vcs
 	}
 
 	if r.UrlPattern == nil {
@@ -139,8 +145,23 @@ func (c *Config) LoadFromFile(filename string) error {
 		c.DbPath = path
 	}
 
+	if c.RepoDefault == nil {
+		c.RepoDefault = &RepoDefaults{
+			MsBetweenPolls: defaultMsBetweenPoll,
+			Vcs:            defaultVcs,
+		}
+	} else {
+		if c.RepoDefault.MsBetweenPolls == 0 {
+			c.RepoDefault.MsBetweenPolls = defaultMsBetweenPoll
+		}
+
+		if c.RepoDefault.Vcs == "" {
+			c.RepoDefault.Vcs = defaultVcs
+		}
+	}
+
 	for _, repo := range c.Repos {
-		initRepo(repo)
+		initRepo(repo, c.RepoDefault)
 	}
 
 	initConfig(c)
