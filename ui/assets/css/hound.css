@@ -103,7 +103,6 @@ button:focus {
   color: #aaa;
   font-size: 12px;
   line-height: 24px;
-  cursor: pointer;
   background-color: #fff;
 }
 
@@ -157,6 +156,7 @@ button:focus {
   transition: max-height, opacity 0.1s ease-in-out;
   opacity: 1;
   overflow: hidden;
+  cursor: pointer;
 }
 
 #inb > .ban > em {
