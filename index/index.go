@@ -20,6 +20,7 @@ const (
 	matchLimit               = 5000
 	manifestFilename         = "metadata.gob"
 	excludedFileJsonFilename = "excluded_files.json"
+	filePeekSize             = 2048
 )
 
 const (
@@ -227,7 +228,7 @@ func (n *Index) Search(pat string, opt *SearchOptions) (*SearchResponse, error) 
 }
 
 func isTextFile(filename string) (bool, error) {
-	buf := make([]byte, 2048)
+	buf := make([]byte, filePeekSize)
 	r, err := os.Open(filename)
 	if err != nil {
 		return false, err
@@ -241,7 +242,32 @@ func isTextFile(filename string) (bool, error) {
 
 	buf = buf[:n]
 
-	return utf8.Valid(buf), nil
+	res, validSize := validUTF8(buf)
+	// if remaining non valid less than utf8.UTFMax probably we are read part of rune just assume it's valid
+	if n == filePeekSize && n-validSize < utf8.UTFMax {
+		res = true
+	}
+	return res, nil
+}
+
+// copy paste from go source https://golang.org/src/unicode/utf8/utf8.go?s=9677:9702#L387, with valid bytes size
+func validUTF8(p []byte) (bool, int) {
+	i := 0
+	for i < len(p) {
+		if p[i] < utf8.RuneSelf {
+			i++
+		} else {
+			_, size := utf8.DecodeRune(p[i:])
+			if size == 1 {
+				// All valid runes of size 1 (those
+				// below RuneSelf) were handled above.
+				// This must be a RuneError.
+				return false, i
+			}
+			i += size
+		}
+	}
+	return true, i
 }
 
 func addFileToIndex(ix *index.IndexWriter, dst, src, path string) (string, error) {
