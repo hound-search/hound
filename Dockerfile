@@ -1,9 +1,9 @@
-FROM golang
+FROM golang:alpine
 
 COPY . /go/src/github.com/etsy/hound
 ONBUILD COPY config.json /hound/
-RUN adduser --uid 999 --gecos ,,, --disabled-password --home /hound hound
-RUN go-wrapper install github.com/etsy/hound/cmds/houndd
+RUN adduser -u 999 -g ,,, -D -h /hound hound
+RUN go install github.com/etsy/hound/cmds/houndd
 
 USER hound
 EXPOSE 6080
