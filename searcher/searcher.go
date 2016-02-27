@@ -150,6 +150,7 @@ func (s *Searcher) Update() bool {
 func (s *Searcher) Stop() {
 	select {
 	case s.shutdownCh <- empty{}:
+		s.shutdownRequested = true
 	default:
 	}
 }
@@ -171,12 +172,11 @@ func (s *Searcher) waitForUpdate(delay time.Duration) {
 		tch = time.After(delay)
 	}
 
-	// wait for either the timeout or the update channel signal
+	// wait for a timeout, the update channel signal, or a shutdown request
 	select {
 	case <-s.updateCh:
 	case <-tch:
 	case <-s.shutdownCh:
-		s.shutdownRequested = true
 	}
 }
 
