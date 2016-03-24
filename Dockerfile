@@ -8,7 +8,7 @@ RUN apk update \
 	&& go install github.com/etsy/hound/cmds/houndd \
 	&& apk del go \
 	&& rm -f /var/cache/apk/* \
-	&& rm -rf /go/src /go/pkg \
+	&& rm -rf /go/src /go/pkg
 
 EXPOSE 6080
 
