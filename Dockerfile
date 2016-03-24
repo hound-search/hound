@@ -1,9 +1,14 @@
-FROM golang:alpine
+FROM alpine
 
+ENV GOPATH /go
 COPY . /go/src/github.com/etsy/hound
 ONBUILD COPY config.json /hound/
-RUN apk update && apk add git subversion mercurial bzr
-RUN go install github.com/etsy/hound/cmds/houndd
+RUN apk update \
+	&& apk add go git subversion mercurial bzr \
+	&& go install github.com/etsy/hound/cmds/houndd \
+	&& apk del go \
+	&& rm -f /var/cache/apk/* \
+	&& rm -rf /go/src /go/pkg \
 
 EXPOSE 6080
 
