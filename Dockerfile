@@ -4,7 +4,7 @@ ENV GOPATH /go
 COPY . /go/src/github.com/etsy/hound
 ONBUILD COPY config.json /hound/
 RUN apk update \
-	&& apk add go git subversion mercurial bzr \
+	&& apk add go git subversion mercurial bzr openssh \
 	&& go install github.com/etsy/hound/cmds/houndd \
 	&& apk del go \
 	&& rm -f /var/cache/apk/* \
