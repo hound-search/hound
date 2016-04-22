@@ -59,16 +59,10 @@ var ParamsFromQueryString = function(qs, params) {
     if (pair.length != 2) {
       return;
     }
-    if (pair[1].indexOf(',') >= 0) {
-      params[decodeURIComponent(pair[0])] = pair[1].split(',');
-    } else {
-      params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
-    }
+
+    params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
   });
 
-  if (params["repos"] === '') {
-    params["repos"] = '*';
-  }
 
   return params;
 };
@@ -106,6 +100,21 @@ var Model = {
   didError: new Signal(),
 
   didLoadRepos : new Signal(),
+
+  ValidRepos: function(repos) {
+    var all = this.repos,
+        seen = {};
+    return repos.filter(function(repo) {
+      repo = repo.toLowerCase();
+      var valid = all[repo] && !seen[repo];
+      seen[repo] = true;
+      return valid;
+    });
+  },
+
+  RepoCount: function() {
+    return Object.keys(this.repos).length;
+  },
 
   Load: function() {
     var _this = this;
@@ -291,7 +300,7 @@ var Model = {
 var RepoOption = React.createClass({
   render: function() {
     return (
-      <option value={this.props.value}>{this.props.value}</option>
+      <option value={this.props.value} selected={this.props.selected}>{this.props.value}</option>
     )
   }
 });
@@ -321,7 +330,8 @@ var SearchBar = React.createClass({
   getInitialState: function() {
     return {
       state: null,
-      allRepos: []
+      allRepos: [],
+      repos: []
     };
   },
   queryGotKeydown: function(event) {
@@ -369,10 +379,17 @@ var SearchBar = React.createClass({
       this.refs.icase.getDOMNode().checked ? 'ig' : 'g');
   },
   getParams: function() {
+    // selecting all repos is the same as not selecting any, so normalize the url
+    // to have none.
+    var repos = Model.ValidRepos(this.refs.repos.state.value);
+    if (repos.length == Model.RepoCount()) {
+      repos = [];
+    }
+
     return {
       q : this.refs.q.getDOMNode().value.trim(),
       files : this.refs.files.getDOMNode().value.trim(),
-      repos : this.refs.repos.state.value.join(','),
+      repos : repos.join(','),
       i: this.refs.icase.getDOMNode().checked ? 'fosho' : 'nope'
     };
   },
@@ -419,9 +436,15 @@ var SearchBar = React.createClass({
   },
   render: function() {
     var repoCount = this.state.allRepos.length,
-        repoOptions = [];
-    this.state.allRepos.forEach(function(repoName){
-      repoOptions.push(<RepoOption value={repoName} />);
+        repoOptions = [],
+        selected = {};
+
+    this.state.repos.forEach(function(repo) {
+      selected[repo] = true;
+    });
+
+    this.state.allRepos.forEach(function(repoName) {
+      repoOptions.push(<RepoOption value={repoName} selected={selected[repoName]}/>);
     });
 
     var stats = this.state.stats;
@@ -730,18 +753,28 @@ var ResultView = React.createClass({
 
 var App = React.createClass({
   componentWillMount: function() {
-    var params = ParamsFromUrl();
+    var params = ParamsFromUrl(),
+        repos = (params.repos == '') ? [] : params.repos.split(',');
+
     this.setState({
       q: params.q,
       i: params.i,
       files: params.files,
-      repos: params.repos
+      repos: repos
     });
 
     var _this = this;
+    Model.didLoadRepos.tap(function(model, repos) {
+      // If all repos are selected, don't show any selected.
+      if (model.ValidRepos(_this.state.repos).length == model.RepoCount()) {
+        _this.setState({repos: []});
+      }
+    });
+
     Model.didSearch.tap(function(model, results, stats) {
       _this.refs.searchBar.setState({
-        stats: stats
+        stats: stats,
+        repos: repos,
       });
 
       _this.refs.resultView.setState({
