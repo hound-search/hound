@@ -38,6 +38,8 @@ type Index struct {
 type IndexOptions struct {
 	ExcludeDotFiles bool
 	SpecialFiles    []string
+	ExcludePatterns []string
+	IncludePatterns []string
 }
 
 type SearchOptions struct {

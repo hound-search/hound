@@ -31,6 +31,17 @@ type Repo struct {
 	ExcludeDotFiles   bool           `json:"exclude-dot-files"`
 	EnablePollUpdates *bool          `json:"enable-poll-updates"`
 	EnablePushUpdates *bool          `json:"enable-push-updates"`
+
+	// List of globs to exclude from index.
+	// Files matching one of the patterns will be excluded from index
+	ExcludePatterns   []string       `json:"exclude-patterns"`
+
+	// List of globs to include in index.
+	// Only files matching one of the patterns will be included in index except
+	// the patterns is empty in which case all files are indexed.
+	// Because Exclusion check runs first, a file is excluded if it matches
+	// both ExcludePatterns and IncludePatterns
+	IncludePatterns   []string       `json:"include-patterns"`
 }
 
 // Used for interpreting the config value for fields that use *bool. If a value
