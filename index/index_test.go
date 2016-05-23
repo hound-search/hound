@@ -18,20 +18,24 @@ func thisDir() string {
 	return filepath.Dir(file)
 }
 
-func buildIndex(url, rev string) (*IndexRef, error) {
+func parentDir() string {
+	return filepath.Dir(thisDir())
+}
+
+func buildIndex(url, rev string, opt *IndexOptions) (*IndexRef, error) {
 	dir, err := ioutil.TempDir(os.TempDir(), "hound")
 	if err != nil {
 		return nil, err
 	}
 
-	var opt IndexOptions
-
-	return Build(&opt, dir, thisDir(), url, rev)
+	return Build(opt, dir, parentDir(), url, rev)
 }
 
 func TestSearch(t *testing.T) {
+	var opt IndexOptions
+
 	// Build an index
-	ref, err := buildIndex(url, rev)
+	ref, err := buildIndex(url, rev, &opt)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -60,7 +64,9 @@ func TestSearch(t *testing.T) {
 }
 
 func TestRemove(t *testing.T) {
-	ref, err := buildIndex(url, rev)
+	var opt IndexOptions
+
+	ref, err := buildIndex(url, rev, &opt)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -75,7 +81,9 @@ func TestRemove(t *testing.T) {
 }
 
 func TestRead(t *testing.T) {
-	ref, err := buildIndex(url, rev)
+	var opt IndexOptions
+
+	ref, err := buildIndex(url, rev, &opt)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -99,4 +107,121 @@ func TestRead(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer idx.Close()
+}
+
+func TestExclude(t *testing.T) {
+	opt := &IndexOptions {
+		ExcludePatterns: []string{"index"},
+	}
+
+	// Build an index
+	ref, err := buildIndex(url, rev, opt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ref.Remove()
+
+	// Make sure the ref can be opened.
+	idx, err := ref.Open()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer idx.Close()
+
+	// search for this test method. should not be found as it's excluded
+	res, err := idx.Search("TestExclude", &SearchOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.FilesWithMatch > 0 {
+		t.Fatalf("This file was excluded, but indexed : %v", res)
+	}
+}
+
+func TestIncludeThis(t *testing.T) {
+	opt := &IndexOptions {
+		IncludePatterns: []string{"index"},
+	}
+
+	// Build an index
+	ref, err := buildIndex(url, rev, opt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ref.Remove()
+
+	// Make sure the ref can be opened.
+	idx, err := ref.Open()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer idx.Close()
+
+	// search for this test method.
+	res, err := idx.Search("TestIncludeThis", &SearchOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.FilesWithMatch != 1 {
+		t.Fatalf("Failed to find this test method: %v", res)
+	}
+}
+
+func TestIncludeOther(t *testing.T) {
+	opt := &IndexOptions {
+		IncludePatterns: []string{"config"},
+	}
+
+	// Build an index
+	ref, err := buildIndex(url, rev, opt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ref.Remove()
+
+	// Make sure the ref can be opened.
+	idx, err := ref.Open()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer idx.Close()
+
+	// search for this test method.
+	res, err := idx.Search("TestIncludeOther", &SearchOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.FilesWithMatch > 0 {
+		t.Fatalf("This file was not included, but indexed: %v", res)
+	}
+}
+
+func TestExcludeAndInclude(t *testing.T) {
+	opt := &IndexOptions {
+		ExcludePatterns: []string{"index"},
+		IncludePatterns: []string{"index"},
+	}
+
+	// Build an index
+	ref, err := buildIndex(url, rev, opt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ref.Remove()
+
+	// Make sure the ref can be opened.
+	idx, err := ref.Open()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer idx.Close()
+
+	// search for this test method.
+	res, err := idx.Search("TestExcludeAndInclude", &SearchOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if res.FilesWithMatch > 0 {
+		t.Fatalf("This file should be excluded, but was indexed: %v", res)
+	}
 }
