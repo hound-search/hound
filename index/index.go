@@ -6,12 +6,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 	"unicode/utf8"
 
+	"github.com/bmatcuk/doublestar"
 	"github.com/etsy/hound/codesearch/index"
 	"github.com/etsy/hound/codesearch/regexp"
 )
@@ -24,9 +27,11 @@ const (
 )
 
 const (
-	reasonDotFile     = "Dot files are excluded."
-	reasonInvalidMode = "Invalid file mode."
-	reasonNotText     = "Not a text file."
+	reasonDotFile             = "Dot files are excluded."
+	reasonInvalidMode         = "Invalid file mode."
+	reasonNotText             = "Not a text file."
+	reasonExplicitExclusion   = "Specified to exclude."
+	reasonNoExplicitInclusion = "Not specified to include."
 )
 
 type Index struct {
@@ -339,6 +344,21 @@ func containsString(haystack []string, needle string) bool {
 	return false
 }
 
+func expandGlobs(base string, patterns []string) (map[string]bool, error) {
+	dirs := make(map[string]bool)
+	for _, glob := range patterns {
+		matches, err := doublestar.Glob(filepath.Join(base, glob))
+		if err != nil {
+			return dirs, err
+		}
+		log.Printf("expand %s => %v", filepath.Join(base, glob), matches)
+		for _, match := range matches {
+			dirs[match] = true
+		}
+	}
+	return dirs, nil
+}
+
 func indexAllFiles(opt *IndexOptions, dst, src string) error {
 	ix := index.Create(filepath.Join(dst, "tri"))
 	defer ix.Close()
@@ -346,11 +366,20 @@ func indexAllFiles(opt *IndexOptions, dst, src string) error {
 	excluded := []*ExcludedFile{}
 
 	// Make a file to store the excluded files for this repo
-	fileHandle, err := os.Create(filepath.Join(dst, "excluded_files.json"))
+	fileHandle, err := os.Create(filepath.Join(dst, excludedFileJsonFilename))
 	if err != nil {
 		return err
 	}
 	defer fileHandle.Close()
+
+	excludeFiles, err := expandGlobs(src, opt.ExcludePatterns)
+	if err != nil {
+		return err
+	}
+	includeFiles, err := expandGlobs(src, opt.IncludePatterns)
+	if err != nil {
+		return err
+	}
 
 	if err := filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
 		name := info.Name()
@@ -378,6 +407,46 @@ func indexAllFiles(opt *IndexOptions, dst, src string) error {
 				reasonDotFile,
 			})
 			return nil
+		}
+
+		// explicit exclusion check
+		if _, ok := excludeFiles[path]; ok {
+			log.Printf("exclude %s as it's in %v", rel, opt.ExcludePatterns)
+
+			if info.IsDir() {
+				return filepath.SkipDir
+			}
+
+			excluded = append(excluded, &ExcludedFile{
+				rel,
+				reasonExplicitExclusion,
+			})
+			return nil
+		}
+
+		// explicit inclusion check
+		if len(includeFiles) > 0 && rel != "." && info.IsDir() {
+			include := false
+			for file := range includeFiles {
+				include = include || strings.HasPrefix(file, path) || strings.HasPrefix(path, file)
+				if include {
+					break
+				}
+			}
+
+			if !include {
+				log.Printf("exclude %s as it's not included in %v", rel, opt.IncludePatterns)
+
+				if info.IsDir() {
+					return filepath.SkipDir
+				}
+
+				excluded = append(excluded, &ExcludedFile{
+					rel,
+					reasonNoExplicitInclusion,
+				})
+				return nil
+			}
 		}
 
 		if info.IsDir() {
