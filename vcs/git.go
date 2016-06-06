@@ -56,12 +56,13 @@ func (g *GitDriver) Pull(dir string) (string, error) {
 	return g.HeadRev(dir)
 }
 
-func (g *GitDriver) Clone(dir, url string) (string, error) {
+func (g *GitDriver) Clone(dir, url string, ref string) (string, error) {
 	par, rep := filepath.Split(dir)
 	cmd := exec.Command(
 		"git",
 		"clone",
 		"--depth", "1",
+		"--branch", ref,
 		url,
 		rep)
 	cmd.Dir = par

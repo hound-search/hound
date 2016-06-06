@@ -16,7 +16,7 @@ var drivers = make(map[string]func(c []byte) (Driver, error))
 type Driver interface {
 
 	// Clone a new working directory.
-	Clone(dir, url string) (string, error)
+	Clone(dir, url string, ref string) (string, error)
 
 	// Pull new changes from the server and update the working directory.
 	Pull(dir string) (string, error)
@@ -69,9 +69,9 @@ func exists(path string) bool {
 
 // A utility method that carries out the common operation of cloning
 // if the working directory is absent and pulling otherwise.
-func (w *WorkDir) PullOrClone(dir, url string) (string, error) {
+func (w *WorkDir) PullOrClone(dir, url string, ref string) (string, error) {
 	if exists(dir) {
 		return w.Pull(dir)
 	}
-	return w.Clone(dir, url)
+	return w.Clone(dir, url, ref)
 }

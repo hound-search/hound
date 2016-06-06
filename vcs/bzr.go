@@ -55,7 +55,7 @@ func (g *BzrDriver) Pull(dir string) (string, error) {
 	return g.HeadRev(dir)
 }
 
-func (g *BzrDriver) Clone(dir, url string) (string, error) {
+func (g *BzrDriver) Clone(dir, url string, ref string) (string, error) {
 	par, rep := filepath.Split(dir)
 	cmd := exec.Command(
 		"bzr",

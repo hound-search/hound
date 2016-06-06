@@ -5,16 +5,20 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 const (
+	defaultRef                   = "master"
 	defaultMsBetweenPoll         = 30000
 	defaultMaxConcurrentIndexers = 2
 	defaultPushEnabled           = false
 	defaultPollEnabled           = true
 	defaultVcs                   = "git"
-	defaultBaseUrl               = "{url}/blob/master/{path}{anchor}"
+	defaultBaseUrl               = "{url}/blob/{ref}/{path}{anchor}"
+	defaultBaseUrlBitbucket      = "{url}/src/{ref}/{path}?at={ref}{anchor}"
 	defaultAnchor                = "#L{line}"
+	defaultAnchorBitbucket       = "#{filename}-{line}"
 )
 
 type UrlPattern struct {
@@ -24,6 +28,7 @@ type UrlPattern struct {
 
 type Repo struct {
 	Url               string         `json:"url"`
+	Ref               string         `json:"ref"`
 	MsBetweenPolls    int            `json:"ms-between-poll"`
 	Vcs               string         `json:"vcs"`
 	VcsConfigMessage  *SecretMessage `json:"vcs-config"`
@@ -88,6 +93,10 @@ func (r *Repo) VcsConfig() []byte {
 
 // Populate missing config values with default values.
 func initRepo(r *Repo) {
+	if r.Ref == "" {
+		r.Ref = defaultRef
+	}
+
 	if r.MsBetweenPolls == 0 {
 		r.MsBetweenPolls = defaultMsBetweenPoll
 	}
@@ -98,15 +107,23 @@ func initRepo(r *Repo) {
 
 	if r.UrlPattern == nil {
 		r.UrlPattern = &UrlPattern{
-			BaseUrl: defaultBaseUrl,
-			Anchor:  defaultAnchor,
+			BaseUrl: "",
+			Anchor:  "",
 		}
-	} else {
-		if r.UrlPattern.BaseUrl == "" {
+	}
+
+	if r.UrlPattern.BaseUrl == "" {
+		if strings.Contains(r.Url, "bitbucket.org") {
+			r.UrlPattern.BaseUrl = defaultBaseUrlBitbucket
+		} else {
 			r.UrlPattern.BaseUrl = defaultBaseUrl
 		}
+	}
 
-		if r.UrlPattern.Anchor == "" {
+	if r.UrlPattern.Anchor == "" {
+		if strings.Contains(r.Url, "bitbucket.org") {
+			r.UrlPattern.Anchor = defaultAnchorBitbucket
+		} else {
 			r.UrlPattern.Anchor = defaultAnchor
 		}
 	}
