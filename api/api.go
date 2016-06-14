@@ -219,6 +219,11 @@ func Setup(m *http.ServeMux, idx map[string]*searcher.Searcher) {
 		fmt.Fprint(w, res)
 	})
 
+	m.HandleFunc("/api/v1/file", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json;charset=utf-8")
+		w.Header().Set("Access-Control-Allow", "*")
+	})
+
 	m.HandleFunc("/api/v1/update", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
 			writeError(w,

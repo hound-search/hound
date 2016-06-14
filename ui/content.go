@@ -38,6 +38,14 @@ func init() {
 			},
 		},
 
+		"/": &content{
+			template: "file.tpl.html",
+			sources: []string{
+				"js/common.js",
+				"js/file.js",
+			},
+		},
+
 		"/open_search.xml": &content{
 			template: "open_search.tpl.xml",
 		},
