@@ -60,7 +60,7 @@ var ParamsFromQueryString = function(qs, params) {
       return;
     }
 
-    params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
+    params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1].replace(/\+/g, '%20'));
   });
 
 
