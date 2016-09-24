@@ -38,7 +38,7 @@ func init() {
 			},
 		},
 
-		"/": &content{
+		"/file": &content{
 			template: "file.tpl.html",
 			sources: []string{
 				"js/common.js",
