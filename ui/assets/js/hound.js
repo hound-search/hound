@@ -79,6 +79,7 @@ var ParamsFromUrl = function(params) {
     q: '',
     i: 'nope',
     files: '',
+    excludeFiles: '',
     repos: '*'
   };
   return ParamsFromQueryString(location.search, params);
@@ -376,6 +377,23 @@ var SearchBar = createReactClass({
   filesGotFocus: function(event) {
     this.showAdvanced();
   },
+  excludeFilesGotKeydown: function(event) {
+    switch (event.keyCode) {
+    case 38:
+      // if advanced is empty, close it up.
+      if (this.refs.excludeFiles.getDOMNode().value.trim() === '') {
+        this.hideAdvanced();
+      }
+      this.refs.q.getDOMNode().focus();
+      break;
+    case 13:
+      this.submitQuery();
+      break;
+    }
+  },
+  excludeFilesGotFocus: function(event) {
+    this.showAdvanced();
+  },
   submitQuery: function() {
     this.props.onSearchRequested(this.getParams());
   },
@@ -399,6 +417,7 @@ var SearchBar = createReactClass({
     return {
       q : this.refs.q.value.trim(),
       files : this.refs.files.value.trim(),
+      excludeFiles : this.refs.excludeFiles.value.trim(),
       repos : repos.join(','),
       i: this.refs.icase.checked ? 'fosho' : 'nope'
     };
@@ -406,30 +425,29 @@ var SearchBar = createReactClass({
   setParams: function(params) {
     var q = this.refs.q,
         i = this.refs.icase,
-        files = this.refs.files;
+        files = this.refs.files,
+        excludeFiles = this.refs.excludeFiles;
 
     q.value = params.q;
     i.checked = ParamValueToBool(params.i);
     files.value = params.files;
+    excludeFiles.value = params.excludeFiles;
   },
   hasAdvancedValues: function() {
-    return this.refs.files.value.trim() !== '' || this.refs.icase.checked || this.refs.repos.value !== '';
+    return this.refs.files.value.trim() !== '' || this.refs.excludeFiles.value.trim() !== '' || this.refs.icase.checked || this.refs.repos.value !== '';
   },
   showAdvanced: function() {
     var adv = this.refs.adv,
         ban = this.refs.ban,
         q = this.refs.q,
-        files = this.refs.files;
+        files = this.refs.files,
+        excludeFiles = this.refs.excludeFiles;
 
     css(adv, 'height', 'auto');
     css(adv, 'padding', '10px 0');
 
     css(ban, 'max-height', '0');
     css(ban, 'opacity', '0');
-
-    if (q.value.trim() !== '') {
-      files.focus();
-    }
   },
   hideAdvanced: function() {
     var adv = this.refs.adv,
@@ -504,6 +522,17 @@ var SearchBar = createReactClass({
                     ref="files"
                     onKeyDown={this.filesGotKeydown}
                     onFocus={this.filesGotFocus} />
+              </div>
+            </div>
+            <div className="field">
+              <label htmlFor="excludeFiles">Exclude File Path</label>
+              <div className="field-input">
+                <input type="text"
+                    id="excludeFiles"
+                    placeholder="/regexp/"
+                    ref="excludeFiles"
+                    onKeyDown={this.excludeFilesGotKeydown}
+                    onFocus={this.excludeFilesGotFocus} />
               </div>
             </div>
             <div className="field">
@@ -770,6 +799,7 @@ var App = createReactClass({
       q: params.q,
       i: params.i,
       files: params.files,
+      excludeFiles: params.excludeFiles,
       repos: repos
     });
 
@@ -824,6 +854,7 @@ var App = createReactClass({
       '?q=' + encodeURIComponent(params.q) +
       '&i=' + encodeURIComponent(params.i) +
       '&files=' + encodeURIComponent(params.files) +
+      '&excludeFiles=' + encodeURIComponent(params.excludeFiles) +
       '&repos=' + params.repos;
     history.pushState({path:path}, '', path);
   },
@@ -834,6 +865,7 @@ var App = createReactClass({
             q={this.state.q}
             i={this.state.i}
             files={this.state.files}
+            excludeFiles={this.state.excludeFiles}
             repos={this.state.repos}
             onSearchRequested={this.onSearchRequested} />
         <ResultView ref="resultView" q={this.state.q} />
