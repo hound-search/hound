@@ -1,0 +1,14 @@
+[Unit]
+Description=Hound Code Search and Indexing Daemon
+After=network.target
+After=httpd.service
+
+[Service]
+Type=simple
+User=nobody
+Group=nobody
+ExecStart=/usr/local/hound/bin/houndd
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

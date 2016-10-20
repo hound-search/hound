@@ -20,6 +20,7 @@ const (
 	matchLimit               = 5000
 	manifestFilename         = "metadata.gob"
 	excludedFileJsonFilename = "excluded_files.json"
+	filePeekSize             = 2048
 )
 
 const (
@@ -227,7 +228,7 @@ func (n *Index) Search(pat string, opt *SearchOptions) (*SearchResponse, error) 
 }
 
 func isTextFile(filename string) (bool, error) {
-	buf := make([]byte, 2048)
+	buf := make([]byte, filePeekSize)
 	r, err := os.Open(filename)
 	if err != nil {
 		return false, err
@@ -241,7 +242,40 @@ func isTextFile(filename string) (bool, error) {
 
 	buf = buf[:n]
 
-	return utf8.Valid(buf), nil
+	if n < filePeekSize {
+		// read the whole file, must be valid.
+		return utf8.Valid(buf), nil
+	}
+
+	// read a prefix, allow trailing partial runes.
+	return validUTF8IgnoringPartialTrailingRune(buf), nil
+
+}
+
+// Determines if the buffer contains valid UTF8 encoded string data. The buffer is assumed
+// to be a prefix of a larger buffer so if the buffer ends with the start of a rune, it
+// is still considered valid.
+//
+// Basic logic copied from https://golang.org/pkg/unicode/utf8/#Valid
+func validUTF8IgnoringPartialTrailingRune(p []byte) bool {
+	i := 0
+	n := len(p)
+
+	for i < n {
+		if p[i] < utf8.RuneSelf {
+			i++
+		} else {
+			_, size := utf8.DecodeRune(p[i:])
+			if size == 1 {
+				// All valid runes of size 1 (those below RuneSelf) were handled above. This must be a RuneError.
+				// If we're encountering this error within UTFMax of the end and the current byte could be a
+				// valid start, we'll just ignore the assumed partial rune.
+				return n-i < utf8.UTFMax && utf8.RuneStart(p[i])
+			}
+			i += size
+		}
+	}
+	return true
 }
 
 func addFileToIndex(ix *index.IndexWriter, dst, src, path string) (string, error) {

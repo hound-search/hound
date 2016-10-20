@@ -2,12 +2,15 @@ package vcs
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"log"
 	"os/exec"
 	"path/filepath"
 	"strings"
 )
+
+const defaultRef = "master"
 
 func init() {
 	Register(newGit, "git")
@@ -44,12 +47,37 @@ func (g *GitDriver) HeadRev(dir string) (string, error) {
 	return strings.TrimSpace(buf.String()), cmd.Wait()
 }
 
+func run(desc, dir, cmd string, args ...string) error {
+	c := exec.Command(cmd, args...)
+	c.Dir = dir
+	if out, err := c.CombinedOutput(); err != nil {
+		log.Printf(
+			"Failed to %s %s, see output below\n%sContinuing...",
+			desc,
+			dir,
+			out)
+		return err
+	}
+	return nil
+}
+
 func (g *GitDriver) Pull(dir string) (string, error) {
-	cmd := exec.Command("git", "pull")
-	cmd.Dir = dir
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		log.Printf("Failed to git pull %s, see output below\n%sContinuing...", dir, out)
+	if err := run("git fetch", dir,
+		"git",
+		"fetch",
+		"--prune",
+		"--no-tags",
+		"--depth", "1",
+		"origin",
+		fmt.Sprintf("+%s:remotes/origin/%s", defaultRef, defaultRef)); err != nil {
+		return "", err
+	}
+
+	if err := run("git reset", dir,
+		"git",
+		"reset",
+		"--hard",
+		fmt.Sprintf("origin/%s", defaultRef)); err != nil {
 		return "", err
 	}
 
