@@ -530,7 +530,7 @@ var SearchBar = React.createClass({
           <div id="adv" ref="adv">
             <span className="octicon octicon-chevron-up hide-adv" onClick={this.hideAdvanced}></span>
             <div className="field">
-              <label htmlFor="files">File Path</label>
+              <label htmlFor="files">Included File Path</label>
               <div className="field-input">
                 <input type="text"
                     id="files"

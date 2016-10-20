@@ -121,6 +121,7 @@ button:focus {
 /* Media object clearfix */
 #adv > .field {
   overflow: hidden;
+  margin: 4px 0;
 }
 
 #adv > .field > label {
