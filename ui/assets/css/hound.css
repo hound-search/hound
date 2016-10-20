@@ -126,7 +126,7 @@ button:focus {
 #adv > .field > label {
   /* Media object left */
   float: left;
-  width: 90px;
+  width: 100px;
   color: #999;
 }
 
