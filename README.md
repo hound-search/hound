@@ -34,7 +34,7 @@ go get github.com/etsy/hound/cmds/...
 
 2. Run 
 ```
-docker run -it --rm -p 6080:6080 --name houndd -v $(pwd):/hound etsy/hound
+docker run -d -p 6080:6080 --name hound -v $(pwd):/data etsy/hound
 ```
 
 You should be able to navigate to [http://localhost:6080/](http://localhost:6080/) as usual.
@@ -76,7 +76,7 @@ There are a couple of ways to get Hound to index private repositories:
 and then reference the files directly. The downside here is that the polling to keep the repo up to date will
 not work.
 * Use SSH style URLs in the config: `"url" : "git@github.com:foo/bar.git"`. As long as you have your 
-[SSH keys](https://help.github.com/articles/generating-ssh-keys/) set up on the box where Hound is running this will work. There is currently an [issue](https://github.com/etsy/Hound/issues/19) with URLs in this case that we hope to fix soon.
+[SSH keys](https://help.github.com/articles/generating-ssh-keys/) set up on the box where Hound is running this will work.
 
 ## Keeping Repos Updated
 

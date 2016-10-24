@@ -29,8 +29,13 @@ type Searcher struct {
 	// It has a buffer size of 1 to allow at most one pending
 	// update at a time.
 	updateCh chan time.Time
+
+	shutdownRequested bool
+	shutdownCh        chan empty
+	doneCh            chan empty
 }
 
+type empty struct{}
 type limiter chan bool
 
 /**
@@ -141,6 +146,24 @@ func (s *Searcher) Update() bool {
 	return true
 }
 
+// Shut down the searcher cleanly, waiting for any indexing operations to complete.
+func (s *Searcher) Stop() {
+	select {
+	case s.shutdownCh <- empty{}:
+		s.shutdownRequested = true
+	default:
+	}
+}
+
+// Blocks until the searcher's associated goroutine is stopped.
+func (s *Searcher) Wait() {
+	<-s.doneCh
+}
+
+func (s *Searcher) completeShutdown() {
+	close(s.doneCh)
+}
+
 // Wait for either the delay period to expire or an update request to
 // arrive. Note that an empty delay will result in an infinite timeout.
 func (s *Searcher) waitForUpdate(delay time.Duration) {
@@ -149,10 +172,11 @@ func (s *Searcher) waitForUpdate(delay time.Duration) {
 		tch = time.After(delay)
 	}
 
-	// wait for either the timeout or the update channel signal
+	// wait for a timeout, the update channel signal, or a shutdown request
 	select {
 	case <-s.updateCh:
 	case <-tch:
+	case <-s.shutdownCh:
 	}
 }
 
@@ -393,9 +417,11 @@ func newSearcher(
 	}
 
 	s := &Searcher{
-		idx:      idx,
-		updateCh: make(chan time.Time, 1),
-		Repo:     repo,
+		idx:        idx,
+		updateCh:   make(chan time.Time, 1),
+		Repo:       repo,
+		doneCh:     make(chan empty),
+		shutdownCh: make(chan empty, 1),
 	}
 
 	go func() {
@@ -405,6 +431,7 @@ func newSearcher(
 
 		// if all forms of updating are turned off, we're done here.
 		if !repo.PollUpdatesEnabled() && !repo.PushUpdatesEnabled() {
+			s.completeShutdown()
 			return
 		}
 
@@ -414,9 +441,13 @@ func newSearcher(
 		}
 
 		for {
-
 			// Wait for a signal to proceed
 			s.waitForUpdate(delay)
+
+			if s.shutdownRequested {
+				s.completeShutdown()
+				return
+			}
 
 			// attempt to update and reindex this searcher
 			newRev, ok := updateAndReindex(s, dbpath, vcsDir, name, rev, wd, opt, lim)

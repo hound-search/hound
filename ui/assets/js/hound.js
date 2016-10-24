@@ -59,16 +59,10 @@ var ParamsFromQueryString = function(qs, params) {
     if (pair.length != 2) {
       return;
     }
-    if (pair[1].indexOf(',') >= 0) {
-      params[decodeURIComponent(pair[0])] = pair[1].split(',');
-    } else {
-      params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
-    }
+
+    params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
   });
 
-  if (params["repos"] === '') {
-    params["repos"] = '*';
-  }
 
   return params;
 };
@@ -78,6 +72,7 @@ var ParamsFromUrl = function(params) {
     q: '',
     i: 'nope',
     files: '',
+    excludeFiles: '',
     repos: '*'
   };
   return ParamsFromQueryString(location.search, params);
@@ -118,6 +113,21 @@ var Model = {
   didError: new Signal(),
 
   didLoadRepos : new Signal(),
+
+  ValidRepos: function(repos) {
+    var all = this.repos,
+        seen = {};
+    return repos.filter(function(repo) {
+      repo = repo.toLowerCase();
+      var valid = all[repo] && !seen[repo];
+      seen[repo] = true;
+      return valid;
+    });
+  },
+
+  RepoCount: function() {
+    return Object.keys(this.repos).length;
+  },
 
   Load: function() {
     var _this = this;
@@ -303,7 +313,7 @@ var Model = {
 var RepoOption = React.createClass({
   render: function() {
     return (
-      <option value={this.props.value}>{this.props.value}</option>
+      <option value={this.props.value} selected={this.props.selected}>{this.props.value}</option>
     )
   }
 });
@@ -333,7 +343,8 @@ var SearchBar = React.createClass({
   getInitialState: function() {
     return {
       state: null,
-      allRepos: []
+      allRepos: [],
+      repos: []
     };
   },
   queryGotKeydown: function(event) {
@@ -372,6 +383,23 @@ var SearchBar = React.createClass({
   filesGotFocus: function(event) {
     this.showAdvanced();
   },
+  excludeFilesGotKeydown: function(event) {
+    switch (event.keyCode) {
+    case 38:
+      // if advanced is empty, close it up.
+      if (this.refs.excludeFiles.getDOMNode().value.trim() === '') {
+        this.hideAdvanced();
+      }
+      this.refs.q.getDOMNode().focus();
+      break;
+    case 13:
+      this.submitQuery();
+      break;
+    }
+  },
+  excludeFilesGotFocus: function(event) {
+    this.showAdvanced();
+  },
   submitQuery: function() {
     var isEnabled = isAutoHideEnabled();
     if(isEnabled) {
@@ -385,44 +413,51 @@ var SearchBar = React.createClass({
       this.refs.icase.getDOMNode().checked ? 'ig' : 'g');
   },
   getParams: function() {
+    // selecting all repos is the same as not selecting any, so normalize the url
+    // to have none.
+    var repos = Model.ValidRepos(this.refs.repos.state.value);
+    if (repos.length == Model.RepoCount()) {
+      repos = [];
+    }
+
     return {
       q : this.refs.q.getDOMNode().value.trim(),
       files : this.refs.files.getDOMNode().value.trim(),
-      repos : this.refs.repos.state.value.join(','),
+      excludeFiles : this.refs.excludeFiles.getDOMNode().value.trim(),
+      repos : repos.join(','),
       i: this.refs.icase.getDOMNode().checked ? 'fosho' : 'nope'
     };
   },
   setParams: function(params) {
     var q = this.refs.q.getDOMNode(),
         i = this.refs.icase.getDOMNode(),
-        files = this.refs.files.getDOMNode();
+        files = this.refs.files.getDOMNode(),
+        excludeFiles = this.refs.excludeFiles.getDOMNode();
 
     q.value = params.q;
     i.checked = ParamValueToBool(params.i) || isIgnoreCasePrefEnabled();
     files.value = params.files;
+    excludeFiles.value = params.excludeFiles;
   },
   hasAdvancedValues: function() {
     if(isIgnoreCasePrefEnabled()) {
-      return this.refs.files.getDOMNode().value.trim() !== '' || this.refs.repos.getDOMNode().value !== '';
+      return this.refs.files.getDOMNode().value.trim() !== '' || this.refs.excludeFiles.getDOMNode().value.trim() !== '' || this.refs.repos.getDOMNode().value !== '';
     }else{
-      return this.refs.files.getDOMNode().value.trim() !== '' || this.refs.icase.getDOMNode().checked || this.refs.repos.getDOMNode().value !== '';
+      return this.refs.files.getDOMNode().value.trim() !== '' || this.refs.excludeFiles.getDOMNode().value.trim() !== '' || this.refs.icase.getDOMNode().checked || this.refs.repos.getDOMNode().value !== '';
     }
   },
   showAdvanced: function() {
     var adv = this.refs.adv.getDOMNode(),
         ban = this.refs.ban.getDOMNode(),
         q = this.refs.q.getDOMNode(),
-        files = this.refs.files.getDOMNode();
+        files = this.refs.files.getDOMNode(),
+        excludeFiles = this.refs.excludeFiles.getDOMNode();
 
     css(adv, 'height', 'auto');
     css(adv, 'padding', '10px 0');
 
     css(ban, 'max-height', '0');
     css(ban, 'opacity', '0');
-
-    if (q.value.trim() !== '') {
-      files.focus();
-    }
   },
   hideAdvanced: function() {
     var adv = this.refs.adv.getDOMNode(),
@@ -445,9 +480,15 @@ var SearchBar = React.createClass({
   },
   render: function() {
     var repoCount = this.state.allRepos.length,
-        repoOptions = [];
-    this.state.allRepos.forEach(function(repoName){
-      repoOptions.push(<RepoOption value={repoName} />);
+        repoOptions = [],
+        selected = {};
+
+    this.state.repos.forEach(function(repo) {
+      selected[repo] = true;
+    });
+
+    this.state.allRepos.forEach(function(repoName) {
+      repoOptions.push(<RepoOption value={repoName} selected={selected[repoName]}/>);
     });
 
     var stats = this.state.stats;
@@ -489,7 +530,7 @@ var SearchBar = React.createClass({
           <div id="adv" ref="adv">
             <span className="octicon octicon-chevron-up hide-adv" onClick={this.hideAdvanced}></span>
             <div className="field">
-              <label>File Path</label>
+              <label htmlFor="files">Included File Path</label>
               <div className="field-input">
                 <input type="text"
                     id="files"
@@ -500,13 +541,24 @@ var SearchBar = React.createClass({
               </div>
             </div>
             <div className="field">
-              <label>Ignore Case</label>
+              <label htmlFor="excludeFiles">Exclude File Path</label>
+              <div className="field-input">
+                <input type="text"
+                    id="excludeFiles"
+                    placeholder="/regexp/"
+                    ref="excludeFiles"
+                    onKeyDown={this.excludeFilesGotKeydown}
+                    onFocus={this.excludeFilesGotFocus} />
+              </div>
+            </div>
+            <div className="field">
+              <label htmlFor="ignore-case">Ignore Case</label>
               <div className="field-input">
                 <input type="checkbox" ref="icase" checked={this.state.i} onClick={this.ignoreCaseChanged} />
               </div>
             </div>
             <div className="field">
-              <label className="multiselect_label">Select Repo</label>
+              <label className="multiselect_label" htmlFor="repos">Select Repo</label>
               <div className="field-input">
                 <select id="repos" className="form-control multiselect" multiple={true} size={Math.min(16, repoCount)} ref="repos">
                   {repoOptions}
@@ -761,18 +813,29 @@ var ResultView = React.createClass({
 
 var App = React.createClass({
   componentWillMount: function() {
-    var params = ParamsFromUrl();
+    var params = ParamsFromUrl(),
+        repos = (params.repos == '') ? [] : params.repos.split(',');
+
     this.setState({
       q: params.q,
       i: (params.i || isIgnoreCasePrefEnabled()),
       files: params.files,
-      repos: params.repos
+      excludeFiles: params.excludeFiles,
+      repos: repos
     });
 
     var _this = this;
+    Model.didLoadRepos.tap(function(model, repos) {
+      // If all repos are selected, don't show any selected.
+      if (model.ValidRepos(_this.state.repos).length == model.RepoCount()) {
+        _this.setState({repos: []});
+      }
+    });
+
     Model.didSearch.tap(function(model, results, stats) {
       _this.refs.searchBar.setState({
-        stats: stats
+        stats: stats,
+        repos: repos,
       });
 
       _this.refs.resultView.setState({
@@ -812,6 +875,7 @@ var App = React.createClass({
       '?q=' + encodeURIComponent(params.q) +
       '&i=' + encodeURIComponent(params.i) +
       '&files=' + encodeURIComponent(params.files) +
+      '&excludeFiles=' + encodeURIComponent(params.excludeFiles) +
       '&repos=' + params.repos;
     history.pushState({path:path}, '', path);
   },
@@ -834,6 +898,7 @@ var App = React.createClass({
             q={this.state.q}
             i={this.state.i}
             files={this.state.files}
+            excludeFiles={this.state.excludeFiles}
             repos={this.state.repos}
             onSearchRequested={this.onSearchRequested} />
         <ResultView ref="resultView" q={this.state.q} />
