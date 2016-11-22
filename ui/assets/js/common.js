@@ -5,7 +5,7 @@ var lib = {
 
     ExpandVars: function(template, values) {
       for (var name in values) {
-        template = template.replace('{' + name + '}', values[name]);
+        template = template.replace(new RegExp('{' + name + '}', 'g'), values[name]);
       }
       return template;
     },
@@ -39,6 +39,7 @@ var lib = {
         // I'm sure there is a nicer React/jsx way to do this:
         return lib.ExpandVars(pattern['base-url'], {
           url : url,
+          ref : repo.ref,
           path: path,
           rev: rev,
           anchor: anchor

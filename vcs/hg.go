@@ -58,7 +58,7 @@ func (g *MercurialDriver) Pull(dir string) (string, error) {
 	return g.HeadRev(dir)
 }
 
-func (g *MercurialDriver) Clone(dir, url string) (string, error) {
+func (g *MercurialDriver) Clone(dir, url string, ref string) (string, error) {
 	par, rep := filepath.Split(dir)
 	cmd := exec.Command(
 		"hg",

@@ -73,7 +73,7 @@ func (g *SVNDriver) Pull(dir string) (string, error) {
 	return g.HeadRev(dir)
 }
 
-func (g *SVNDriver) Clone(dir, url string) (string, error) {
+func (g *SVNDriver) Clone(dir, url string, ref string) (string, error) {
 	par, rep := filepath.Split(dir)
 	cmd := exec.Command(
 		"svn",
