@@ -14,9 +14,14 @@
             "url" : "https://www.example.com/foo/hg",
             "vcs" : "hg"
         },
+        "MercurialRepoWithBranch": {
+            "url" : "https://www.example.com/bar/hg",
+            "vcs" : "hg",
+            "branch" : "not-default"
+        },
         "Subversion" : {
             "url" : "http://my-svn.com/repo",
-            "url-pattern" : { 
+            "url-pattern" : {
                 "base-url" : "{url}/{path}{anchor}"
             },
             "vcs" : "svn"
