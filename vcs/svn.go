@@ -73,7 +73,7 @@ func (g *SVNDriver) Pull(dir string) (string, error) {
 	return g.HeadRev(dir)
 }
 
-func (g *SVNDriver) Clone(dir, url string) (string, error) {
+func (g *SVNDriver) Clone(dir string, url string) (string, error) {
 	par, rep := filepath.Split(dir)
 	cmd := exec.Command(
 		"svn",
@@ -92,6 +92,11 @@ func (g *SVNDriver) Clone(dir, url string) (string, error) {
 		return "", err
 	}
 
+	return g.HeadRev(dir)
+}
+
+func (g *SVNDriver) Checkout(dir string, branch string) (string, error) {
+	// Checkout behavior in svn is handled by Clone.
 	return g.HeadRev(dir)
 }
 

@@ -14,12 +14,14 @@ var drivers = make(map[string]func(c []byte) (Driver, error))
 // A "plugin" for each vcs that supports the very limited set of vcs
 // operations that hound needs.
 type Driver interface {
-
 	// Clone a new working directory.
-	Clone(dir, url string) (string, error)
+	Clone(dir string, url string) (string, error)
 
 	// Pull new changes from the server and update the working directory.
 	Pull(dir string) (string, error)
+
+	// Checkout or update the working directory to a specific branch or tag.
+	Checkout(dir string, branch string) (string, error)
 
 	// Return the revision at the head of the vcs directory.
 	HeadRev(dir string) (string, error)
@@ -69,9 +71,21 @@ func exists(path string) bool {
 
 // A utility method that carries out the common operation of cloning
 // if the working directory is absent and pulling otherwise.
-func (w *WorkDir) PullOrClone(dir, url string) (string, error) {
+// Additionally, this will update the working directory to the specified
+// branch if non-empty.
+func (w *WorkDir) PullOrClone(dir, url string, branch string) (string, error) {
+	var revision string
+	var err error
+
 	if exists(dir) {
-		return w.Pull(dir)
+		revision, err = w.Pull(dir)
+	} else {
+		revision, err = w.Clone(dir, url)
 	}
-	return w.Clone(dir, url)
+
+	if err == nil && branch != "" {
+		revision, err = w.Checkout(dir, branch)
+	}
+
+	return revision, err
 }
