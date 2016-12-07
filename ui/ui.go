@@ -75,12 +75,12 @@ func renderForDev(w io.Writer, root string, c *content, cfg *config.Config, r *h
 	var buf bytes.Buffer
 	fmt.Fprintf(
 		&buf,
-		"<script src=\"/js/JSXTransformer-%s.js\"></script>\n",
+		"<script src=\"js/JSXTransformer-%s.js\"></script>\n",
 		ReactVersion)
 	for _, path := range c.sources {
 		fmt.Fprintf(
 			&buf,
-			"<script type=\"text/jsx\" src=\"/%s\"></script>",
+			"<script type=\"text/jsx\" src=\"%s\"></script>",
 			path)
 	}
 

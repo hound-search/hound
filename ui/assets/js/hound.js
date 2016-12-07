@@ -139,7 +139,7 @@ var Model = {
     }
 
     $.ajax({
-      url: '/api/v1/repos',
+      url: 'api/v1/repos',
       dataType: 'json',
       success: function(data) {
         _this.repos = data;
@@ -181,7 +181,7 @@ var Model = {
     }
 
     $.ajax({
-      url: '/api/v1/search',
+      url: 'api/v1/search',
       data: params,
       type: 'GET',
       dataType: 'json',
@@ -249,7 +249,7 @@ var Model = {
     });
 
     $.ajax({
-      url: '/api/v1/search',
+      url: 'api/v1/search',
       data: params,
       type: 'GET',
       dataType: 'json',
@@ -453,7 +453,7 @@ var SearchBar = React.createClass({
       statsView = (
         <div className="stats">
           <div className="stats-left">
-            <a href="/excluded_files.html"
+            <a href="excluded_files.html"
               className="link-gray">
                 Excluded Files
             </a>
