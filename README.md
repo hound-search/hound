@@ -72,9 +72,8 @@ See [config-example.json](config-example.json) for examples of how to use each V
 
 There are a couple of ways to get Hound to index private repositories:
 
-* Use the `file://` protocol. This allows you to index any local folder, so you can clone the repository locally 
-and then reference the files directly. The downside here is that the polling to keep the repo up to date will
-not work.
+* Use the `file://` protocol. This allows you to index a local clone of a repository. The downside here is that the polling to keep the repo up to date will
+not work. (This also doesn't work on local folders that are not of a supported repository type.)
 * Use SSH style URLs in the config: `"url" : "git@github.com:foo/bar.git"`. As long as you have your 
 [SSH keys](https://help.github.com/articles/generating-ssh-keys/) set up on the box where Hound is running this will work.
 
