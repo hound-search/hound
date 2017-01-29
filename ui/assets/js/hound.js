@@ -632,6 +632,57 @@ var ContentFor = function(line, regexp) {
   return buffer.join('');
 };
 
+var FileContentView = React.createClass({
+  getInitialState: function() {
+    return { open: true };
+  },
+  toggleContent: function() {
+    this.state.open ? this.closeContent(): this.openContent();
+  },
+  openContent: function() {
+    this.setState({open: true});
+  },
+  closeContent: function() {
+    this.setState({open: false});
+  },
+  render: function () {
+      var repo = this.props.repo,
+          rev = this.props.rev,
+          regexp = this.props.regexp,
+          fileName = this.props.fileName,
+          blocks = this.props.blocks;
+      var matches = blocks.map(function(block) {
+        var lines = block.map(function(line) {
+          var content = ContentFor(line, regexp);
+          return (
+            <div className="line">
+              <a href={Model.UrlToRepo(repo, fileName, line.Number, rev)}
+                  className="lnum"
+                  target="_blank">{line.Number}</a>
+              <span className="lval" dangerouslySetInnerHTML={{__html:content}} />
+            </div>
+          );
+        });
+        return (
+          <div className="match">{lines}</div>
+        );
+      });
+
+      return (
+        <div className={"file " + (this.state.open ? 'open' : 'closed')}>
+          <div className="title" onClick={this.toggleContent}>
+            <a href={Model.UrlToRepo(repo, fileName, null, rev)}>
+              {fileName}
+            </a>
+          </div>
+          <div className="file-body">
+            {matches}
+          </div>
+        </div>
+      );
+    }
+});
+
 var FilesView = React.createClass({
   onLoadMore: function(event) {
     Model.LoadMore(this.props.repo);
@@ -643,40 +694,16 @@ var FilesView = React.createClass({
         regexp = this.props.regexp,
         matches = this.props.matches,
         totalMatches = this.props.totalMatches;
-    var files = matches.map(function(match, index) {
-      var filename = match.Filename,
-          blocks = CoalesceMatches(match.Matches);
-      var matches = blocks.map(function(block) {
-        var lines = block.map(function(line) {
-          var content = ContentFor(line, regexp);
-          return (
-            <div className="line">
-              <a href={Model.UrlToRepo(repo, filename, line.Number, rev)}
-                  className="lnum"
-                  target="_blank">{line.Number}</a>
-              <span className="lval" dangerouslySetInnerHTML={{__html:content}} />
-            </div>
-          );
-        });
 
-        return (
-          <div className="match">{lines}</div>
-        );
-      });
-
-      return (
-        <div className="file">
-          <div className="title">
-            <a href={Model.UrlToRepo(repo, match.Filename, null, rev)}>
-              {match.Filename}
-            </a>
-          </div>
-          <div className="file-body">
-            {matches}
-          </div>
-        </div>
-      );
+    var files = matches.map(function (match, index) {
+      return <FileContentView ref={"file-"+index}
+        repo={repo}
+        rev={rev}
+        fileName={match.Filename}
+        blocks={CoalesceMatches(match.Matches)}
+        regexp={regexp}/>
     });
+
 
     var more = '';
     if (matches.length < totalMatches) {
@@ -685,8 +712,52 @@ var FilesView = React.createClass({
 
     return (
       <div className="files">
-      {files}
-      {more}
+        {files}
+        {more}
+      </div>
+    );
+  }
+});
+
+var RepoView = React.createClass({
+  getInitialState: function() {
+    return { open: true };
+  },
+  toggleRepo: function() {
+    this.state.open ? this.closeRepo(): this.openRepo();
+  },
+  openOrCloseRepo: function (to_open) {
+    for (var ref in this.refs.filesView.refs) {
+      if (ref.startsWith("file-")) {
+        if (to_open) {
+          this.refs.filesView.refs[ref].openContent();
+        } else {
+          this.refs.filesView.refs[ref].closeContent();
+        }
+      }
+    }
+    this.setState({open: to_open});
+  },
+  openRepo: function() {
+    this.openOrCloseRepo(true);
+  },
+  closeRepo: function() {
+    this.openOrCloseRepo(false);
+  },
+  render: function() {
+    return (
+      <div className={"repo " + (this.state.open? "open":"closed")}>
+        <div className="title" onClick={this.toggleRepo}>
+          <span className="mega-octicon octicon-repo"></span>
+          <span className="name">{Model.NameForRepo(this.props.repo)}</span>
+          <span className={"indicator octicon octicon-chevron-"+ (this.state.open? "up":"down")} onClick={this.toggleRepo}></span>
+        </div>
+        <FilesView ref="filesView"
+            matches={this.props.matches}
+            rev={this.props.rev}
+            repo={this.props.repo}
+            regexp={this.props.regexp}
+            totalMatches={this.props.files} />
       </div>
     );
   }
@@ -701,6 +772,23 @@ var ResultView = React.createClass({
         query: params.q
       });
     });
+  },
+  openOrCloseAll: function (to_open) {
+    for (var ref in this.refs) {
+      if (ref.startsWith("repo-")) {
+        if (to_open) {
+          this.refs[ref].openRepo();
+        } else {
+          this.refs[ref].closeRepo();
+        }
+      }
+    }
+  },
+  openAll: function () {
+    this.openOrCloseAll(true);
+  },
+  closeAll: function () {
+    this.openOrCloseAll(false);
   },
   getInitialState: function() {
     return { results: null };
@@ -731,21 +819,28 @@ var ResultView = React.createClass({
         results = this.state.results || [];
     var repos = results.map(function(result, index) {
       return (
-        <div className="repo">
-          <div className="title">
-            <span className="mega-octicon octicon-repo"></span>
-            <span className="name">{Model.NameForRepo(result.Repo)}</span>
-          </div>
-          <FilesView matches={result.Matches}
-              rev={result.Rev}
-              repo={result.Repo}
-              regexp={regexp}
-              totalMatches={result.FilesWithMatch} />
-        </div>
+        <RepoView ref={"repo-"+index}
+          matches={result.Matches}
+          rev={result.Rev}
+          repo={result.Repo}
+          regexp={regexp}
+          files={result.FilesWithMatch}/>
       );
     });
+    var actions = '';
+    if (results.length > 0) {
+      actions = (
+        <div className="actions">
+          <button onClick={this.openAll}><span className="octicon octicon-chevron-down"></span> Expand all</button>
+          <button onClick={this.closeAll}><span className="octicon octicon-chevron-up"></span> Collapse all</button>
+        </div>
+      )
+    }
     return (
-      <div id="result">{repos}</div>
+      <div id="result">
+        {actions}
+        {repos}
+      </div>
     );
   }
 });
