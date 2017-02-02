@@ -644,6 +644,11 @@ var FilesView = React.createClass({
         regexp = this.props.regexp,
         matches = this.props.matches,
         totalMatches = this.props.totalMatches;
+
+    if (this.props.shouldHide) {
+        return null;
+    }
+
     var files = matches.map(function(match, index) {
       var filename = match.Filename,
           blocks = CoalesceMatches(match.Matches);
@@ -704,7 +709,12 @@ var ResultView = React.createClass({
     });
   },
   getInitialState: function() {
-    return { results: null };
+    return { results: null, hiddenReposMap: {} };
+  },
+  toggleRepoDisplay: function(repo) {
+    var newHiddenReposMap = Object.assign({}, this.state.hiddenReposMap);
+    newHiddenReposMap[repo] = !newHiddenReposMap[repo];
+    this.setState({hiddenReposMap: newHiddenReposMap});
   },
   render: function() {
     if (this.state.error) {
@@ -730,18 +740,25 @@ var ResultView = React.createClass({
 
     var regexp = this.state.regexp,
         results = this.state.results || [];
+    var temphiddenReposMap = this.state.hiddenReposMap;
+    var temp = this.toggleRepoDisplay;
     var repos = results.map(function(result, index) {
+      var shouldHide = temphiddenReposMap[result.Repo];
+      var visibilityLabel = shouldHide ? "Show" : "Hide";
       return (
         <div className="repo">
           <div className="title">
             <span className="mega-octicon octicon-repo"></span>
             <span className="name">{Model.NameForRepo(result.Repo)}</span>
+            <span className="stats stats-right" id="toggle"
+                  onClick={temp.bind(this, result.Repo)}>{{visibilityLabel}}</span>
           </div>
           <FilesView matches={result.Matches}
               rev={result.Rev}
               repo={result.Repo}
               regexp={regexp}
-              totalMatches={result.FilesWithMatch} />
+              totalMatches={result.FilesWithMatch}
+              shouldHide={shouldHide} />
         </div>
       );
     });
