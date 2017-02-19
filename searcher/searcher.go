@@ -10,7 +10,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"strings"
 	"sync"
 	"time"
 
@@ -267,10 +266,6 @@ func init() {
 // occurred and no other return values are valid. If an error occurs that is specific
 // to a particular searcher, that searcher will not be present in the searcher map and
 // will have an error entry in the error map.
-//
-// NOTE: The keys in the searcher map will be normalized to lower case, but not such
-// transformation will be done on the error map to make it easier to match those errors
-// back to the original repo name.
 func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error) {
 	errs := map[string]error{}
 	searchers := map[string]*Searcher{}
@@ -290,7 +285,7 @@ func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error)
 			continue
 		}
 
-		searchers[strings.ToLower(name)] = s
+		searchers[name] = s
 	}
 
 	if err := refs.removeUnclaimed(); err != nil {
