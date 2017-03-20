@@ -21,7 +21,7 @@ go get github.com/etsy/hound/cmds/...
 2. Create a [config.json](config-example.json) in a directory with your list of repositories.
 
 3. Run the Hound server with `houndd` and you should see output similar to:
-````
+```
 2015/03/13 09:07:42 Searcher started for statsd
 2015/03/13 09:07:42 Searcher started for Hound
 2015/03/13 09:07:42 All indexes built!
