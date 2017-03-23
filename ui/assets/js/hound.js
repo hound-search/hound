@@ -105,7 +105,6 @@ var Model = {
     var all = this.repos,
         seen = {};
     return repos.filter(function(repo) {
-      repo = repo.toLowerCase();
       var valid = all[repo] && !seen[repo];
       seen[repo] = true;
       return valid;
@@ -131,7 +130,7 @@ var Model = {
       var data = JSON.parse(ModelData),
           repos = {};
       for (var name in data) {
-        repos[name.toLowerCase()] = data[name];
+        repos[name] = data[name];
       }
       this.repos = repos;
       next();
