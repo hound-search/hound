@@ -7,7 +7,7 @@ COPY . /go/src/github.com/etsy/hound
 COPY default-config.json /data/config.json
 
 RUN apk update \
-	&& apk add go git subversion mercurial bzr openssh \
+	&& apk add go git subversion libc-dev mercurial bzr openssh \
 	&& go install github.com/etsy/hound/cmds/houndd \
 	&& apk del go \
 	&& rm -f /var/cache/apk/* \
