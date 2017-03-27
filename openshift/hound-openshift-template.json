@@ -1,0 +1,251 @@
+{
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "hound",
+    "annotations": {
+      "description": "Hound",
+      "tags": "hound"
+    }
+  },
+  "labels": {
+    "createdBy": "hound"
+  },
+  "parameters": [
+    {
+      "description": "The name for the application. The service will be named like the application.",
+      "displayName": "Application name.",
+      "name": "APPLICATION_NAME",
+      "value": "hound"
+    },
+    {
+      "description": "Custom hostname for service routes. Default works for the OpenShift all-in-one VM, e.g.: <application-name>.<project>.<default-domain-suffix>",
+      "displayName": "Hound instance hostname",
+      "name": "APPLICATION_HOSTNAME",
+      "value": "hound.apps.10.2.2.2.xip.io"
+    },
+    {
+      "description": "Volume size for /data",
+      "displayName": "/data volume size",
+      "name": "DATA_VOL_SIZE",
+      "value": "1024Mi"
+    }
+  ],
+  "objects": [
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${APPLICATION_NAME}",
+        "labels": {
+          "app": "${APPLICATION_NAME}"
+        }
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "latest",
+            "from": {
+              "kind": "DockerImage",
+              "name": "etsy/hound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${APPLICATION_NAME}",
+        "labels": {
+          "app": "${APPLICATION_NAME}"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "type": "Rolling",
+          "rollingParams": {
+            "updatePeriodSeconds": 1,
+            "intervalSeconds": 1,
+            "timeoutSeconds": 600,
+            "maxUnavailable": "25%",
+            "maxSurge": "25%"
+          },
+          "resources": {}
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "gitlab-ce"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "name": "${APPLICATION_NAME}:latest"
+              }
+            }
+          }
+        ],
+        "replicas": 1,
+        "test": false,
+        "selector": {
+          "app": "${APPLICATION_NAME}",
+          "deploymentconfig": "${APPLICATION_NAME}"
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app": "${APPLICATION_NAME}",
+              "deploymentconfig": "${APPLICATION_NAME}"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name": "hound",
+                "persistentVolumeClaim": {
+                  "claimName": "${APPLICATION_NAME}"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "hound",
+                "image": "etsy/hound",
+                "ports": [
+                  {
+                    "containerPort": 6080,
+                    "protocol": "TCP"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "TZ",
+                    "value": "Europe/Madrid"
+                  }
+                ],
+                "resources": {
+                  "limits": {
+                    "cpu": "1",
+                    "memory": "1Gi"
+                  },
+                  "requests": {
+                    "cpu": "500m",
+                    "memory": "1Gi"
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "hound",
+                    "mountPath": "/data"
+                  }
+                ],
+                "livenessProbe": {
+                  "httpGet": {
+                    "path": "/",
+                    "port": 6080,
+                    "scheme": "HTTP"
+                  },
+                  "initialDelaySeconds": 240,
+                  "timeoutSeconds": 1,
+                  "periodSeconds": 10,
+                  "successThreshold": 1,
+                  "failureThreshold": 3
+                },
+                "readinessProbe": {
+                  "httpGet": {
+                    "path": "/",
+                    "port": 6080,
+                    "scheme": "HTTP"
+                  },
+                  "initialDelaySeconds": 20,
+                  "timeoutSeconds": 1,
+                  "periodSeconds": 10,
+                  "successThreshold": 1,
+                  "failureThreshold": 3
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "imagePullPolicy": "IfNotPresent"
+              }
+            ],
+            "restartPolicy": "Always",
+            "terminationGracePeriodSeconds": 30,
+            "dnsPolicy": "ClusterFirst"
+          }
+        }
+      }
+    },
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${APPLICATION_NAME}",
+        "labels": {
+          "app": "${APPLICATION_NAME}"
+        }
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "6080-http",
+            "protocol": "TCP",
+            "port": 6080,
+            "targetPort": 6080
+          }
+        ],
+        "selector": {
+          "app": "${APPLICATION_NAME}",
+          "deploymentconfig": "${APPLICATION_NAME}"
+        },
+        "type": "ClusterIP",
+        "sessionAffinity": "None"
+      }
+    },
+    {
+      "kind": "PersistentVolumeClaim",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${APPLICATION_NAME}"
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "${DATA_VOL_SIZE}"
+          }
+        }
+      }
+    },
+    {
+      "kind": "Route",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${APPLICATION_NAME}",
+        "labels": {
+          "app": "${APPLICATION_NAME}"
+        }
+      },
+      "spec": {
+        "host": "${APPLICATION_HOSTNAME}",
+        "to": {
+          "kind": "Service",
+          "name": "${APPLICATION_NAME}"
+        },
+        "port": {
+          "targetPort": "6080-http"
+        },
+        "tls": {
+          "termination": "edge"
+        }
+      }
+    }
+  ]
+}
