@@ -332,7 +332,7 @@ func updateAndReindex(
 	newRev, err := wd.PullOrClone(vcsDir, repo.Url)
 
 	if err != nil {
-		log.Printf("vcs pull error (%s - %s): %s", name, repo.Url, err)
+		log.Printf("vcs clone error (%s - %s): %s", name, repo.Url, err)
 		return rev, false
 	}
 
