@@ -78,7 +78,7 @@ var FilterableExcludedFiles = React.createClass({
   getInitialState: function() {
     var _this = this;
     $.ajax({
-      url: '/api/v1/repos',
+      url: 'api/v1/repos',
       dataType: 'json',
       success: function(data) {
         _this.setState({ repos: data });
@@ -103,7 +103,7 @@ var FilterableExcludedFiles = React.createClass({
       repo: this.state.repos[repo],
     });
     $.ajax({
-      url: '/api/v1/excludes',
+      url: 'api/v1/excludes',
       data: {repo: repo},
       type: 'GET',
       dataType: 'json',

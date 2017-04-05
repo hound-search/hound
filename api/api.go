@@ -101,10 +101,10 @@ func parseAsBool(v string) bool {
 }
 
 func parseAsRepoList(v string, idx map[string]*searcher.Searcher) []string {
-	v = strings.TrimSpace(strings.ToLower(v))
+	v = strings.TrimSpace(v)
 	var repos []string
 	if v == "*" {
-		for repo, _ := range idx {
+		for repo := range idx {
 			repos = append(repos, repo)
 		}
 		return repos

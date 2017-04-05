@@ -118,7 +118,6 @@ var Model = {
     var all = this.repos,
         seen = {};
     return repos.filter(function(repo) {
-      repo = repo.toLowerCase();
       var valid = all[repo] && !seen[repo];
       seen[repo] = true;
       return valid;
@@ -144,7 +143,7 @@ var Model = {
       var data = JSON.parse(ModelData),
           repos = {};
       for (var name in data) {
-        repos[name.toLowerCase()] = data[name];
+        repos[name] = data[name];
       }
       this.repos = repos;
       next();
@@ -152,7 +151,7 @@ var Model = {
     }
 
     $.ajax({
-      url: '/api/v1/repos',
+      url: 'api/v1/repos',
       dataType: 'json',
       success: function(data) {
         _this.repos = data;
@@ -194,7 +193,7 @@ var Model = {
     }
 
     $.ajax({
-      url: '/api/v1/search',
+      url: 'api/v1/search',
       data: params,
       type: 'GET',
       dataType: 'json',
@@ -262,7 +261,7 @@ var Model = {
     });
 
     $.ajax({
-      url: '/api/v1/search',
+      url: 'api/v1/search',
       data: params,
       type: 'GET',
       dataType: 'json',
@@ -497,7 +496,7 @@ var SearchBar = React.createClass({
       statsView = (
         <span>
           <div className="stats-left">
-            <a href="/excluded_files.html"
+            <a href="excluded_files.html"
               className="link-gray">
                 Excluded Files
             </a>
