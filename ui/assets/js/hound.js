@@ -504,7 +504,7 @@ var SearchBar = React.createClass({
           <div className="stats-right">
             <div className="val">{FormatNumber(stats.Total)}ms total</div> /
             <div className="val">{FormatNumber(stats.Server)}ms server</div> /
-            <div className="val">{stats.Files} files</div>
+            <div className="val">{FormatNumber(stats.Files)} files</div>
           </div>
         </span>
       );
