@@ -58,7 +58,7 @@ func (g *MercurialDriver) Pull(dir string) (string, error) {
 	return g.HeadRev(dir)
 }
 
-func (g *MercurialDriver) Clone(dir, url string) (string, error) {
+func (g *MercurialDriver) Clone(dir string, url string) (string, error) {
 	par, rep := filepath.Split(dir)
 	cmd := exec.Command(
 		"hg",
@@ -68,6 +68,17 @@ func (g *MercurialDriver) Clone(dir, url string) (string, error) {
 	cmd.Dir = par
 	cmd.Stdout = ioutil.Discard
 	if err := cmd.Run(); err != nil {
+		return "", err
+	}
+
+	return g.HeadRev(dir)
+}
+
+func (g *MercurialDriver) Checkout(dir string, branch string) (string, error) {
+	cmd := exec.Command("hg", "update", branch)
+	cmd.Dir = dir
+	err := cmd.Run()
+	if err != nil {
 		return "", err
 	}
 
