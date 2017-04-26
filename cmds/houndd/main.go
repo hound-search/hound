@@ -79,7 +79,7 @@ func makeTemplateData(cfg *config.Config) (interface{}, error) {
 
 	res := map[string]*config.Repo{}
 	for name, repo := range cfg.Repos {
-		res[strings.ToLower(name)] = repo
+		res[name] = repo
 	}
 
 	b, err := json.Marshal(res)

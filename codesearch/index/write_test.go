@@ -163,3 +163,19 @@ func TestTrivialWrite(t *testing.T) {
 func TestTrivialWriteDisk(t *testing.T) {
 	testTrivialWrite(t, true)
 }
+
+func TestHeap(t *testing.T) {
+	h := &postHeap{}
+	es := []postEntry{7, 4, 3, 2, 4}
+	for _, e := range es {
+		h.addMem([]postEntry{e})
+	}
+	if len(h.ch) != len(es) {
+		t.Fatalf("wrong heap size: %d, want %d", len(h.ch), len(es))
+	}
+	for a, b := h.next(), h.next(); b.trigram() != (1<<24 - 1); a, b = b, h.next() {
+		if a > b {
+			t.Fatalf("%d should <= %d", a, b)
+		}
+	}
+}

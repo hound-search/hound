@@ -118,7 +118,6 @@ var Model = {
     var all = this.repos,
         seen = {};
     return repos.filter(function(repo) {
-      repo = repo.toLowerCase();
       var valid = all[repo] && !seen[repo];
       seen[repo] = true;
       return valid;
@@ -144,7 +143,7 @@ var Model = {
       var data = JSON.parse(ModelData),
           repos = {};
       for (var name in data) {
-        repos[name.toLowerCase()] = data[name];
+        repos[name] = data[name];
       }
       this.repos = repos;
       next();
@@ -152,7 +151,7 @@ var Model = {
     }
 
     $.ajax({
-      url: '/api/v1/repos',
+      url: 'api/v1/repos',
       dataType: 'json',
       success: function(data) {
         _this.repos = data;
@@ -194,7 +193,7 @@ var Model = {
     }
 
     $.ajax({
-      url: '/api/v1/search',
+      url: 'api/v1/search',
       data: params,
       type: 'GET',
       dataType: 'json',
@@ -262,7 +261,7 @@ var Model = {
     });
 
     $.ajax({
-      url: '/api/v1/search',
+      url: 'api/v1/search',
       data: params,
       type: 'GET',
       dataType: 'json',
@@ -497,7 +496,7 @@ var SearchBar = React.createClass({
       statsView = (
         <span>
           <div className="stats-left">
-            <a href="/excluded_files.html"
+            <a href="excluded_files.html"
               className="link-gray">
                 Excluded Files
             </a>
@@ -505,7 +504,7 @@ var SearchBar = React.createClass({
           <div className="stats-right">
             <div className="val">{FormatNumber(stats.Total)}ms total</div> /
             <div className="val">{FormatNumber(stats.Server)}ms server</div> /
-            <div className="val">{stats.Files} files</div>
+            <div className="val">{FormatNumber(stats.Files)} files</div>
           </div>
         </span>
       );
@@ -704,6 +703,11 @@ var FilesView = React.createClass({
         regexp = this.props.regexp,
         matches = this.props.matches,
         totalMatches = this.props.totalMatches;
+
+    if (this.props.shouldHide) {
+        return null;
+    }
+
     var files = matches.map(function(match, index) {
       var filename = match.Filename,
           blocks = CoalesceMatches(match.Matches);
@@ -764,7 +768,12 @@ var ResultView = React.createClass({
     });
   },
   getInitialState: function() {
-    return { results: null };
+    return { results: null, hiddenReposMap: {} };
+  },
+  toggleRepoDisplay: function(repo) {
+    var newHiddenReposMap = Object.assign({}, this.state.hiddenReposMap);
+    newHiddenReposMap[repo] = !newHiddenReposMap[repo];
+    this.setState({hiddenReposMap: newHiddenReposMap});
   },
   render: function() {
     if (this.state.error) {
@@ -790,18 +799,25 @@ var ResultView = React.createClass({
 
     var regexp = this.state.regexp,
         results = this.state.results || [];
+    var temphiddenReposMap = this.state.hiddenReposMap;
+    var temp = this.toggleRepoDisplay;
     var repos = results.map(function(result, index) {
+      var shouldHide = temphiddenReposMap[result.Repo];
+      var visibilityLabel = shouldHide ? "Show" : "Hide";
       return (
         <div className="repo">
           <div className="title">
             <span className="mega-octicon octicon-repo"></span>
             <span className="name">{Model.NameForRepo(result.Repo)}</span>
+            <span className="stats stats-right" id="toggle"
+                  onClick={temp.bind(this, result.Repo)}>{{visibilityLabel}}</span>
           </div>
           <FilesView matches={result.Matches}
               rev={result.Rev}
               repo={result.Repo}
               regexp={regexp}
-              totalMatches={result.FilesWithMatch} />
+              totalMatches={result.FilesWithMatch}
+              shouldHide={shouldHide} />
         </div>
       );
     });
