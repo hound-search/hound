@@ -188,7 +188,7 @@ var Model = {
     if (params.q == '') {
       _this.results = [];
       _this.resultsByRepo = {};
-      _this.didSearch.raise(_this, _this.Results);
+      _this.didSearch.raise(_this, _this.results);
       return;
     }
 
@@ -756,6 +756,114 @@ var FilesView = React.createClass({
     );
   }
 });
+var TreeNode = React.createClass({
+  onLoadMore: function(event) {
+    Model.LoadMore(this.props.repo);
+  },
+
+  render: function() {
+    var rev = this.props.rev,
+        repo = this.props.repo,
+        matches = this.props.matches,
+        totalMatches = this.props.totalMatches;
+
+    if (this.props.shouldHide) {
+        return null;
+    }
+
+    var files = matches.map(function(match, index) {
+      var filename = match.Filename;
+
+      return (
+        <div>
+          <div className="title">
+            <a href={Model.UrlToRepo(repo, match.Filename, null, rev)}>
+              {match.Filename}
+            </a>
+          </div>
+        </div>
+      );
+    });
+
+    var more = '';
+    if (matches.length < totalMatches) {
+      more = (<button className="moar" onClick={this.onLoadMore}>Load all {totalMatches} matches in {Model.NameForRepo(repo)}</button>);
+    }
+
+    return (
+      <div className="files">
+      {files}
+      {more}
+      </div>
+    );
+  }
+});
+var TreeView = React.createClass({
+  componentWillMount: function() {
+    var _this = this;
+    Model.willSearch.tap(function(model, params) {
+      _this.setState({
+        results: null,
+        query: params.q
+      });
+    });
+  },
+  getInitialState: function() {
+    return { results: null, hiddenReposMap: {} };
+  },
+  toggleRepoDisplay: function(repo) {
+    var newHiddenReposMap = Object.assign({}, this.state.hiddenReposMap);
+    newHiddenReposMap[repo] = !newHiddenReposMap[repo];
+    this.setState({hiddenReposMap: newHiddenReposMap});
+  },
+  render: function() {
+    // if (this.state.error) {
+    //   return (
+    //     <div id="no-result" className="error">
+    //       <strong>ERROR:</strong>{this.state.error}
+    //     </div>
+    //   );
+    // }
+    // if (this.state.results !== null && this.state.results.length === 0) {
+    //   // TODO(knorton): We need something better here. :-(
+    //   return (
+    //     <div id="no-result">&ldquo;Nothing for you, Dawg.&rdquo;<div>0 results</div></div>
+    //   );
+    // }
+    //
+    // if (this.state.results === null && this.state.query) {
+    //   return (
+    //     <div id="no-result"><img src="images/busy.gif" /><div>Searching...</div></div>
+    //   );
+    // }
+
+    var results = this.state.results || [];
+    var temphiddenReposMap = this.state.hiddenReposMap;
+    var temp = this.toggleRepoDisplay;
+    var repos = results.map(function(result, index) {
+      var shouldHide = temphiddenReposMap[result.Repo];
+      var visibilityLabel = shouldHide ? "Show" : "Hide";
+      return (
+        <div className="repo">
+          <div className="title">
+            <span className="mega-octicon octicon-repo"></span>
+            <span className="name">{Model.NameForRepo(result.Repo)}</span>
+            <span className="stats stats-right" id="toggle"
+                  onClick={temp.bind(this, result.Repo)}>{{visibilityLabel}}</span>
+          </div>
+          <TreeNode matches={result.Matches}
+              rev={result.Rev}
+              repo={result.Repo}
+              totalMatches={result.FilesWithMatch}
+              shouldHide={shouldHide} />
+        </div>
+      );
+    });
+    return (
+      <div id="result">{repos}</div>
+    );
+  }
+});
 
 var ResultView = React.createClass({
   componentWillMount: function() {
@@ -859,6 +967,11 @@ var App = React.createClass({
         regexp: _this.refs.searchBar.getRegExp(),
         error: null
       });
+
+      _this.refs.treeView.setState({
+        results: results,
+        error:null
+      });
     });
 
     Model.didLoadMore.tap(function(model, repo, results) {
@@ -867,12 +980,22 @@ var App = React.createClass({
         regexp: _this.refs.searchBar.getRegExp(),
         error: null
       });
+
+      _this.refs.treeView.setState({
+        results: results,
+        error:null
+      });
     });
 
     Model.didError.tap(function(model, error) {
       _this.refs.resultView.setState({
         results: null,
         error: error
+      });
+
+      _this.refs.treeView.setState({
+        results: results,
+        error:null
       });
     });
 
@@ -917,6 +1040,7 @@ var App = React.createClass({
             excludeFiles={this.state.excludeFiles}
             repos={this.state.repos}
             onSearchRequested={this.onSearchRequested} />
+        <TreeView ref="treeView" q={this.state.q} />
         <ResultView ref="resultView" q={this.state.q} />
       </div>
     );
