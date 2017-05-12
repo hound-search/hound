@@ -76,6 +76,7 @@ var SearchParamsChanged = function() {
   }
   return false;
 }
+
 var ParamsFromUrl = function(params) {
   params = params || {
     q: '',
@@ -769,8 +770,12 @@ var TreeNode = React.createClass({
   onLoadMore: function(event) {
     Model.LoadMore(this.props.repo);
   },
+  hideFileView: function(filename) {
+    document.getElementById(filename).style.visibility = "hidden";
+    document.getElementById(filename).style.height = "0px";
+  },
 
-  render: function() {
+  render: function() {    
     var rev = this.props.rev,
         repo = this.props.repo,
         matches = this.props.matches,
@@ -780,16 +785,18 @@ var TreeNode = React.createClass({
         return null;
     }
 
+    
+    const { hideFileView } = this;    
+
     var files = matches.map(function(match, index) {
-      var filename = match.Filename
+      const filename = match.Filename
       return (
         <div>
           <div className="title">
-            <input type="checkbox">
-              <a href={"#" + filename}>
-                {filename}
-              </a>
-            </input>
+            <input type="checkbox" onChange={() => hideFileView(filename)} />
+            <a href={"#" + filename}>
+              {filename}
+            </a>
           </div>
         </div>
       );
