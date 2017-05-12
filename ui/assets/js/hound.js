@@ -295,7 +295,7 @@ var Model = {
 
   Delete : function(filename, reponame) {
     var findIndex = function(array, string) {
-      for (const i = 0; i < array.length; i ++) {
+      for (var i = 0; i < array.length; i ++) {
         if (array[i].Filename == string) {
           return i;
         }
@@ -305,7 +305,7 @@ var Model = {
     var _this = this,
       repo = this.resultsByRepo[reponame],
       matches = repo.Matches;
-    const index = findIndex(matches, filename);
+    var index = findIndex(matches, filename);
     if (index > -1) {
       matches.splice(index, 1);
     }
