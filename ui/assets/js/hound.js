@@ -308,6 +308,7 @@ var Model = {
     var index = findIndex(matches, filename);
     if (index > -1) {
       matches.splice(index, 1);
+      repo.FilesWithMatch--;
     }
     _this.didDelete.raise(_this, _this.results);
     //raise didDelete
@@ -804,10 +805,6 @@ var TreeNode = React.createClass({
         matches = this.props.matches,
         totalMatches = this.props.totalMatches;
 
-    if (this.props.shouldHide) {
-        return null;
-    }
-
     const { onDelete } = this;
 
     var files = matches.map(function(match, index) {
@@ -860,24 +857,19 @@ var TreeView = React.createClass({
   render: function() {
     if (this.state.results !== null && this.state.results.length !== 0) {
       var results = this.state.results || [];
-      var temphiddenReposMap = this.state.hiddenReposMap;
-      var temp = this.toggleRepoDisplay;
       var repos = results.map(function(result, index) {
-        var shouldHide = temphiddenReposMap[result.Repo];
-        var visibilityLabel = shouldHide ? "Show" : "Hide";
+        var deleteLabel = "X";
         return (
           <div className="repo">
             <div className="title">
               <span className="mega-octicon octicon-repo"></span>
               <span className="name">{Model.NameForRepo(result.Repo)}</span>
-              <span className="stats stats-right" id="toggle"
-                    onClick={temp.bind(this, result.Repo)}>{{visibilityLabel}}</span>
+              <span className="stats stats-right">{{deleteLabel}}</span>
             </div>
             <TreeNode matches={result.Matches}
                 rev={result.Rev}
                 repo={result.Repo}
-                totalMatches={result.FilesWithMatch}
-                shouldHide={shouldHide} />
+                totalMatches={result.FilesWithMatch} />
           </div>
         );
       });
