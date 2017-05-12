@@ -67,6 +67,15 @@ var ParamsFromQueryString = function(qs, params) {
   return params;
 };
 
+var PreviousParamsURL;
+
+var SearchParamsChanged = function() {
+  var currentParamsURL = location.search;
+  if (PreviousParamsURL !== currentParamsURL) {
+    return true;
+  }
+  return false;
+}
 var ParamsFromUrl = function(params) {
   params = params || {
     q: '',
@@ -168,7 +177,7 @@ var Model = {
     this.willSearch.raise(this, params);
     var _this = this,
         startedAt = Date.now();
-
+    PreviousParamsURL = location.search;
     params = $.extend({
       stats: 'fosho',
       repos: '*',
@@ -691,11 +700,11 @@ var ContentFor = function(line, regexp) {
   }
   return buffer.join('');
 };
-
 var FilesView = React.createClass({
   onLoadMore: function(event) {
     Model.LoadMore(this.props.repo);
   },
+
 
   render: function() {
     var rev = this.props.rev,
@@ -772,15 +781,15 @@ var TreeNode = React.createClass({
     }
 
     var files = matches.map(function(match, index) {
-      var filename = match.Filename;
-
+      var filename = match.Filename
       return (
         <div>
           <div className="title">
-            <input type="checkbox"/>
-            <a href={"#" + filename}>
-              {match.Filename}
-            </a>
+            <input type="checkbox">
+              <a href={"#" + filename}>
+                {filename}
+              </a>
+            </input>
           </div>
         </div>
       );
@@ -818,48 +827,30 @@ var TreeView = React.createClass({
     this.setState({hiddenReposMap: newHiddenReposMap});
   },
   render: function() {
-    // if (this.state.error) {
-    //   return (
-    //     <div id="no-result" className="error">
-    //       <strong>ERROR:</strong>{this.state.error}
-    //     </div>
-    //   );
-    // }
-    // if (this.state.results !== null && this.state.results.length === 0) {
-    //   // TODO(knorton): We need something better here. :-(
-    //   return (
-    //     <div id="no-result">&ldquo;Nothing for you, Dawg.&rdquo;<div>0 results</div></div>
-    //   );
-    // }
-    //
-    // if (this.state.results === null && this.state.query) {
-    //   return (
-    //     <div id="no-result"><img src="images/busy.gif" /><div>Searching...</div></div>
-    //   );
-    // }
-
-    var results = this.state.results || [];
-    var temphiddenReposMap = this.state.hiddenReposMap;
-    var temp = this.toggleRepoDisplay;
-    var repos = results.map(function(result, index) {
-      var shouldHide = temphiddenReposMap[result.Repo];
-      var visibilityLabel = shouldHide ? "Show" : "Hide";
-      return (
-        <div className="repo">
-          <div className="title">
-            <span className="mega-octicon octicon-repo"></span>
-            <span className="name">{Model.NameForRepo(result.Repo)}</span>
-            <span className="stats stats-right" id="toggle"
-                  onClick={temp.bind(this, result.Repo)}>{{visibilityLabel}}</span>
+    if (this.state.results !== null && this.state.results.length !== 0) {
+      var results = this.state.results || [];
+      var temphiddenReposMap = this.state.hiddenReposMap;
+      var temp = this.toggleRepoDisplay;
+      var repos = results.map(function(result, index) {
+        var shouldHide = temphiddenReposMap[result.Repo];
+        var visibilityLabel = shouldHide ? "Show" : "Hide";
+        return (
+          <div className="repo">
+            <div className="title">
+              <span className="mega-octicon octicon-repo"></span>
+              <span className="name">{Model.NameForRepo(result.Repo)}</span>
+              <span className="stats stats-right" id="toggle"
+                    onClick={temp.bind(this, result.Repo)}>{{visibilityLabel}}</span>
+            </div>
+            <TreeNode matches={result.Matches}
+                rev={result.Rev}
+                repo={result.Repo}
+                totalMatches={result.FilesWithMatch}
+                shouldHide={shouldHide} />
           </div>
-          <TreeNode matches={result.Matches}
-              rev={result.Rev}
-              repo={result.Repo}
-              totalMatches={result.FilesWithMatch}
-              shouldHide={shouldHide} />
-        </div>
-      );
-    });
+        );
+      });
+    }
     return (
       <div id="result">{repos}</div>
     );
@@ -995,16 +986,18 @@ var App = React.createClass({
       });
 
       _this.refs.treeView.setState({
-        results: results,
-        error:null
+        results: null,
+        error: error
       });
     });
 
-    // window.addEventListener('popstate', function(e) {
-    //   var params = ParamsFromUrl();
-    //   _this.refs.searchBar.setParams(params);
-    //   Model.Search(params);
-    // });
+    window.addEventListener('popstate', function(e) {
+      if (SearchParamsChanged()) {
+        var params = ParamsFromUrl();
+        _this.refs.searchBar.setParams(params);
+        Model.Search(params);
+      }
+    });
   },
   onSearchRequested: function(params) {
     this.updateHistory(params);
