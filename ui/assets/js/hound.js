@@ -731,7 +731,7 @@ var FilesView = React.createClass({
 
       return (
         <div className="file">
-          <div className="title">
+          <div className="title" id={match.Filename}>
             <a href={Model.UrlToRepo(repo, match.Filename, null, rev)}>
               {match.Filename}
             </a>
@@ -777,7 +777,7 @@ var TreeNode = React.createClass({
       return (
         <div>
           <div className="title">
-            <a href={Model.UrlToRepo(repo, match.Filename, null, rev)}>
+            <a href={"#" + filename}>
               {match.Filename}
             </a>
           </div>
@@ -999,11 +999,11 @@ var App = React.createClass({
       });
     });
 
-    window.addEventListener('popstate', function(e) {
-      var params = ParamsFromUrl();
-      _this.refs.searchBar.setParams(params);
-      Model.Search(params);
-    });
+    // window.addEventListener('popstate', function(e) {
+    //   var params = ParamsFromUrl();
+    //   _this.refs.searchBar.setParams(params);
+    //   Model.Search(params);
+    // });
   },
   onSearchRequested: function(params) {
     this.updateHistory(params);
