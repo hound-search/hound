@@ -706,7 +706,6 @@ var FilesView = React.createClass({
     Model.LoadMore(this.props.repo);
   },
 
-
   render: function() {
     var rev = this.props.rev,
         repo = this.props.repo,
@@ -745,6 +744,9 @@ var FilesView = React.createClass({
             <a href={Model.UrlToRepo(repo, match.Filename, null, rev)}>
               {match.Filename}
             </a>
+            <a href={"#anchor-"+match.Filename} className="stats stats-right">
+              back
+            </a>
           </div>
           <div className="file-body">
             {matches}
@@ -771,11 +773,11 @@ var TreeNode = React.createClass({
     Model.LoadMore(this.props.repo);
   },
   hideFileView: function(filename) {
-    document.getElementById(filename).style.visibility = "hidden";
-    document.getElementById(filename).style.height = "0px";
+    document.getElementById(filename).remove();
+    document.getElementById("anchor-"+filename).remove();
   },
 
-  render: function() {    
+  render: function() {
     var rev = this.props.rev,
         repo = this.props.repo,
         matches = this.props.matches,
@@ -785,15 +787,17 @@ var TreeNode = React.createClass({
         return null;
     }
 
-    
-    const { hideFileView } = this;    
+
+    const { hideFileView } = this;
 
     var files = matches.map(function(match, index) {
       const filename = match.Filename
       return (
         <div>
-          <div className="title">
-            <input type="checkbox" onChange={() => hideFileView(filename)} />
+          <div className="title" id = {"anchor-" + filename}>
+            <button onClick={() => hideFileView(filename)}>
+              x
+            </button>
             <a href={"#" + filename}>
               {filename}
             </a>
