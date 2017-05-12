@@ -124,6 +124,8 @@ var Model = {
 
   didLoadRepos : new Signal(),
 
+  didDelete : new Signal(),
+
   ValidRepos: function(repos) {
     var all = this.repos,
         seen = {};
@@ -289,6 +291,26 @@ var Model = {
         _this.didError.raise(this, "The server broke down");
       }
     });
+  },
+
+  Delete : function(filename, reponame) {
+    var findIndex = function(array, string) {
+      for (const i = 0; i < array.length; i ++) {
+        if (array[i].Filename == string) {
+          return i;
+        }
+      }
+      return -1;
+    };
+    var _this = this,
+      repo = this.resultsByRepo[reponame],
+      matches = repo.Matches;
+    const index = findIndex(matches, filename);
+    if (index > -1) {
+      matches.splice(index, 1);
+    }
+    _this.didDelete.raise(_this, _this.results);
+    //raise didDelete
   },
 
   NameForRepo: function(repo) {
@@ -772,9 +794,8 @@ var TreeNode = React.createClass({
   onLoadMore: function(event) {
     Model.LoadMore(this.props.repo);
   },
-  hideFileView: function(filename) {
-    document.getElementById(filename).remove();
-    document.getElementById("anchor-"+filename).remove();
+  onDelete: function(filename) {
+    Model.Delete(filename, this.props.repo);
   },
 
   render: function() {
@@ -787,15 +808,14 @@ var TreeNode = React.createClass({
         return null;
     }
 
-
-    const { hideFileView } = this;
+    const { onDelete } = this;
 
     var files = matches.map(function(match, index) {
       const filename = match.Filename
       return (
         <div>
           <div className="title" id = {"anchor-" + filename}>
-            <button onClick={() => hideFileView(filename)}>
+            <button onClick={() => onDelete(filename)}>
               x
             </button>
             <a href={"#" + filename}>
@@ -999,6 +1019,19 @@ var App = React.createClass({
       _this.refs.treeView.setState({
         results: null,
         error: error
+      });
+    });
+
+    Model.didDelete.tap(function(model, results) {
+      _this.refs.resultView.setState({
+        results: results,
+        regexp: _this.refs.searchBar.getRegExp(),
+        error: null
+      });
+
+      _this.refs.treeView.setState({
+        results: results,
+        error:null
       });
     });
 
