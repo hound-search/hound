@@ -730,8 +730,8 @@ var FilesView = React.createClass({
       });
 
       return (
-        <div className="file">
-          <div className="title" id={match.Filename}>
+        <div className="file" id={match.Filename}>
+          <div className="title">
             <a href={Model.UrlToRepo(repo, match.Filename, null, rev)}>
               {match.Filename}
             </a>
@@ -777,6 +777,7 @@ var TreeNode = React.createClass({
       return (
         <div>
           <div className="title">
+            <input type="checkbox"/>
             <a href={"#" + filename}>
               {match.Filename}
             </a>
