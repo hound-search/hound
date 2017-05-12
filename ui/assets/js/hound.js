@@ -795,6 +795,7 @@ var TreeNode = React.createClass({
     Model.LoadMore(this.props.repo);
   },
   onDelete: function(filename) {
+    document.activeElement.blur();
     Model.Delete(filename, this.props.repo);
   },
 
