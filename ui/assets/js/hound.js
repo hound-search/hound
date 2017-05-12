@@ -700,111 +700,12 @@ var ContentFor = function(line, regexp) {
   }
   return buffer.join('');
 };
-
-var TreeView = React.createClass({
-  componentWillMount: function() {
-    var _this = this;
-    Model.willSearch.tap(function(model, params) {
-      _this.setState({
-        results: null,
-        query: params.q
-      });
-    });
-  },
-  getInitialState: function() {
-    return { results: null, hiddenReposMap: {} };
-  },
-  toggleRepoDisplay: function(repo) {
-    var newHiddenReposMap = Object.assign({}, this.state.hiddenReposMap);
-    newHiddenReposMap[repo] = !newHiddenReposMap[repo];
-    this.setState({hiddenReposMap: newHiddenReposMap});
-  },
-  render: function() {
-    if (this.state.results !== null && this.state.results.length !== 0) {
-      var results = this.state.results || [];
-      var temphiddenReposMap = this.state.hiddenReposMap;
-      var temp = this.toggleRepoDisplay;
-      var repos = results.map(function(result, index) {
-        var shouldHide = temphiddenReposMap[result.Repo];
-        var visibilityLabel = shouldHide ? "Show" : "Hide";
-        return (
-          <div className="repo">
-            <div className="title">
-              <span className="mega-octicon octicon-repo"></span>
-              <span className="name">{Model.NameForRepo(result.Repo)}</span>
-              <span className="stats stats-right" id="toggle"
-                    onClick={temp.bind(this, result.Repo)}>{{visibilityLabel}}</span>
-            </div>
-            <TreeFilesView matches={result.Matches}
-                rev={result.Rev}
-                repo={result.Repo}
-                totalMatches={result.FilesWithMatch}
-                shouldHide={shouldHide} />
-          </div>
-        );
-      });
-    }
-    return (
-      <div id="result">{repos}</div>
-    );
-  }
-});
-
-var TreeFilesView = React.createClass({
-  onLoadMore: function(event) {
-    Model.LoadMore(this.props.repo);
-  },
-  
-  hideFileView: function(filenameId) {
-    debugger
-    document.getElementById(filenameId).setAttribute("visibility", "hidden");
-  },
-
-  render: function() {
-    var rev = this.props.rev,
-        repo = this.props.repo,
-        matches = this.props.matches,
-        totalMatches = this.props.totalMatches;
-
-    if (this.props.shouldHide) {
-        return null;
-    }
-
-    var files = matches.map(function(match, index) {
-      var filename = match.Filename
-      return (
-        <div>
-          <div className="title">
-            <input type="checkbox" onClick={this.hideFileView(filename)}>
-              ---
-              <a href={"#" + filename}>
-                {filename}
-              </a>
-            </input>
-          </div>
-        </div>
-      );
-    });
-
-    var more = '';
-    if (matches.length < totalMatches) {
-      more = (<button className="moar" onClick={this.onLoadMore}>Load all {totalMatches} matches in {Model.NameForRepo(repo)}</button>);
-    }
-
-    return (
-      <div className="files">
-      {files}
-      {more}
-      </div>
-    );
-  }
-});
-
 var FilesView = React.createClass({
   onLoadMore: function(event) {
     Model.LoadMore(this.props.repo);
   },
-
+  
+  
   render: function() {
     var rev = this.props.rev,
         repo = this.props.repo,
@@ -861,6 +762,98 @@ var FilesView = React.createClass({
       {files}
       {more}
       </div>
+    );
+  }
+});
+var TreeNode = React.createClass({
+  onLoadMore: function(event) {
+    Model.LoadMore(this.props.repo);
+  },
+
+  render: function() {
+    var rev = this.props.rev,
+        repo = this.props.repo,
+        matches = this.props.matches,
+        totalMatches = this.props.totalMatches;
+
+    if (this.props.shouldHide) {
+        return null;
+    }
+
+    var files = matches.map(function(match, index) {
+      var filename = match.Filename
+      return (
+        <div>
+          <div className="title">
+            <input type="checkbox">
+              ---
+              <a href={"#" + filename}>
+                {filename}
+              </a>
+            </input>
+          </div>
+        </div>
+      );
+    });
+
+    var more = '';
+    if (matches.length < totalMatches) {
+      more = (<button className="moar" onClick={this.onLoadMore}>Load all {totalMatches} matches in {Model.NameForRepo(repo)}</button>);
+    }
+
+    return (
+      <div className="files">
+      {files}
+      {more}
+      </div>
+    );
+  }
+});
+var TreeView = React.createClass({
+  componentWillMount: function() {
+    var _this = this;
+    Model.willSearch.tap(function(model, params) {
+      _this.setState({
+        results: null,
+        query: params.q
+      });
+    });
+  },
+  getInitialState: function() {
+    return { results: null, hiddenReposMap: {} };
+  },
+  toggleRepoDisplay: function(repo) {
+    var newHiddenReposMap = Object.assign({}, this.state.hiddenReposMap);
+    newHiddenReposMap[repo] = !newHiddenReposMap[repo];
+    this.setState({hiddenReposMap: newHiddenReposMap});
+  },
+  render: function() {
+    if (this.state.results !== null && this.state.results.length !== 0) {
+      var results = this.state.results || [];
+      var temphiddenReposMap = this.state.hiddenReposMap;
+      var temp = this.toggleRepoDisplay;
+      var repos = results.map(function(result, index) {
+        var shouldHide = temphiddenReposMap[result.Repo];
+        var visibilityLabel = shouldHide ? "Show" : "Hide";
+        return (
+          <div className="repo">
+            <div className="title">
+              <span className="mega-octicon octicon-repo"></span>
+              <span className="name">{Model.NameForRepo(result.Repo)}</span>
+              <span className="stats stats-right" id="toggle"
+                    onClick={temp.bind(this, result.Repo)}>{{visibilityLabel}}</span>
+            </div>
+            <TreeNode matches={result.Matches}
+                rev={result.Rev}
+                repo={result.Repo}
+                totalMatches={result.FilesWithMatch}
+                shouldHide={shouldHide} />
+          </div>
+        );
+      });
+    }
+    return (
+      <div id="result">{repos}</div>
     );
   }
 });
@@ -967,11 +960,10 @@ var App = React.createClass({
         regexp: _this.refs.searchBar.getRegExp(),
         error: null
       });
-      
+
       _this.refs.treeView.setState({
         results: results,
-        regexp: _this.refs.searchBar.getRegExp(),
-        error: null
+        error:null
       });
     });
 
@@ -981,10 +973,10 @@ var App = React.createClass({
         regexp: _this.refs.searchBar.getRegExp(),
         error: null
       });
+      
       _this.refs.treeView.setState({
         results: results,
-        regexp: _this.refs.searchBar.getRegExp(),
-        error: null
+        error:null
       });
     });
 
@@ -993,6 +985,7 @@ var App = React.createClass({
         results: null,
         error: error
       });
+      
       _this.refs.treeView.setState({
         results: null,
         error: error
