@@ -276,6 +276,20 @@ button:focus {
   cursor: pointer;
 }
 
+.title button {
+  background-color: transparent;
+  color: black;
+  padding: 0 10px 0 16px;
+  font-size: 16px;
+}
+
+.title button:focus {
+  outline: none;
+  box-shadow: none;
+  position: relative;
+  top: 1px;
+}
+
 .title a {
   color: #666;
 }
