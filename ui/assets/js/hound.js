@@ -313,6 +313,14 @@ var Model = {
     _this.didDelete.raise(_this, _this.results);
     //raise didDelete
   },
+  
+  FilterResults: function(filterText, exclude) {
+    export const defaultMatcher = (filterTest, file) {
+      return file.Filename.toLowerCase().indexOf(filterText.toLowerCase()) !== -1;
+    };
+    
+    
+  },
 
   NameForRepo: function(repo) {
     var info = this.repos[repo];
