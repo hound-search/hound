@@ -293,7 +293,7 @@ var Model = {
     });
   },
 
-  Delete : function(filename, reponame) {
+  DeleteFile : function(filename, reponame) {
     var findIndex = function(array, string) {
       for (var i = 0; i < array.length; i ++) {
         if (array[i].Filename == string) {
@@ -320,6 +320,24 @@ var Model = {
     };
     
     
+  },
+
+  DeleteRepo : function(reponame) {
+    var _this = this,
+      results = _this.results;
+    var findIndex = function(array, string) {
+      for (var i = 0; i < array.length; i ++) {
+        if (array[i].Repo == string) {
+          return i;
+        }
+      }
+      return -1;
+    };
+    var index = findIndex(results, reponame);
+    if (index > -1) {
+      results.splice(index, 1);
+    }
+    _this.didDelete.raise(_this, _this.results);
   },
 
   NameForRepo: function(repo) {
@@ -805,7 +823,7 @@ var TreeNode = React.createClass({
   },
   onDelete: function(filename) {
     document.activeElement.blur();
-    Model.Delete(filename, this.props.repo);
+    Model.DeleteFile(filename, this.props.repo);
   },
 
   render: function() {
@@ -858,13 +876,13 @@ var TreeView = React.createClass({
   getInitialState: function() {
     return { results: null, hiddenReposMap: {} };
   },
-  toggleRepoDisplay: function(repo) {
-    var newHiddenReposMap = Object.assign({}, this.state.hiddenReposMap);
-    newHiddenReposMap[repo] = !newHiddenReposMap[repo];
-    this.setState({hiddenReposMap: newHiddenReposMap});
+  onDelete: function(reponame) {
+    document.activeElement.blur();
+    Model.DeleteRepo(reponame);
   },
   render: function() {
     if (this.state.results !== null && this.state.results.length !== 0) {
+      const { onDelete } = this;
       var results = this.state.results || [];
       var repos = results.map(function(result, index) {
         var deleteLabel = "X";
@@ -873,7 +891,8 @@ var TreeView = React.createClass({
             <div className="title">
               <span className="mega-octicon octicon-repo"></span>
               <span className="name">{Model.NameForRepo(result.Repo)}</span>
-              <span className="stats stats-right">{{deleteLabel}}</span>
+              <span className="stats stats-right" onClick={() => onDelete(result.Repo)}>
+                {{deleteLabel}}</span>
             </div>
             <TreeNode matches={result.Matches}
                 rev={result.Rev}
