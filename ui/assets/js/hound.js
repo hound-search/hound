@@ -313,15 +313,7 @@ var Model = {
     _this.didDelete.raise(_this, _this.results);
     //raise didDelete
   },
-  
-  FilterResults: function(filterText, exclude) {
-    export const defaultMatcher = (filterTest, file) {
-      return file.Filename.toLowerCase().indexOf(filterText.toLowerCase()) !== -1;
-    };
-    
-    
-  },
-
+      
   DeleteRepo : function(reponame) {
     var _this = this,
       results = _this.results;
@@ -754,6 +746,11 @@ var FilesView = React.createClass({
   onLoadMore: function(event) {
     Model.LoadMore(this.props.repo);
   },
+  
+  onDelete: function(filename) {
+    document.activeElement.blur();
+    Model.DeleteFile(filename, this.props.repo);
+  },
 
   render: function() {
     var rev = this.props.rev,
@@ -765,6 +762,8 @@ var FilesView = React.createClass({
     if (this.props.shouldHide) {
         return null;
     }
+    
+    const { onDelete } = this;
 
     var files = matches.map(function(match, index) {
       var filename = match.Filename,
@@ -790,11 +789,14 @@ var FilesView = React.createClass({
       return (
         <div className="file" id={match.Filename}>
           <div className="title">
-            <a href={Model.UrlToRepo(repo, match.Filename, null, rev)}>
-              {match.Filename}
-            </a>
+            <button className="stats stats-right" onClick={() => onDelete(filename)}>
+              x
+            </button>
             <a href={"#anchor-"+match.Filename} className="stats stats-right">
               back
+            </a>
+            <a href={Model.UrlToRepo(repo, match.Filename, null, rev)}>
+              {match.Filename}
             </a>
           </div>
           <div className="file-body">
@@ -1089,6 +1091,19 @@ var App = React.createClass({
   },
   render: function() {
     this.initPreferences();
+    
+    $(document).on('click', 'a', function(event){
+      if (this.hash !== "") {
+        event.preventDefault();
+        var hash = '[id^=\"' + this.hash.substring(1) + '\"]';
+        $('html, body').animate({
+          scrollTop: $(hash).offset().top
+        }, 200, function(){
+          window.location.hash = hash;
+        });
+      }
+    });
+    
     return (
       <div>
         <SearchBar ref="searchBar"
