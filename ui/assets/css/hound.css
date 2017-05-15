@@ -278,16 +278,32 @@ button:focus {
 
 .title button {
   background-color: transparent;
-  color: black;
+  color: #666;
   padding: 0 10px 0 16px;
   font-size: 16px;
+  padding: 0 5px 0 4px;
+	margin: 0 10px 0 16px;
+	line-height: 15px;
+  border: 1px solid #666;
+	border-radius: 4px;
+}
+
+.title button:active {
+  outline: none;
+  box-shadow: none;
+  transform: translateY(1px);
+  background-color: #666;
+  color: white;
 }
 
 .title button:focus {
   outline: none;
   box-shadow: none;
-  position: relative;
-  top: 1px;
+}
+
+.fileView-title button {
+  padding: 2px 7px 3px 6px;
+  margin: 4px 10px 0 16px;
 }
 
 .title a {

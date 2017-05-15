@@ -788,7 +788,7 @@ var FilesView = React.createClass({
 
       return (
         <div className="file" id={match.Filename}>
-          <div className="title">
+          <div className="title fileView-title">
             <button className="stats stats-right" onClick={() => onDelete(filename)}>
               x
             </button>
@@ -824,7 +824,6 @@ var TreeNode = React.createClass({
     Model.LoadMore(this.props.repo);
   },
   onDelete: function(filename) {
-    document.activeElement.blur();
     Model.DeleteFile(filename, this.props.repo);
   },
 
@@ -879,7 +878,6 @@ var TreeView = React.createClass({
     return { results: null, hiddenReposMap: {} };
   },
   onDelete: function(reponame) {
-    document.activeElement.blur();
     Model.DeleteRepo(reponame);
   },
   render: function() {
@@ -894,7 +892,8 @@ var TreeView = React.createClass({
               <span className="mega-octicon octicon-repo"></span>
               <span className="name">{Model.NameForRepo(result.Repo)}</span>
               <span className="stats stats-right" onClick={() => onDelete(result.Repo)}>
-                {{deleteLabel}}</span>
+                {{deleteLabel}}
+              </span>
             </div>
             <TreeNode matches={result.Matches}
                 rev={result.Rev}
