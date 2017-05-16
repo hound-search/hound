@@ -122,9 +122,11 @@ var Model = {
 
   didError: new Signal(),
 
-  didLoadRepos : new Signal(),
+  didLoadRepos: new Signal(),
 
-  didDelete : new Signal(),
+  didDelete: new Signal(),
+  
+  didFilter: new Signal(),
 
   ValidRepos: function(repos) {
     var all = this.repos,
@@ -282,10 +284,15 @@ var Model = {
           _this.didError.raise(_this, data.Error);
           return;
         }
-
+        
         var result = data.Results[repo];
         results.Matches = results.Matches.concat(result.Matches);
-        _this.didLoadMore.raise(_this, repo, _this.results);
+        // _this.didLoadMore.raise(_this, repo, _this.results);
+        
+        // load more, then filter
+        const includeText = document.getElementById("includeText").value.trim();
+        const excludeText = document.getElementById("excludeText").value.trim();
+        Model.FilterFile(includeText, excludeText);
       },
       error: function(xhr, status, err) {
         _this.didError.raise(this, "The server broke down");
@@ -330,6 +337,38 @@ var Model = {
       results.splice(index, 1);
     }
     _this.didDelete.raise(_this, _this.results);
+  },
+  
+  FilterFile: function(includeText, excludeText) {
+    const matcher = function(filterText, file) {
+      return file.Filename.toLowerCase().indexOf(filterText.toLowerCase()) !== -1;
+    }
+    
+    var filterHelper = function(filterText, results, inclusion) {
+      filteredResults = results.map(repo => {
+        var filteredRepo = Object.assign({}, repo);  // clone the repo object instead of refferencing
+        filteredRepo.FilesWithMatch -= filteredRepo.Matches.length;
+        if (inclusion) {
+          filteredRepo.Matches = repo.Matches.filter(file => matcher(filterText, file)) 
+        } else {
+          filteredRepo.Matches = repo.Matches.filter(file => !matcher(filterText, file)) 
+        }
+        filteredRepo.FilesWithMatch += filteredRepo.Matches.length;
+        return filteredRepo;
+      });  
+      return filteredResults;
+    };
+    
+    var _this = this,
+      filteredResults = _this.results;
+      
+    if (includeText) {
+      filteredResults = filterHelper(includeText, filteredResults, true);
+    }
+    if (excludeText) {
+      filteredResults = filterHelper(excludeText, filteredResults, false);
+    }
+    _this.didFilter.raise(_this, filteredResults);
   },
 
   NameForRepo: function(repo) {
@@ -788,7 +827,7 @@ var FilesView = React.createClass({
 
       return (
         <div className="file" id={match.Filename}>
-          <div className="title fileView-title">
+          <div className="title">
             <button className="stats stats-right" onClick={() => onDelete(filename)}>
               x
             </button>
@@ -880,6 +919,12 @@ var TreeView = React.createClass({
   onDelete: function(reponame) {
     Model.DeleteRepo(reponame);
   },
+  onFilterKeyUp: function() {
+    const includeText = document.getElementById("includeText").value.trim();
+    const excludeText = document.getElementById("excludeText").value.trim();
+    Model.FilterFile(includeText, excludeText);
+  },
+  
   render: function() {
     if (this.state.results !== null && this.state.results.length !== 0) {
       const { onDelete } = this;
@@ -904,7 +949,25 @@ var TreeView = React.createClass({
       });
     }
     return (
-      <div id="result">{repos}</div>
+      <div className="tree-view">
+        <div className="filter">
+          <div className="filter-title">
+            <span className="mega-octicon octicon-search"></span>
+            <span className="name">Quick filter</span>
+          </div>
+          <div className="filter-field">
+            <label>Include</label>
+            <div className="filter-field-input">
+              <input type="text" id="includeText" placeholder="file path" onKeyUp={this.onFilterKeyUp.bind(this)}/>
+            </div>
+            <label>Exclude</label>
+            <div className="filter-field-input">
+              <input type="text" id="excludeText" placeholder="file path" onKeyUp={this.onFilterKeyUp.bind(this)}/>
+            </div>
+          </div>
+        </div>
+        {repos}
+      </div>
     );
   }
 });
@@ -1053,6 +1116,19 @@ var App = React.createClass({
       _this.refs.treeView.setState({
         results: results,
         error:null
+      });
+    });
+    
+    Model.didFilter.tap(function(model, results) {
+      _this.refs.resultView.setState({
+        results: results,
+        regexp: _this.refs.searchBar.getRegExp(),
+        error: null
+      });
+      
+      _this.refs.treeView.setState({
+        results: results,
+        error: null
       });
     });
 
