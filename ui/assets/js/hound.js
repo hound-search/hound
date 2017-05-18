@@ -929,6 +929,24 @@ var TreeView = React.createClass({
     if (this.state.results !== null && this.state.results.length !== 0) {
       const { onDelete } = this;
       var results = this.state.results || [];
+      var filter = (
+        <div className="filter">
+          <div className="filter-title">
+            <span className="mega-octicon octicon-search"></span>
+            <span className="name">Quick filter</span>
+          </div>
+          <div className="filter-field">
+            <label>Include</label>
+            <div className="filter-field-input">
+              <input type="text" id="includeText" placeholder="file path" onKeyUp={this.onFilterKeyUp.bind(this)}/>
+            </div>
+            <label>Exclude</label>
+            <div className="filter-field-input">
+              <input type="text" id="excludeText" placeholder="file path" onKeyUp={this.onFilterKeyUp.bind(this)}/>
+            </div>
+          </div>
+        </div>
+      );
       var repos = results.map(function(result, index) {
         var deleteLabel = "X";
         return (
@@ -950,22 +968,7 @@ var TreeView = React.createClass({
     }
     return (
       <div className="tree-view">
-        <div className="filter">
-          <div className="filter-title">
-            <span className="mega-octicon octicon-search"></span>
-            <span className="name">Quick filter</span>
-          </div>
-          <div className="filter-field">
-            <label>Include</label>
-            <div className="filter-field-input">
-              <input type="text" id="includeText" placeholder="file path" onKeyUp={this.onFilterKeyUp.bind(this)}/>
-            </div>
-            <label>Exclude</label>
-            <div className="filter-field-input">
-              <input type="text" id="excludeText" placeholder="file path" onKeyUp={this.onFilterKeyUp.bind(this)}/>
-            </div>
-          </div>
-        </div>
+        {filter}
         {repos}
       </div>
     );
