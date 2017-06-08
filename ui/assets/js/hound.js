@@ -125,7 +125,7 @@ var Model = {
   didLoadRepos: new Signal(),
 
   didDelete: new Signal(),
-  
+
   didFilter: new Signal(),
 
   ValidRepos: function(repos) {
@@ -284,11 +284,11 @@ var Model = {
           _this.didError.raise(_this, data.Error);
           return;
         }
-        
+
         var result = data.Results[repo];
         results.Matches = results.Matches.concat(result.Matches);
         // _this.didLoadMore.raise(_this, repo, _this.results);
-        
+
         // load more, then filter
         const includeText = document.getElementById("includeText").value.trim();
         const excludeText = document.getElementById("excludeText").value.trim();
@@ -320,7 +320,7 @@ var Model = {
     _this.didDelete.raise(_this, _this.results);
     //raise didDelete
   },
-      
+
   DeleteRepo : function(reponame) {
     var _this = this,
       results = _this.results;
@@ -338,30 +338,30 @@ var Model = {
     }
     _this.didDelete.raise(_this, _this.results);
   },
-  
+
   FilterFile: function(includeText, excludeText) {
     const matcher = function(filterText, file) {
       return file.Filename.toLowerCase().indexOf(filterText.toLowerCase()) !== -1;
     }
-    
+
     var filterHelper = function(filterText, results, inclusion) {
       filteredResults = results.map(repo => {
         var filteredRepo = Object.assign({}, repo);  // clone the repo object instead of refferencing
         filteredRepo.FilesWithMatch -= filteredRepo.Matches.length;
         if (inclusion) {
-          filteredRepo.Matches = repo.Matches.filter(file => matcher(filterText, file)) 
+          filteredRepo.Matches = repo.Matches.filter(file => matcher(filterText, file))
         } else {
-          filteredRepo.Matches = repo.Matches.filter(file => !matcher(filterText, file)) 
+          filteredRepo.Matches = repo.Matches.filter(file => !matcher(filterText, file))
         }
         filteredRepo.FilesWithMatch += filteredRepo.Matches.length;
         return filteredRepo;
-      });  
+      });
       return filteredResults;
     };
-    
+
     var _this = this,
       filteredResults = _this.results;
-      
+
     if (includeText) {
       filteredResults = filterHelper(includeText, filteredResults, true);
     }
@@ -785,7 +785,7 @@ var FilesView = React.createClass({
   onLoadMore: function(event) {
     Model.LoadMore(this.props.repo);
   },
-  
+
   onDelete: function(filename) {
     document.activeElement.blur();
     Model.DeleteFile(filename, this.props.repo);
@@ -801,7 +801,7 @@ var FilesView = React.createClass({
     if (this.props.shouldHide) {
         return null;
     }
-    
+
     const { onDelete } = this;
 
     var files = matches.map(function(match, index) {
@@ -924,7 +924,7 @@ var TreeView = React.createClass({
     const excludeText = document.getElementById("excludeText").value.trim();
     Model.FilterFile(includeText, excludeText);
   },
-  
+
   render: function() {
     if (this.state.results !== null && this.state.results.length !== 0) {
       const { onDelete } = this;
@@ -1121,14 +1121,14 @@ var App = React.createClass({
         error:null
       });
     });
-    
+
     Model.didFilter.tap(function(model, results) {
       _this.refs.resultView.setState({
         results: results,
         regexp: _this.refs.searchBar.getRegExp(),
         error: null
       });
-      
+
       _this.refs.treeView.setState({
         results: results,
         error: null
@@ -1136,6 +1136,8 @@ var App = React.createClass({
     });
 
     window.addEventListener('popstate', function(e) {
+      // Since we are jumping around with anchor tag, the url will be modified and popstate event will be triggered to redo the search.
+      // Adding this condition so that as long as the search params do not change, don't perform the search again
       if (SearchParamsChanged()) {
         var params = ParamsFromUrl();
         _this.refs.searchBar.setParams(params);
@@ -1169,7 +1171,7 @@ var App = React.createClass({
   },
   render: function() {
     this.initPreferences();
-    
+
     $(document).on('click', 'a', function(event){
       if (this.hash !== "") {
         event.preventDefault();
@@ -1181,7 +1183,7 @@ var App = React.createClass({
         });
       }
     });
-    
+
     return (
       <div>
         <SearchBar ref="searchBar"
