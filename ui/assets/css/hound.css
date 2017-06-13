@@ -227,6 +227,52 @@ button:focus {
   background-color: #f5f5f5;
   color: #666;
 }
+
+.filter {
+  margin-bottom: 20px;
+}
+
+.filter-title {
+  color: #666;
+  font-size: 24px;
+  padding-bottom: 5px;
+  cursor: pointer;
+}
+
+.filter-title > .octicon-search {
+  color: #bbb;
+  margin-right: 4px;
+}
+
+.filter-field label {
+  float: left;
+  width: 65px;
+  line-height: 56px;
+  margin-left: 34px;
+  color: #666;
+}
+
+.filter-field input {
+  width: 130px;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: white;
+  padding: 7px 15px 7px 15px;
+  margin: 10px 5px 10px 0;
+  -webkit-transition: width 0.4s ease-in-out;
+  transition: width 0.4s ease-in-out;
+}
+
+.filter-field input:focus {
+  width: 100%;
+}
+
+.filter-field > .filter-field-input {
+  overflow: hidden;
+}
+
 .repo {
   margin-bottom: 100px;
 }
@@ -275,6 +321,36 @@ button:focus {
   background-color: #f5f5f5;
   cursor: pointer;
 }
+
+.file > .title button {
+  padding: 2px 7px 3px 6px;
+  margin: 4px 10px 0 16px;
+  line-height: 15px;
+  border: 1px solid #666;
+	border-radius: 4px;
+}
+
+.title button {
+  background-color: transparent;
+  color: #666;
+  font-size: 16px;
+  padding: 0 5px 0 4px;
+	margin: 0 10px 0 16px;
+}
+
+.title button:active {
+  outline: none;
+  box-shadow: none;
+  transform: translateY(1px);
+  background-color: #666;
+  color: white;
+}
+
+.title button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
 
 .title a {
   color: #666;
