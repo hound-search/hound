@@ -930,18 +930,17 @@ var TreeView = React.createClass({
       const { onDelete } = this;
       var results = this.state.results || [];
       var filter = (
-        <div className="filter">
-          <div className="filter-title">
-            <span className="mega-octicon octicon-search"></span>
+        <div id="inc" className="filter">
+          <div className="title">
             <span className="name">Quick filter</span>
           </div>
-          <div className="filter-field">
+          <div className="field">
             <label>Include</label>
-            <div className="filter-field-input">
+            <div className="field-input">
               <input type="text" id="includeText" placeholder="file path" onKeyUp={this.onFilterKeyUp.bind(this)}/>
             </div>
             <label>Exclude</label>
-            <div className="filter-field-input">
+            <div className="field-input">
               <input type="text" id="excludeText" placeholder="file path" onKeyUp={this.onFilterKeyUp.bind(this)}/>
             </div>
           </div>
@@ -952,7 +951,6 @@ var TreeView = React.createClass({
         return (
           <div className="repo">
             <div className="title">
-              <span className="mega-octicon octicon-repo"></span>
               <span className="name">{Model.NameForRepo(result.Repo)}</span>
               <span className="stats stats-right" onClick={() => onDelete(result.Repo)}>
                 {{deleteLabel}}
