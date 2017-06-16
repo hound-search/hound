@@ -3,6 +3,9 @@
   "repos" : {
     "Hound" : {
       "url" : "https://github.com/etsy/hound.git"
+    },
+    "KareoHound" : {
+      "url" : "https://github.com/kareo/hound.git"
     }
   }
 }

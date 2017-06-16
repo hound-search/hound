@@ -67,19 +67,42 @@ var ParamsFromQueryString = function(qs, params) {
   return params;
 };
 
+var PreviousParamsURL;
+
+var SearchParamsChanged = function() {
+  var currentParamsURL = location.search;
+  if (PreviousParamsURL !== currentParamsURL) {
+    return true;
+  }
+  return false;
+}
+
 var ParamsFromUrl = function(params) {
   params = params || {
     q: '',
     i: 'nope',
     files: '',
+    excludeFiles: '',
     repos: '*'
   };
   return ParamsFromQueryString(location.search, params);
 };
 
 var ParamValueToBool = function(v) {
+  if(v == null) {
+    return false;
+  }
+
   v = v.toLowerCase();
   return v == 'fosho' || v == 'true' || v == '1';
+};
+
+var isAutoHideEnabled = function() {
+  return ParamValueToBool(localStorage.getItem('autoHideAdvanced'));
+};
+
+var isIgnoreCasePrefEnabled = function() {
+  return ParamValueToBool(localStorage.getItem('ignoreCase'));
 };
 
 /**
@@ -99,7 +122,11 @@ var Model = {
 
   didError: new Signal(),
 
-  didLoadRepos : new Signal(),
+  didLoadRepos: new Signal(),
+
+  didDelete: new Signal(),
+
+  didFilter: new Signal(),
 
   ValidRepos: function(repos) {
     var all = this.repos,
@@ -155,7 +182,7 @@ var Model = {
     this.willSearch.raise(this, params);
     var _this = this,
         startedAt = Date.now();
-
+    PreviousParamsURL = location.search;
     params = $.extend({
       stats: 'fosho',
       repos: '*',
@@ -175,7 +202,7 @@ var Model = {
     if (params.q == '') {
       _this.results = [];
       _this.resultsByRepo = {};
-      _this.didSearch.raise(_this, _this.Results);
+      _this.didSearch.raise(_this, _this.results);
       return;
     }
 
@@ -260,12 +287,88 @@ var Model = {
 
         var result = data.Results[repo];
         results.Matches = results.Matches.concat(result.Matches);
-        _this.didLoadMore.raise(_this, repo, _this.results);
+        // _this.didLoadMore.raise(_this, repo, _this.results);
+
+        // load more, then filter
+        const includeText = document.getElementById("includeText").value.trim();
+        const excludeText = document.getElementById("excludeText").value.trim();
+        Model.FilterFile(includeText, excludeText);
       },
       error: function(xhr, status, err) {
         _this.didError.raise(this, "The server broke down");
       }
     });
+  },
+
+  DeleteFile : function(filename, reponame) {
+    var findIndex = function(array, string) {
+      for (var i = 0; i < array.length; i ++) {
+        if (array[i].Filename == string) {
+          return i;
+        }
+      }
+      return -1;
+    };
+    var _this = this,
+      repo = this.resultsByRepo[reponame],
+      matches = repo.Matches;
+    var index = findIndex(matches, filename);
+    if (index > -1) {
+      matches.splice(index, 1);
+      repo.FilesWithMatch--;
+    }
+    _this.didDelete.raise(_this, _this.results);
+    //raise didDelete
+  },
+
+  DeleteRepo : function(reponame) {
+    var _this = this,
+      results = _this.results;
+    var findIndex = function(array, string) {
+      for (var i = 0; i < array.length; i ++) {
+        if (array[i].Repo == string) {
+          return i;
+        }
+      }
+      return -1;
+    };
+    var index = findIndex(results, reponame);
+    if (index > -1) {
+      results.splice(index, 1);
+    }
+    _this.didDelete.raise(_this, _this.results);
+  },
+
+  FilterFile: function(includeText, excludeText) {
+    const matcher = function(filterText, file) {
+      return file.Filename.toLowerCase().indexOf(filterText.toLowerCase()) !== -1;
+    }
+
+    var filterHelper = function(filterText, results, inclusion) {
+      filteredResults = results.map(repo => {
+        var filteredRepo = Object.assign({}, repo);  // clone the repo object instead of refferencing
+        filteredRepo.FilesWithMatch -= filteredRepo.Matches.length;
+        if (inclusion) {
+          filteredRepo.Matches = repo.Matches.filter(file => matcher(filterText, file))
+        } else {
+          filteredRepo.Matches = repo.Matches.filter(file => !matcher(filterText, file))
+        }
+        filteredRepo.FilesWithMatch += filteredRepo.Matches.length;
+        return filteredRepo;
+      });
+      return filteredResults;
+    };
+
+    var _this = this,
+      filteredResults = _this.results;
+
+    if (includeText) {
+      filteredResults = filterHelper(includeText, filteredResults, true);
+    }
+    if (excludeText) {
+      filteredResults = filterHelper(excludeText, filteredResults, false);
+    }
+    _this.didFilter.raise(_this, filteredResults);
   },
 
   NameForRepo: function(repo) {
@@ -308,7 +411,7 @@ var SearchBar = React.createClass({
   componentWillMount: function() {
     var _this = this;
     Model.didLoadRepos.tap(function(model, repos) {
-      _this.setState({ allRepos: Object.keys(repos) });
+      _this.setState({ allRepos: Object.keys(repos).sort() });
     });
   },
 
@@ -369,7 +472,28 @@ var SearchBar = React.createClass({
   filesGotFocus: function(event) {
     this.showAdvanced();
   },
+  excludeFilesGotKeydown: function(event) {
+    switch (event.keyCode) {
+    case 38:
+      // if advanced is empty, close it up.
+      if (this.refs.excludeFiles.getDOMNode().value.trim() === '') {
+        this.hideAdvanced();
+      }
+      this.refs.q.getDOMNode().focus();
+      break;
+    case 13:
+      this.submitQuery();
+      break;
+    }
+  },
+  excludeFilesGotFocus: function(event) {
+    this.showAdvanced();
+  },
   submitQuery: function() {
+    var isEnabled = isAutoHideEnabled();
+    if(isEnabled) {
+      this.hideAdvanced();
+    }
     this.props.onSearchRequested(this.getParams());
   },
   getRegExp : function() {
@@ -388,6 +512,7 @@ var SearchBar = React.createClass({
     return {
       q : this.refs.q.getDOMNode().value.trim(),
       files : this.refs.files.getDOMNode().value.trim(),
+      excludeFiles : this.refs.excludeFiles.getDOMNode().value.trim(),
       repos : repos.join(','),
       i: this.refs.icase.getDOMNode().checked ? 'fosho' : 'nope'
     };
@@ -395,30 +520,33 @@ var SearchBar = React.createClass({
   setParams: function(params) {
     var q = this.refs.q.getDOMNode(),
         i = this.refs.icase.getDOMNode(),
-        files = this.refs.files.getDOMNode();
+        files = this.refs.files.getDOMNode(),
+        excludeFiles = this.refs.excludeFiles.getDOMNode();
 
     q.value = params.q;
-    i.checked = ParamValueToBool(params.i);
+    i.checked = ParamValueToBool(params.i) || isIgnoreCasePrefEnabled();
     files.value = params.files;
+    excludeFiles.value = params.excludeFiles;
   },
   hasAdvancedValues: function() {
-    return this.refs.files.getDOMNode().value.trim() !== '' || this.refs.icase.getDOMNode().checked || this.refs.repos.getDOMNode().value !== '';
+    if(isIgnoreCasePrefEnabled()) {
+      return this.refs.files.getDOMNode().value.trim() !== '' || this.refs.excludeFiles.getDOMNode().value.trim() !== '' || this.refs.repos.getDOMNode().value !== '';
+    }else{
+      return this.refs.files.getDOMNode().value.trim() !== '' || this.refs.excludeFiles.getDOMNode().value.trim() !== '' || this.refs.icase.getDOMNode().checked || this.refs.repos.getDOMNode().value !== '';
+    }
   },
   showAdvanced: function() {
     var adv = this.refs.adv.getDOMNode(),
         ban = this.refs.ban.getDOMNode(),
         q = this.refs.q.getDOMNode(),
-        files = this.refs.files.getDOMNode();
+        files = this.refs.files.getDOMNode(),
+        excludeFiles = this.refs.excludeFiles.getDOMNode();
 
     css(adv, 'height', 'auto');
     css(adv, 'padding', '10px 0');
 
     css(ban, 'max-height', '0');
     css(ban, 'opacity', '0');
-
-    if (q.value.trim() !== '') {
-      files.focus();
-    }
   },
   hideAdvanced: function() {
     var adv = this.refs.adv.getDOMNode(),
@@ -432,6 +560,12 @@ var SearchBar = React.createClass({
     css(ban, 'opacity', '1');
 
     q.focus();
+  },
+  ignoreCaseChanged: function() {
+    var isChecked = this.refs.icase.getDOMNode().checked;
+    this.setState({
+      i: isChecked
+    });
   },
   render: function() {
     var repoCount = this.state.allRepos.length,
@@ -450,7 +584,7 @@ var SearchBar = React.createClass({
     var statsView = '';
     if (stats) {
       statsView = (
-        <div className="stats">
+        <span>
           <div className="stats-left">
             <a href="excluded_files.html"
               className="link-gray">
@@ -460,9 +594,9 @@ var SearchBar = React.createClass({
           <div className="stats-right">
             <div className="val">{FormatNumber(stats.Total)}ms total</div> /
             <div className="val">{FormatNumber(stats.Server)}ms server</div> /
-            <div className="val">{stats.Files} files</div>
+            <div className="val">{FormatNumber(stats.Files)} files</div>
           </div>
-        </div>
+        </span>
       );
     }
 
@@ -485,7 +619,7 @@ var SearchBar = React.createClass({
           <div id="adv" ref="adv">
             <span className="octicon octicon-chevron-up hide-adv" onClick={this.hideAdvanced}></span>
             <div className="field">
-              <label htmlFor="files">File Path</label>
+              <label htmlFor="files">Included File Path</label>
               <div className="field-input">
                 <input type="text"
                     id="files"
@@ -496,9 +630,20 @@ var SearchBar = React.createClass({
               </div>
             </div>
             <div className="field">
+              <label htmlFor="excludeFiles">Exclude File Path</label>
+              <div className="field-input">
+                <input type="text"
+                    id="excludeFiles"
+                    placeholder="/regexp/"
+                    ref="excludeFiles"
+                    onKeyDown={this.excludeFilesGotKeydown}
+                    onFocus={this.excludeFilesGotFocus} />
+              </div>
+            </div>
+            <div className="field">
               <label htmlFor="ignore-case">Ignore Case</label>
               <div className="field-input">
-                <input id="ignore-case" type="checkbox" ref="icase" />
+                <input type="checkbox" ref="icase" checked={this.state.i} onClick={this.ignoreCaseChanged} />
               </div>
             </div>
             <div className="field">
@@ -514,7 +659,12 @@ var SearchBar = React.createClass({
             <em>Advanced:</em> ignore case, filter by path, stuff like that.
           </div>
         </div>
-        {statsView}
+        <div className="stats">
+          <div className="stats-left">
+            <a href="/preferences.html" className="link-gray">Preferences</a>
+          </div>
+          {statsView}
+        </div>
       </div>
     );
   }
@@ -631,10 +781,14 @@ var ContentFor = function(line, regexp) {
   }
   return buffer.join('');
 };
-
 var FilesView = React.createClass({
   onLoadMore: function(event) {
     Model.LoadMore(this.props.repo);
+  },
+
+  onDelete: function(filename) {
+    document.activeElement.blur();
+    Model.DeleteFile(filename, this.props.repo);
   },
 
   render: function() {
@@ -643,6 +797,13 @@ var FilesView = React.createClass({
         regexp = this.props.regexp,
         matches = this.props.matches,
         totalMatches = this.props.totalMatches;
+
+    if (this.props.shouldHide) {
+        return null;
+    }
+
+    const { onDelete } = this;
+
     var files = matches.map(function(match, index) {
       var filename = match.Filename,
           blocks = CoalesceMatches(match.Matches);
@@ -665,8 +826,14 @@ var FilesView = React.createClass({
       });
 
       return (
-        <div className="file">
+        <div className="file" id={match.Filename}>
           <div className="title">
+            <button className="stats stats-right" onClick={() => onDelete(filename)}>
+              x
+            </button>
+            <a href={"#anchor-"+match.Filename} className="stats stats-right">
+              back
+            </a>
             <a href={Model.UrlToRepo(repo, match.Filename, null, rev)}>
               {match.Filename}
             </a>
@@ -691,6 +858,122 @@ var FilesView = React.createClass({
     );
   }
 });
+var TreeNode = React.createClass({
+  onLoadMore: function(event) {
+    Model.LoadMore(this.props.repo);
+  },
+  onDelete: function(filename) {
+    Model.DeleteFile(filename, this.props.repo);
+  },
+
+  render: function() {
+    var rev = this.props.rev,
+        repo = this.props.repo,
+        matches = this.props.matches,
+        totalMatches = this.props.totalMatches;
+
+    const { onDelete } = this;
+
+    var files = matches.map(function(match, index) {
+      const filename = match.Filename
+      return (
+        <div>
+          <div className="title" id = {"anchor-" + filename}>
+            <button onClick={() => onDelete(filename)}>
+              x
+            </button>
+            <a href={"#" + filename}>
+              {filename}
+            </a>
+          </div>
+        </div>
+      );
+    });
+
+    var more = '';
+    if (matches.length < totalMatches) {
+      more = (<button className="moar" onClick={this.onLoadMore}>Load all {totalMatches} matches in {Model.NameForRepo(repo)}</button>);
+    }
+
+    return (
+      <div className="files">
+      {files}
+      {more}
+      </div>
+    );
+  }
+});
+var TreeView = React.createClass({
+  componentWillMount: function() {
+    var _this = this;
+    Model.willSearch.tap(function(model, params) {
+      _this.setState({
+        results: null,
+        query: params.q
+      });
+    });
+  },
+  getInitialState: function() {
+    return { results: null, hiddenReposMap: {} };
+  },
+  onDelete: function(reponame) {
+    Model.DeleteRepo(reponame);
+  },
+  onFilterKeyUp: function() {
+    const includeText = document.getElementById("includeText").value.trim();
+    const excludeText = document.getElementById("excludeText").value.trim();
+    Model.FilterFile(includeText, excludeText);
+  },
+
+  render: function() {
+    if (this.state.results !== null && this.state.results.length !== 0) {
+      const { onDelete } = this;
+      var results = this.state.results || [];
+      var filter = (
+        <div className="filter">
+          <div className="filter-title">
+            <span className="mega-octicon octicon-search"></span>
+            <span className="name">Quick filter</span>
+          </div>
+          <div className="filter-field">
+            <label>Include</label>
+            <div className="filter-field-input">
+              <input type="text" id="includeText" placeholder="file path" onKeyUp={this.onFilterKeyUp.bind(this)}/>
+            </div>
+            <label>Exclude</label>
+            <div className="filter-field-input">
+              <input type="text" id="excludeText" placeholder="file path" onKeyUp={this.onFilterKeyUp.bind(this)}/>
+            </div>
+          </div>
+        </div>
+      );
+      var repos = results.map(function(result, index) {
+        var deleteLabel = "X";
+        return (
+          <div className="repo">
+            <div className="title">
+              <span className="mega-octicon octicon-repo"></span>
+              <span className="name">{Model.NameForRepo(result.Repo)}</span>
+              <span className="stats stats-right" onClick={() => onDelete(result.Repo)}>
+                {{deleteLabel}}
+              </span>
+            </div>
+            <TreeNode matches={result.Matches}
+                rev={result.Rev}
+                repo={result.Repo}
+                totalMatches={result.FilesWithMatch} />
+          </div>
+        );
+      });
+    }
+    return (
+      <div className="tree-view">
+        {filter}
+        {repos}
+      </div>
+    );
+  }
+});
 
 var ResultView = React.createClass({
   componentWillMount: function() {
@@ -703,7 +986,12 @@ var ResultView = React.createClass({
     });
   },
   getInitialState: function() {
-    return { results: null };
+    return { results: null, hiddenReposMap: {} };
+  },
+  toggleRepoDisplay: function(repo) {
+    var newHiddenReposMap = Object.assign({}, this.state.hiddenReposMap);
+    newHiddenReposMap[repo] = !newHiddenReposMap[repo];
+    this.setState({hiddenReposMap: newHiddenReposMap});
   },
   render: function() {
     if (this.state.error) {
@@ -729,18 +1017,25 @@ var ResultView = React.createClass({
 
     var regexp = this.state.regexp,
         results = this.state.results || [];
+    var temphiddenReposMap = this.state.hiddenReposMap;
+    var temp = this.toggleRepoDisplay;
     var repos = results.map(function(result, index) {
+      var shouldHide = temphiddenReposMap[result.Repo];
+      var visibilityLabel = shouldHide ? "Show" : "Hide";
       return (
         <div className="repo">
           <div className="title">
             <span className="mega-octicon octicon-repo"></span>
             <span className="name">{Model.NameForRepo(result.Repo)}</span>
+            <span className="stats stats-right" id="toggle"
+                  onClick={temp.bind(this, result.Repo)}>{{visibilityLabel}}</span>
           </div>
           <FilesView matches={result.Matches}
               rev={result.Rev}
               repo={result.Repo}
               regexp={regexp}
-              totalMatches={result.FilesWithMatch} />
+              totalMatches={result.FilesWithMatch}
+              shouldHide={shouldHide} />
         </div>
       );
     });
@@ -757,8 +1052,9 @@ var App = React.createClass({
 
     this.setState({
       q: params.q,
-      i: params.i,
+      i: (params.i || isIgnoreCasePrefEnabled()),
       files: params.files,
+      excludeFiles: params.excludeFiles,
       repos: repos
     });
 
@@ -781,6 +1077,11 @@ var App = React.createClass({
         regexp: _this.refs.searchBar.getRegExp(),
         error: null
       });
+
+      _this.refs.treeView.setState({
+        results: results,
+        error:null
+      });
     });
 
     Model.didLoadMore.tap(function(model, repo, results) {
@@ -789,6 +1090,11 @@ var App = React.createClass({
         regexp: _this.refs.searchBar.getRegExp(),
         error: null
       });
+
+      _this.refs.treeView.setState({
+        results: results,
+        error:null
+      });
     });
 
     Model.didError.tap(function(model, error) {
@@ -796,12 +1102,47 @@ var App = React.createClass({
         results: null,
         error: error
       });
+
+      _this.refs.treeView.setState({
+        results: null,
+        error: error
+      });
+    });
+
+    Model.didDelete.tap(function(model, results) {
+      _this.refs.resultView.setState({
+        results: results,
+        regexp: _this.refs.searchBar.getRegExp(),
+        error: null
+      });
+
+      _this.refs.treeView.setState({
+        results: results,
+        error:null
+      });
+    });
+
+    Model.didFilter.tap(function(model, results) {
+      _this.refs.resultView.setState({
+        results: results,
+        regexp: _this.refs.searchBar.getRegExp(),
+        error: null
+      });
+
+      _this.refs.treeView.setState({
+        results: results,
+        error: null
+      });
     });
 
     window.addEventListener('popstate', function(e) {
-      var params = ParamsFromUrl();
-      _this.refs.searchBar.setParams(params);
-      Model.Search(params);
+      // Since we are jumping around with anchor tag, the url will be modified and popstate event will be triggered to redo the search.
+      // Adding this condition so that as long as the search params do not change, don't perform the search again
+      if (SearchParamsChanged()) {
+        var params = ParamsFromUrl();
+        _this.refs.searchBar.setParams(params);
+        Model.Search(params);
+      }
     });
   },
   onSearchRequested: function(params) {
@@ -813,18 +1154,46 @@ var App = React.createClass({
       '?q=' + encodeURIComponent(params.q) +
       '&i=' + encodeURIComponent(params.i) +
       '&files=' + encodeURIComponent(params.files) +
+      '&excludeFiles=' + encodeURIComponent(params.excludeFiles) +
       '&repos=' + params.repos;
     history.pushState({path:path}, '', path);
   },
+  initPreferences: function() {
+    var ignoreCase = localStorage.getItem('ignoreCase');
+    var hideAdvanced = localStorage.getItem('autoHideAdvanced');
+
+    if(ignoreCase == null) {
+      localStorage.setItem('ignoreCase', false);
+    }
+    if(hideAdvanced == null) {
+      localStorage.setItem('autoHideAdvanced', false);
+    }
+  },
   render: function() {
+    this.initPreferences();
+
+    $(document).on('click', 'a', function(event){
+      if (this.hash !== "") {
+        event.preventDefault();
+        var hash = '[id^=\"' + this.hash.substring(1) + '\"]';
+        $('html, body').animate({
+          scrollTop: $(hash).offset().top
+        }, 200, function(){
+          window.location.hash = hash;
+        });
+      }
+    });
+
     return (
       <div>
         <SearchBar ref="searchBar"
             q={this.state.q}
             i={this.state.i}
             files={this.state.files}
+            excludeFiles={this.state.excludeFiles}
             repos={this.state.repos}
             onSearchRequested={this.onSearchRequested} />
+        <TreeView ref="treeView" q={this.state.q} />
         <ResultView ref="resultView" q={this.state.q} />
       </div>
     );
