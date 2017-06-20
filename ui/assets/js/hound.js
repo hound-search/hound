@@ -1171,7 +1171,7 @@ var App = React.createClass({
     this.initPreferences();
 
     $(document).on('click', 'a', function(event){
-      if (this.hash !== "") {
+      if (this.hostname == "hound.kareo.com" && this.hash !== "") {
         event.preventDefault();
         var hash = '[id^=\"' + this.hash.substring(1) + '\"]';
         $('html, body').animate({
