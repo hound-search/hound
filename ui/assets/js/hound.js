@@ -782,7 +782,7 @@ var ContentFor = function(line, regexp) {
   return buffer.join('');
 };
 
-var onAnchorJump = function(id) {
+var scrollTo = function(id) {
   event.preventDefault();
   var hash = '[id^=\"' + id + '\"]';
   $('html, body').animate({
@@ -842,7 +842,7 @@ var FilesView = React.createClass({
             <button className="stats stats-right" onClick={() => onDelete(filename)}>
               x
             </button>
-            <a className="stats stats-right" onClick={() => onAnchorJump('anchor-'+filename)}>
+            <a className="stats stats-right" onClick={() => scrollTo('anchor-'+filename)}>
               back
             </a>
             <a href={Model.UrlToRepo(repo, match.Filename, null, rev)}>
@@ -893,7 +893,7 @@ var TreeNode = React.createClass({
             <button onClick={() => onDelete(filename)}>
               x
             </button>
-            <a onClick={() => onAnchorJump(filename)}>
+            <a onClick={() => scrollTo(filename)}>
               {filename}
             </a>
           </div>
