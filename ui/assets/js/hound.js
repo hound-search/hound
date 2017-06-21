@@ -790,6 +790,16 @@ var FilesView = React.createClass({
     document.activeElement.blur();
     Model.DeleteFile(filename, this.props.repo);
   },
+  
+  onBack: function(filename) {
+    event.preventDefault();
+    var hash = '[id^=\"anchor-' + filename + '\"]';
+    $('html, body').animate({
+      scrollTop: $(hash).offset().top
+    }, 200, function(){
+      window.location.hash = hash;
+    });
+  },
 
   render: function() {
     var rev = this.props.rev,
@@ -802,7 +812,7 @@ var FilesView = React.createClass({
         return null;
     }
 
-    const { onDelete } = this;
+    const { onDelete, onBack } = this;
 
     var files = matches.map(function(match, index) {
       var filename = match.Filename,
@@ -831,7 +841,7 @@ var FilesView = React.createClass({
             <button className="stats stats-right" onClick={() => onDelete(filename)}>
               x
             </button>
-            <a href={"#anchor-"+match.Filename} className="stats stats-right">
+            <a className="stats stats-right" onClick={() => onBack(filename)}>
               back
             </a>
             <a href={Model.UrlToRepo(repo, match.Filename, null, rev)}>
@@ -865,6 +875,16 @@ var TreeNode = React.createClass({
   onDelete: function(filename) {
     Model.DeleteFile(filename, this.props.repo);
   },
+  onAnchor: function(filename) {
+    event.preventDefault();
+    console.log(filename)
+    var hash = '[id^=\"' + filename + '\"]';
+    $('html, body').animate({
+      scrollTop: $(hash).offset().top
+    }, 200, function(){
+      window.location.hash = hash;
+    });
+  },
 
   render: function() {
     var rev = this.props.rev,
@@ -872,7 +892,7 @@ var TreeNode = React.createClass({
         matches = this.props.matches,
         totalMatches = this.props.totalMatches;
 
-    const { onDelete } = this;
+    const { onDelete,  onAnchor} = this;
 
     var files = matches.map(function(match, index) {
       const filename = match.Filename
@@ -882,7 +902,7 @@ var TreeNode = React.createClass({
             <button onClick={() => onDelete(filename)}>
               x
             </button>
-            <a href={"#" + filename}>
+            <a onClick={() => onAnchor(filename)}>
               {filename}
             </a>
           </div>
@@ -1169,18 +1189,6 @@ var App = React.createClass({
   },
   render: function() {
     this.initPreferences();
-
-    $(document).on('click', 'a', function(event){
-      if (this.hostname == "hound.kareo.com" && this.hash !== "") {
-        event.preventDefault();
-        var hash = '[id^=\"' + this.hash.substring(1) + '\"]';
-        $('html, body').animate({
-          scrollTop: $(hash).offset().top
-        }, 200, function(){
-          window.location.hash = hash;
-        });
-      }
-    });
 
     return (
       <div>

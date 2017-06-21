@@ -364,6 +364,8 @@ button:focus {
 
 .title a {
   color: #666;
+  cursor: pointer;
+  cursor: hand;
 }
 
 .file-body {
