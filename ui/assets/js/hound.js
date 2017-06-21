@@ -781,6 +781,17 @@ var ContentFor = function(line, regexp) {
   }
   return buffer.join('');
 };
+
+var onAnchorJump = function(id) {
+  event.preventDefault();
+  var hash = '[id^=\"' + id + '\"]';
+  $('html, body').animate({
+    scrollTop: $(hash).offset().top
+  }, 200, function(){
+    window.location.hash = hash;
+  });
+};
+
 var FilesView = React.createClass({
   onLoadMore: function(event) {
     Model.LoadMore(this.props.repo);
@@ -789,16 +800,6 @@ var FilesView = React.createClass({
   onDelete: function(filename) {
     document.activeElement.blur();
     Model.DeleteFile(filename, this.props.repo);
-  },
-  
-  onBack: function(filename) {
-    event.preventDefault();
-    var hash = '[id^=\"anchor-' + filename + '\"]';
-    $('html, body').animate({
-      scrollTop: $(hash).offset().top
-    }, 200, function(){
-      window.location.hash = hash;
-    });
   },
 
   render: function() {
@@ -812,7 +813,7 @@ var FilesView = React.createClass({
         return null;
     }
 
-    const { onDelete, onBack } = this;
+    const { onDelete } = this;
 
     var files = matches.map(function(match, index) {
       var filename = match.Filename,
@@ -841,7 +842,7 @@ var FilesView = React.createClass({
             <button className="stats stats-right" onClick={() => onDelete(filename)}>
               x
             </button>
-            <a className="stats stats-right" onClick={() => onBack(filename)}>
+            <a className="stats stats-right" onClick={() => onAnchorJump('anchor-'+filename)}>
               back
             </a>
             <a href={Model.UrlToRepo(repo, match.Filename, null, rev)}>
@@ -875,16 +876,6 @@ var TreeNode = React.createClass({
   onDelete: function(filename) {
     Model.DeleteFile(filename, this.props.repo);
   },
-  onAnchor: function(filename) {
-    event.preventDefault();
-    console.log(filename)
-    var hash = '[id^=\"' + filename + '\"]';
-    $('html, body').animate({
-      scrollTop: $(hash).offset().top
-    }, 200, function(){
-      window.location.hash = hash;
-    });
-  },
 
   render: function() {
     var rev = this.props.rev,
@@ -892,7 +883,7 @@ var TreeNode = React.createClass({
         matches = this.props.matches,
         totalMatches = this.props.totalMatches;
 
-    const { onDelete,  onAnchor} = this;
+    const { onDelete } = this;
 
     var files = matches.map(function(match, index) {
       const filename = match.Filename
@@ -902,7 +893,7 @@ var TreeNode = React.createClass({
             <button onClick={() => onDelete(filename)}>
               x
             </button>
-            <a onClick={() => onAnchor(filename)}>
+            <a onClick={() => onAnchorJump(filename)}>
               {filename}
             </a>
           </div>
