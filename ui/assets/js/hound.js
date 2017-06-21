@@ -340,8 +340,8 @@ var Model = {
   },
 
   FilterFile: function(includeText, excludeText) {
-    const matcher = function(filterText, file) {
-      return file.Filename.toLowerCase().indexOf(filterText.toLowerCase()) !== -1;
+    const matcher = function(regex, file) {
+      return file.Filename.match(regex) != null;
     }
 
     var filterHelper = function(filterText, results, inclusion) {
@@ -781,6 +781,17 @@ var ContentFor = function(line, regexp) {
   }
   return buffer.join('');
 };
+
+var scrollTo = function(id) {
+  event.preventDefault();
+  var hash = '[id^=\"' + id + '\"]';
+  $('html, body').animate({
+    scrollTop: $(hash).offset().top
+  }, 200, function(){
+    window.location.hash = hash;
+  });
+};
+
 var FilesView = React.createClass({
   onLoadMore: function(event) {
     Model.LoadMore(this.props.repo);
@@ -831,7 +842,7 @@ var FilesView = React.createClass({
             <button className="stats stats-right" onClick={() => onDelete(filename)}>
               x
             </button>
-            <a href={"#anchor-"+match.Filename} className="stats stats-right">
+            <a className="stats stats-right" onClick={() => scrollTo('anchor-'+filename)}>
               back
             </a>
             <a href={Model.UrlToRepo(repo, match.Filename, null, rev)}>
@@ -882,7 +893,7 @@ var TreeNode = React.createClass({
             <button onClick={() => onDelete(filename)}>
               x
             </button>
-            <a href={"#" + filename}>
+            <a onClick={() => scrollTo(filename)}>
               {filename}
             </a>
           </div>
@@ -1169,18 +1180,6 @@ var App = React.createClass({
   },
   render: function() {
     this.initPreferences();
-
-    $(document).on('click', 'a', function(event){
-      if (this.hash !== "") {
-        event.preventDefault();
-        var hash = '[id^=\"' + this.hash.substring(1) + '\"]';
-        $('html, body').animate({
-          scrollTop: $(hash).offset().top
-        }, 200, function(){
-          window.location.hash = hash;
-        });
-      }
-    });
 
     return (
       <div>
