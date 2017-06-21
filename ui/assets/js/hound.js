@@ -340,8 +340,8 @@ var Model = {
   },
 
   FilterFile: function(includeText, excludeText) {
-    const matcher = function(filterText, file) {
-      return file.Filename.toLowerCase().indexOf(filterText.toLowerCase()) !== -1;
+    const matcher = function(regex, file) {
+      return file.Filename.match(regex) != null;
     }
 
     var filterHelper = function(filterText, results, inclusion) {
