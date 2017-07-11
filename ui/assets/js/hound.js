@@ -817,6 +817,7 @@ var FilesView = React.createClass({
 
     var files = matches.map(function(match, index) {
       var filename = match.Filename,
+          filenameId = repo + '/' + filename,
           blocks = CoalesceMatches(match.Matches);
       var matches = blocks.map(function(block) {
         var lines = block.map(function(line) {
@@ -837,12 +838,12 @@ var FilesView = React.createClass({
       });
 
       return (
-        <div className="file" id={match.Filename}>
+        <div className="file" id={filenameId}>
           <div className="title">
             <button className="stats stats-right" onClick={() => onDelete(filename)}>
               x
             </button>
-            <a className="stats stats-right" onClick={() => scrollTo('anchor-'+filename)}>
+            <a className="stats stats-right" onClick={() => scrollTo('anchor-' + filenameId)}>
               back
             </a>
             <a href={Model.UrlToRepo(repo, match.Filename, null, rev)}>
@@ -887,13 +888,14 @@ var TreeNode = React.createClass({
 
     var files = matches.map(function(match, index) {
       const filename = match.Filename
+      const filenameId = repo + '/' + filename
       return (
         <div>
-          <div className="title" id = {"anchor-" + filename}>
+          <div className="title" id = {"anchor-" + filenameId}>
             <button onClick={() => onDelete(filename)}>
               x
             </button>
-            <a onClick={() => scrollTo(filename)}>
+            <a onClick={() => scrollTo(filenameId)}>
               {filename}
             </a>
           </div>
