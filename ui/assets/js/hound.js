@@ -411,10 +411,13 @@ var SearchBar = React.createClass({
   componentWillMount: function() {
     var _this = this;
     Model.didLoadRepos.tap(function(model, repos) {
-      _this.setState({ allRepos: Object.keys(repos).sort() });
+      _this.setState({ allRepos: _this.alphaSortRepos(repos) });
     });
   },
-
+  alphaSortRepos(repos) {
+    debugger;
+    return Object.keys(repos).sort(function (a, b) {return a.toLowerCase().localeCompare(b.toLowerCase());});
+  },
   componentDidMount: function() {
     var q = this.refs.q.getDOMNode();
 
