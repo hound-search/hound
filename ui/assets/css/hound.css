@@ -49,7 +49,7 @@ button:focus {
 
 #input {
   margin-top: 40px;
-  margin-bottom: 40px;
+  margin-bottom: 15px;
 }
 
 /* Search container */
@@ -227,8 +227,56 @@ button:focus {
   background-color: #f5f5f5;
   color: #666;
 }
+
+#inc {
+  box-sizing: border-box;
+  width: 95%;
+  margin-bottom: 30px;
+  padding: 4px 8px;
+  position: relative;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.2);
+  color: #aaa;
+  font-size: 12px;
+  line-height: 24px;
+  background-color: #fff;
+}
+
+#inc > .title {
+  color:#666;
+  font-size:16px;
+}
+
+/* Media object clearfix */
+#inc > .field {
+  overflow: hidden;
+  margin: 4px 0;
+}
+
+#inc > .field > label {
+  /* Media object left */
+  float: left;
+  width: 100px;
+  color: #999;
+}
+
+#inc > .field > .field-input {
+  /* New block formatting context for media object */
+  overflow: hidden;
+}
+
+#inc > .filter > .title {
+  color: #666;
+  font-size: 24px;
+  padding-bottom: 5px;
+}
+
+#inc .field-input input:focus {
+  width: 70%;
+}
+
+
 .repo {
-  margin-bottom: 100px;
+  margin-bottom: 25px;
 }
 
 .repo > .title {
@@ -236,6 +284,10 @@ button:focus {
   font-size: 24px;
   padding-bottom: 5px;
   cursor: pointer;
+}
+
+.tree-view .repo .files .title{
+  font-size:12px;
 }
 
 .repo > .title > .name {
@@ -276,8 +328,47 @@ button:focus {
   cursor: pointer;
 }
 
+.files .title button{
+  font-size: 10px;
+}
+
+.file > .title button {
+  padding: 2px 7px 3px 6px;
+  margin: 4px 10px 0 16px;
+  line-height: 15px;
+  border: 1px solid #666;
+	border-radius: 4px;
+}
+
+.title button {
+  background-color: transparent;
+  color: #666;
+  font-size: 16px;
+  padding: 0 5px 0 4px;
+	margin: 0 10px 0 16px;
+}
+
+.title button:active {
+  outline: none;
+  box-shadow: none;
+  transform: translateY(1px);
+  background-color: #666;
+  color: white;
+}
+
+.title button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+
 .title a {
   color: #666;
+  cursor: pointer;
+}
+
+.title a:hover {
+  color: #09f;
 }
 
 .file-body {

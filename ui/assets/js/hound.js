@@ -67,6 +67,16 @@ var ParamsFromQueryString = function(qs, params) {
   return params;
 };
 
+var PreviousParamsURL;
+
+var SearchParamsChanged = function() {
+  var currentParamsURL = location.search;
+  if (PreviousParamsURL !== currentParamsURL) {
+    return true;
+  }
+  return false;
+}
+
 var ParamsFromUrl = function(params) {
   params = params || {
     q: '',
@@ -112,7 +122,11 @@ var Model = {
 
   didError: new Signal(),
 
-  didLoadRepos : new Signal(),
+  didLoadRepos: new Signal(),
+
+  didDelete: new Signal(),
+
+  didFilter: new Signal(),
 
   ValidRepos: function(repos) {
     var all = this.repos,
@@ -168,7 +182,7 @@ var Model = {
     this.willSearch.raise(this, params);
     var _this = this,
         startedAt = Date.now();
-
+    PreviousParamsURL = location.search;
     params = $.extend({
       stats: 'fosho',
       repos: '*',
@@ -188,7 +202,7 @@ var Model = {
     if (params.q == '') {
       _this.results = [];
       _this.resultsByRepo = {};
-      _this.didSearch.raise(_this, _this.Results);
+      _this.didSearch.raise(_this, _this.results);
       return;
     }
 
@@ -273,12 +287,88 @@ var Model = {
 
         var result = data.Results[repo];
         results.Matches = results.Matches.concat(result.Matches);
-        _this.didLoadMore.raise(_this, repo, _this.results);
+        // _this.didLoadMore.raise(_this, repo, _this.results);
+
+        // load more, then filter
+        const includeText = document.getElementById("includeText").value.trim();
+        const excludeText = document.getElementById("excludeText").value.trim();
+        Model.FilterFile(includeText, excludeText);
       },
       error: function(xhr, status, err) {
         _this.didError.raise(this, "The server broke down");
       }
     });
+  },
+
+  DeleteFile : function(filename, reponame) {
+    var findIndex = function(array, string) {
+      for (var i = 0; i < array.length; i ++) {
+        if (array[i].Filename == string) {
+          return i;
+        }
+      }
+      return -1;
+    };
+    var _this = this,
+      repo = this.resultsByRepo[reponame],
+      matches = repo.Matches;
+    var index = findIndex(matches, filename);
+    if (index > -1) {
+      matches.splice(index, 1);
+      repo.FilesWithMatch--;
+    }
+    _this.didDelete.raise(_this, _this.results);
+    //raise didDelete
+  },
+
+  DeleteRepo : function(reponame) {
+    var _this = this,
+      results = _this.results;
+    var findIndex = function(array, string) {
+      for (var i = 0; i < array.length; i ++) {
+        if (array[i].Repo == string) {
+          return i;
+        }
+      }
+      return -1;
+    };
+    var index = findIndex(results, reponame);
+    if (index > -1) {
+      results.splice(index, 1);
+    }
+    _this.didDelete.raise(_this, _this.results);
+  },
+
+  FilterFile: function(includeText, excludeText) {
+    const matcher = function(regex, file) {
+      return file.Filename.match(regex) != null;
+    }
+
+    var filterHelper = function(filterText, results, inclusion) {
+      filteredResults = results.map(repo => {
+        var filteredRepo = Object.assign({}, repo);  // clone the repo object instead of refferencing
+        filteredRepo.FilesWithMatch -= filteredRepo.Matches.length;
+        if (inclusion) {
+          filteredRepo.Matches = repo.Matches.filter(file => matcher(filterText, file))
+        } else {
+          filteredRepo.Matches = repo.Matches.filter(file => !matcher(filterText, file))
+        }
+        filteredRepo.FilesWithMatch += filteredRepo.Matches.length;
+        return filteredRepo;
+      });
+      return filteredResults;
+    };
+
+    var _this = this,
+      filteredResults = _this.results;
+
+    if (includeText) {
+      filteredResults = filterHelper(includeText, filteredResults, true);
+    }
+    if (excludeText) {
+      filteredResults = filterHelper(excludeText, filteredResults, false);
+    }
+    _this.didFilter.raise(_this, filteredResults);
   },
 
   NameForRepo: function(repo) {
@@ -692,9 +782,24 @@ var ContentFor = function(line, regexp) {
   return buffer.join('');
 };
 
+var scrollTo = function(id) {
+  event.preventDefault();
+  var hash = '[id^=\"' + id + '\"]';
+  $('html, body').animate({
+    scrollTop: $(hash).offset().top
+  }, 200, function(){
+    window.location.hash = hash;
+  });
+};
+
 var FilesView = React.createClass({
   onLoadMore: function(event) {
     Model.LoadMore(this.props.repo);
+  },
+
+  onDelete: function(filename) {
+    document.activeElement.blur();
+    Model.DeleteFile(filename, this.props.repo);
   },
 
   render: function() {
@@ -708,8 +813,11 @@ var FilesView = React.createClass({
         return null;
     }
 
+    const { onDelete } = this;
+
     var files = matches.map(function(match, index) {
       var filename = match.Filename,
+          filenameId = repo + '/' + filename,
           blocks = CoalesceMatches(match.Matches);
       var matches = blocks.map(function(block) {
         var lines = block.map(function(line) {
@@ -730,8 +838,14 @@ var FilesView = React.createClass({
       });
 
       return (
-        <div className="file">
+        <div className="file" id={filenameId}>
           <div className="title">
+            <button className="stats stats-right" onClick={() => onDelete(filename)}>
+              x
+            </button>
+            <a className="stats stats-right" onClick={() => scrollTo('anchor-' + filenameId)}>
+              back
+            </a>
             <a href={Model.UrlToRepo(repo, match.Filename, null, rev)}>
               {match.Filename}
             </a>
@@ -752,6 +866,121 @@ var FilesView = React.createClass({
       <div className="files">
       {files}
       {more}
+      </div>
+    );
+  }
+});
+var TreeNode = React.createClass({
+  onLoadMore: function(event) {
+    Model.LoadMore(this.props.repo);
+  },
+  onDelete: function(filename) {
+    Model.DeleteFile(filename, this.props.repo);
+  },
+
+  render: function() {
+    var rev = this.props.rev,
+        repo = this.props.repo,
+        matches = this.props.matches,
+        totalMatches = this.props.totalMatches;
+
+    const { onDelete } = this;
+
+    var files = matches.map(function(match, index) {
+      const filename = match.Filename
+      const filenameId = repo + '/' + filename
+      return (
+        <div>
+          <div className="title" id = {"anchor-" + filenameId}>
+            <button onClick={() => onDelete(filename)}>
+              x
+            </button>
+            <a onClick={() => scrollTo(filenameId)}>
+              {filename}
+            </a>
+          </div>
+        </div>
+      );
+    });
+
+    var more = '';
+    if (matches.length < totalMatches) {
+      more = (<button className="moar" onClick={this.onLoadMore}>Load all {totalMatches} matches in {Model.NameForRepo(repo)}</button>);
+    }
+
+    return (
+      <div className="files">
+      {files}
+      {more}
+      </div>
+    );
+  }
+});
+var TreeView = React.createClass({
+  componentWillMount: function() {
+    var _this = this;
+    Model.willSearch.tap(function(model, params) {
+      _this.setState({
+        results: null,
+        query: params.q
+      });
+    });
+  },
+  getInitialState: function() {
+    return { results: null, hiddenReposMap: {} };
+  },
+  onDelete: function(reponame) {
+    Model.DeleteRepo(reponame);
+  },
+  onFilterKeyUp: function() {
+    const includeText = document.getElementById("includeText").value.trim();
+    const excludeText = document.getElementById("excludeText").value.trim();
+    Model.FilterFile(includeText, excludeText);
+  },
+
+  render: function() {
+    if (this.state.results !== null && this.state.results.length !== 0) {
+      const { onDelete } = this;
+      var results = this.state.results || [];
+      var filter = (
+        <div id="inc" className="filter">
+          <div className="title">
+            <span className="name">Quick filter</span>
+          </div>
+          <div className="field">
+            <label>Include</label>
+            <div className="field-input">
+              <input type="text" id="includeText" placeholder="file path" onKeyUp={this.onFilterKeyUp.bind(this)}/>
+            </div>
+            <label>Exclude</label>
+            <div className="field-input">
+              <input type="text" id="excludeText" placeholder="file path" onKeyUp={this.onFilterKeyUp.bind(this)}/>
+            </div>
+          </div>
+        </div>
+      );
+      var repos = results.map(function(result, index) {
+        var deleteLabel = "X";
+        return (
+          <div className="repo">
+            <div className="title">
+              <span className="name">{Model.NameForRepo(result.Repo)}</span>
+              <span className="stats stats-right" onClick={() => onDelete(result.Repo)}>
+                {{deleteLabel}}
+              </span>
+            </div>
+            <TreeNode matches={result.Matches}
+                rev={result.Rev}
+                repo={result.Repo}
+                totalMatches={result.FilesWithMatch} />
+          </div>
+        );
+      });
+    }
+    return (
+      <div className="tree-view">
+        {filter}
+        {repos}
       </div>
     );
   }
@@ -859,6 +1088,11 @@ var App = React.createClass({
         regexp: _this.refs.searchBar.getRegExp(),
         error: null
       });
+
+      _this.refs.treeView.setState({
+        results: results,
+        error:null
+      });
     });
 
     Model.didLoadMore.tap(function(model, repo, results) {
@@ -867,6 +1101,11 @@ var App = React.createClass({
         regexp: _this.refs.searchBar.getRegExp(),
         error: null
       });
+
+      _this.refs.treeView.setState({
+        results: results,
+        error:null
+      });
     });
 
     Model.didError.tap(function(model, error) {
@@ -874,12 +1113,47 @@ var App = React.createClass({
         results: null,
         error: error
       });
+
+      _this.refs.treeView.setState({
+        results: null,
+        error: error
+      });
+    });
+
+    Model.didDelete.tap(function(model, results) {
+      _this.refs.resultView.setState({
+        results: results,
+        regexp: _this.refs.searchBar.getRegExp(),
+        error: null
+      });
+
+      _this.refs.treeView.setState({
+        results: results,
+        error:null
+      });
+    });
+
+    Model.didFilter.tap(function(model, results) {
+      _this.refs.resultView.setState({
+        results: results,
+        regexp: _this.refs.searchBar.getRegExp(),
+        error: null
+      });
+
+      _this.refs.treeView.setState({
+        results: results,
+        error: null
+      });
     });
 
     window.addEventListener('popstate', function(e) {
-      var params = ParamsFromUrl();
-      _this.refs.searchBar.setParams(params);
-      Model.Search(params);
+      // Since we are jumping around with anchor tag, the url will be modified and popstate event will be triggered to redo the search.
+      // Adding this condition so that as long as the search params do not change, don't perform the search again
+      if (SearchParamsChanged()) {
+        var params = ParamsFromUrl();
+        _this.refs.searchBar.setParams(params);
+        Model.Search(params);
+      }
     });
   },
   onSearchRequested: function(params) {
@@ -908,6 +1182,7 @@ var App = React.createClass({
   },
   render: function() {
     this.initPreferences();
+
     return (
       <div>
         <SearchBar ref="searchBar"
@@ -917,6 +1192,7 @@ var App = React.createClass({
             excludeFiles={this.state.excludeFiles}
             repos={this.state.repos}
             onSearchRequested={this.onSearchRequested} />
+        <TreeView ref="treeView" q={this.state.q} />
         <ResultView ref="resultView" q={this.state.q} />
       </div>
     );
