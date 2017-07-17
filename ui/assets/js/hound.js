@@ -415,7 +415,6 @@ var SearchBar = React.createClass({
     });
   },
   alphaSortRepos(repos) {
-    debugger;
     return Object.keys(repos).sort(function (a, b) {return a.toLowerCase().localeCompare(b.toLowerCase());});
   },
   componentDidMount: function() {
