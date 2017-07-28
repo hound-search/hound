@@ -30,7 +30,11 @@ go get github.com/etsy/hound/cmds/...
 
 ### Using Docker (1.4+)
 
-1. Create a [config.json](config-example.json) in a directory with your list of repositories.
+1. Create a [config.json](config-example.json) in a directory with your list of repositories. This directory should be writable by other users.
+```
+chmod ugo+r config.json
+chmod 777 .
+```
 
 2. Run 
 ```
