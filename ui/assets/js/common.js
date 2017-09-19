@@ -14,7 +14,7 @@ var lib = {
         var url = repo.url.replace(/\.git$/, ''),
             pattern = repo['url-pattern'],
             filename = path.substring(path.lastIndexOf('/') + 1),
-            anchor = line ? lib.ExpandVars(pattern.anchor, { line : line, filename : filename }) : '';
+            anchor = line ? lib.ExpandVars(pattern.anchor, { line : line, filename : filename, repo: repo }) : '';
 
         // Determine if the URL passed is a GitHub wiki
         var wikiUrl = /\.wiki$/.exec(url);
@@ -24,16 +24,18 @@ var lib = {
           anchor = '' // wikis do not support direct line linking
         }
 
-        // Hacky solution to fix _some more_ of the 404's when using SSH style URLs.
-        // This works for both github style URLs (git@github.com:username/Foo.git) and
-        // bitbucket style URLs (ssh://hg@bitbucket.org/username/Foo).
+        // Check for ssh:// and hg:// protocol URLs
+        // match the protocol, optionally a basic auth indicator, a
+        // hostname, optionally a port, and then a path
+        var ssh_protocol = /^(git|hg|ssh):\/\/([^@\/]+@)?([^:\/]+)(:[0-9]+)?\/(.*)/.exec(url);
 
-        // Regex explained: Match either `git` or `hg` followed by an `@`.
-        // Next, slurp up the hostname by reading until either a `:` or `/` is found.
-        // Finally, grab all remaining characters.
-        var sshParts = /(git|hg)@(.*?)(:|\/)(.*)/.exec(url);
-        if (sshParts) {
-          url = '//' + sshParts[2] + '/' + sshParts[4];
+        // Check for bare git+ssh URIs (e.g., user@hostname:path
+        var bare_ssh = /^([^@]+)@([^:]+):(.*)/.exec(url);
+
+        if (ssh_protocol) {
+          url = '//' + ssh_protocol[3] + '/' + ssh_protocol[5];
+        } else if (bare_ssh) {
+          url = '//' + bare_ssh[2] + '/' + bare_ssh[4];
         }
 
         // I'm sure there is a nicer React/jsx way to do this:
