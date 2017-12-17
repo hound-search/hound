@@ -91,7 +91,7 @@ func TestRead(t *testing.T) {
 	}
 
 	if r.Rev != rev {
-		t.Fatal("expected rev of %s, got %s", rev, r.Rev)
+		t.Fatalf("expected rev of %s, got %s", rev, r.Rev)
 	}
 
 	idx, err := r.Open()
