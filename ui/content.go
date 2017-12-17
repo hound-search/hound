@@ -1,6 +1,9 @@
 package ui
 
-import "html/template"
+import (
+	htemplate "html/template"
+	ttemplate "text/template"
+)
 
 // Current versions of some dependencies.
 const (
@@ -22,7 +25,15 @@ type content struct {
 	sources []string
 
 	// This is only created in prd-mode, the pre-parsed template
-	tpl *template.Template
+	// HTML template - used for serving HTML content
+	htpl *htemplate.Template
+
+	// This is only created in prd-mode, the pre-parsed template
+	// Text template - currently used for /open_search.xml only
+	ttpl *ttemplate.Template
+
+	// This is used to determine if a template is to be parsed as text or html
+	tplType string
 }
 
 func init() {
@@ -36,10 +47,12 @@ func init() {
 				"js/common.js",
 				"js/hound.js",
 			},
+			tplType: "html",
 		},
 
 		"/open_search.xml": &content{
 			template: "open_search.tpl.xml",
+			tplType: "xml",
 		},
 
 		"/excluded_files.html": &content{
@@ -48,6 +61,7 @@ func init() {
 				"js/common.js",
 				"js/excluded_files.js",
 			},
+			tplType: "html",
 		},
 	}
 }
