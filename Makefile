@@ -11,3 +11,6 @@ ui/bindata.go: .build/bin/go-bindata $(wildcard ui/assets/**/*)
 
 clean:
 	rm -rf .build
+
+test:
+	go test ./...
