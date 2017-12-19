@@ -63,24 +63,25 @@ func (h *devHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // Renders a templated asset in dev-mode. This simply embeds external script tags
 // for the source elements.
 func renderForDev(w io.Writer, root string, c *content, cfg *config.Config, r *http.Request) error {
-	// If the requested asset is of type xml or text, short cut the execution
-	// using text/template package.
-	// See - https://github.com/etsy/hound/issues/239
-	if c.tplType == "xml" || c.tplType == "text" {
-		t, err := ttemplate.ParseFiles(
-			filepath.Join(root, c.template))
+	var err error
+	// For more context, see: https://github.com/etsy/hound/issues/239
+	switch c.tplType {
+	case "html":
+		// Use html/template to parse the html template
+		c.tpl, err = htemplate.ParseFiles(filepath.Join(root, c.template))
 		if err != nil {
 			return err
 		}
-		return t.Execute(w, map[string]interface{}{
-			"Host": r.Host,
-		})
-	}
-
-	t, err := htemplate.ParseFiles(
-		filepath.Join(root, c.template))
-	if err != nil {
-		return err
+	case "xml", "text":
+		// Use text/template to parse the xml or text templates
+		// We are using text/template here for parsing xml to keep things
+		// consistent with html/template parsing.
+		c.tpl, err = ttemplate.ParseFiles(filepath.Join(root, c.template))
+		if err != nil {
+			return err
+		}
+	default:
+		return errors.New("invalid tplType for content")
 	}
 
 	json, err := cfg.ToJsonString()
@@ -100,7 +101,7 @@ func renderForDev(w io.Writer, root string, c *content, cfg *config.Config, r *h
 			path)
 	}
 
-	return t.Execute(w, map[string]interface{}{
+	return c.tpl.Execute(w, map[string]interface{}{
 		"ReactVersion":  ReactVersion,
 		"jQueryVersion": JQueryVersion,
 		"ReposAsJson":   json,
@@ -149,15 +150,6 @@ func (h *prdHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // Renders a templated asset in prd-mode. This strategy will embed
 // the sources directly in a script tag on the templated page.
 func renderForPrd(w io.Writer, c *content, cfgJson string, r *http.Request) error {
-	// If the requested asset is of type xml or text, short cut the execution
-	// using text/template package.
-	// See - https://github.com/etsy/hound/issues/239
-	if c.tplType == "xml" || c.tplType == "text" {
-		return c.ttpl.Execute(w, map[string]interface{}{
-			"Host": r.Host,
-		})
-	}
-
 	var buf bytes.Buffer
 	buf.WriteString("<script>")
 	for _, src := range c.sources {
@@ -169,7 +161,7 @@ func renderForPrd(w io.Writer, c *content, cfgJson string, r *http.Request) erro
 	}
 	buf.WriteString("</script>")
 
-	return c.htpl.Execute(w, map[string]interface{}{
+	return c.tpl.Execute(w, map[string]interface{}{
 		"ReactVersion":  ReactVersion,
 		"jQueryVersion": JQueryVersion,
 		"ReposAsJson":   cfgJson,
@@ -213,7 +205,7 @@ func newPrdHandler(cfg *config.Config) (http.Handler, error) {
 		switch cnt.tplType {
 		case "html":
 			// Use html/template to parse the html template
-			cnt.htpl, err = htemplate.New(cnt.template).Parse(string(a))
+			cnt.tpl, err = htemplate.New(cnt.template).Parse(string(a))
 			if err != nil {
 				return nil, err
 			}
@@ -221,7 +213,7 @@ func newPrdHandler(cfg *config.Config) (http.Handler, error) {
 			// Use text/template to parse the xml or text templates
 			// We are using text/template here for parsing xml to keep things
 			// consistent with html/template parsing.
-			cnt.ttpl, err = ttemplate.New(cnt.template).Parse(string(a))
+			cnt.tpl, err = ttemplate.New(cnt.template).Parse(string(a))
 			if err != nil {
 				return nil, err
 			}
