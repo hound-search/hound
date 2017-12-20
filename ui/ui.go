@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	htemplate "html/template"
-	ttemplate "text/template"
+	html_template "html/template"
+	text_template "text/template"
 	"io"
 	"log"
 	"net/http"
@@ -68,7 +68,7 @@ func renderForDev(w io.Writer, root string, c *content, cfg *config.Config, r *h
 	switch c.tplType {
 	case "html":
 		// Use html/template to parse the html template
-		c.tpl, err = htemplate.ParseFiles(filepath.Join(root, c.template))
+		c.tpl, err = html_template.ParseFiles(filepath.Join(root, c.template))
 		if err != nil {
 			return err
 		}
@@ -76,7 +76,7 @@ func renderForDev(w io.Writer, root string, c *content, cfg *config.Config, r *h
 		// Use text/template to parse the xml or text templates
 		// We are using text/template here for parsing xml to keep things
 		// consistent with html/template parsing.
-		c.tpl, err = ttemplate.ParseFiles(filepath.Join(root, c.template))
+		c.tpl, err = text_template.ParseFiles(filepath.Join(root, c.template))
 		if err != nil {
 			return err
 		}
@@ -105,7 +105,7 @@ func renderForDev(w io.Writer, root string, c *content, cfg *config.Config, r *h
 		"ReactVersion":  ReactVersion,
 		"jQueryVersion": JQueryVersion,
 		"ReposAsJson":   json,
-		"Source":        htemplate.HTML(buf.String()),
+		"Source":        html_template.HTML(buf.String()),
 		"Host":          r.Host,
 	})
 }
@@ -165,7 +165,7 @@ func renderForPrd(w io.Writer, c *content, cfgJson string, r *http.Request) erro
 		"ReactVersion":  ReactVersion,
 		"jQueryVersion": JQueryVersion,
 		"ReposAsJson":   cfgJson,
-		"Source":        htemplate.HTML(buf.String()),
+		"Source":        html_template.HTML(buf.String()),
 		"Host":          r.Host,
 	})
 }
@@ -205,7 +205,7 @@ func newPrdHandler(cfg *config.Config) (http.Handler, error) {
 		switch cnt.tplType {
 		case "html":
 			// Use html/template to parse the html template
-			cnt.tpl, err = htemplate.New(cnt.template).Parse(string(a))
+			cnt.tpl, err = html_template.New(cnt.template).Parse(string(a))
 			if err != nil {
 				return nil, err
 			}
@@ -213,7 +213,7 @@ func newPrdHandler(cfg *config.Config) (http.Handler, error) {
 			// Use text/template to parse the xml or text templates
 			// We are using text/template here for parsing xml to keep things
 			// consistent with html/template parsing.
-			cnt.tpl, err = ttemplate.New(cnt.template).Parse(string(a))
+			cnt.tpl, err = text_template.New(cnt.template).Parse(string(a))
 			if err != nil {
 				return nil, err
 			}
