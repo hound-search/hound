@@ -34,22 +34,13 @@ type Searcher struct {
 	doneCh            chan empty
 }
 
-// Wrapper around searcher - used for sending the searcher struct to channel once
-// successfully returned from `newSearcher` function.
-// We need this wrapper because we need to have the `name` of a repo which a
-// particular searcher belongs to.
-type searcherWrapper struct {
-	searcher *Searcher
+// Struct used to send the results from newSearcherConcurrent function.
+// This struct can either have a non-nil searcher or a non-nil error
+// depending on what newSearcher function returns.
+type searcherResult struct {
 	name     string
-}
-
-// Wrapper around error - used for sending error to channel once returned from
-// `newSearcher` function.
-// We need this wrapper because we need to have the `name` of a repo which a
-// particular error belongs to.
-type errorWrapper struct {
-	error error
-	name  string
+	searcher *Searcher
+	err      error
 }
 
 type empty struct{}
@@ -295,48 +286,29 @@ func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error)
 
 	lim := makeLimiter(cfg.MaxConcurrentIndexers)
 
-	// Channel to receive the successfully created searchers.
-	searcherCh := make(chan searcherWrapper, 1)
-	// Channel to receive the errors in creation of searchers.
-	errorCh := make(chan errorWrapper, 1)
-	// Channel to quit the go routine listening for new successful searchers or errors.
-	quitCh := make(chan struct{}, 1)
+	// Channel to receive the results from newSearcherConcurrent function.
+	resultCh := make(chan searcherResult, 1)
 
-	// Create a wait group for total number of repos so that we can proceed once the
-	// go routines to create searchers for all repos have returned.
-	var wg sync.WaitGroup
-	wg.Add(len(cfg.Repos))
-
+	// Start new searchers for all repos in different go routines while
+	// respecting cfg.MaxConcurrentIndexers.
 	for name, repo := range cfg.Repos {
-		go newSearcherConcurrent(cfg.DbPath, name, repo, refs, lim, searcherCh, errorCh)
+		go newSearcherConcurrent(cfg.DbPath, name, repo, refs, lim, resultCh)
 	}
 
-	// Create a listener on searcherCh and errorCh.
-	// It also listens on quitCh to decide when to return.
-	go func() {
-		for {
-			select {
-			case sw := <-searcherCh:
-				searchers[sw.name] = sw.searcher
-				wg.Done()
-			case ew := <-errorCh:
-				log.Print(ew.error)
-				errs[ew.name] = ew.error
-				wg.Done()
-			case <-quitCh:
-				return
-			}
+	// Collect the results on resultCh channel for all repos.
+	for range cfg.Repos {
+		r := <-resultCh
+		if r.err != nil {
+			log.Print(r.err)
+			errs[r.name] = r.err
+			continue
 		}
-	}()
+		searchers[r.name] = r.searcher
+	}
 
 	if err := refs.removeUnclaimed(); err != nil {
 		return nil, nil, err
 	}
-
-	// Wait for all go routines to finish.
-	wg.Wait()
-	// Send close signal to quitCh to return the listening go routine.
-	close(quitCh)
 
 	// after all the repos are in good shape, we start their polling
 	for _, s := range searchers {
@@ -519,8 +491,7 @@ func newSearcherConcurrent(
 	repo *config.Repo,
 	refs *foundRefs,
 	lim limiter,
-	searcherCh chan searcherWrapper,
-	errorCh chan errorWrapper) {
+	resultCh chan searcherResult) {
 
 	// acquire a token from the rate limiter
 	lim.Acquire()
@@ -528,15 +499,17 @@ func newSearcherConcurrent(
 
 	s, err := newSearcher(dbpath, name, repo, refs, lim)
 	if err != nil {
-		errorCh <- errorWrapper{
-			error: err,
-			name: name,
+		resultCh <- searcherResult{
+			name:     name,
+			searcher: nil,
+			err:      err,
 		}
 		return
 	}
 
-	searcherCh <- searcherWrapper{
+	resultCh <- searcherResult{
+		name:     name,
 		searcher: s,
-		name: name,
+		err:      nil,
 	}
 }
