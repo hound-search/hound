@@ -50,7 +50,7 @@ We've used many similar tools in the past, and most of them are either too slow,
 Which brings us to...
 
 ## Requirements
-* Go 1.3+
+* Go 1.4+
 
 Yup, that's it. You can proxy requests to the Go service through Apache/nginx/etc., but that's not required.
 
