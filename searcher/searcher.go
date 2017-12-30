@@ -286,8 +286,9 @@ func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error)
 
 	lim := makeLimiter(cfg.MaxConcurrentIndexers)
 
+	n := len(cfg.Repos)
 	// Channel to receive the results from newSearcherConcurrent function.
-	resultCh := make(chan searcherResult)
+	resultCh := make(chan searcherResult, n)
 
 	// Start new searchers for all repos in different go routines while
 	// respecting cfg.MaxConcurrentIndexers.
@@ -296,7 +297,6 @@ func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error)
 	}
 
 	// Collect the results on resultCh channel for all repos.
-	n := len(cfg.Repos)
 	for i := 0; i < n; i++ {
 		r := <-resultCh
 		if r.err != nil {
