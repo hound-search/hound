@@ -501,7 +501,6 @@ func newSearcherConcurrent(
 	if err != nil {
 		resultCh <- searcherResult{
 			name:     name,
-			searcher: nil,
 			err:      err,
 		}
 		return
@@ -510,6 +509,5 @@ func newSearcherConcurrent(
 	resultCh <- searcherResult{
 		name:     name,
 		searcher: s,
-		err:      nil,
 	}
 }
