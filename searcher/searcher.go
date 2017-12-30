@@ -296,7 +296,8 @@ func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error)
 	}
 
 	// Collect the results on resultCh channel for all repos.
-	for range cfg.Repos {
+	n := len(cfg.Repos)
+	for i := 0; i < n; i++ {
 		r := <-resultCh
 		if r.err != nil {
 			log.Print(r.err)
