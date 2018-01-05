@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"encoding/json"
 )
 
 const defaultRef = "master"
@@ -16,10 +17,29 @@ func init() {
 	Register(newGit, "git")
 }
 
-type GitDriver struct{}
+type GitDriver struct {
+	Ref string `json:"ref"`
+}
 
 func newGit(b []byte) (Driver, error) {
-	return &GitDriver{}, nil
+	d := &GitDriver{}
+	if e := getRef(b, d); e != nil {
+		return nil, e
+	}
+	return d, nil
+}
+
+func getRef(b []byte, d *GitDriver) error {
+	if b != nil {
+		if e := json.Unmarshal(b, d); e != nil {
+			return e
+		}
+	}
+	if d.Ref == "" {
+		d.Ref = defaultRef
+		return nil
+	}
+	return nil
 }
 
 func (g *GitDriver) HeadRev(dir string) (string, error) {
@@ -69,7 +89,7 @@ func (g *GitDriver) Pull(dir string) (string, error) {
 		"--no-tags",
 		"--depth", "1",
 		"origin",
-		fmt.Sprintf("+%s:remotes/origin/%s", defaultRef, defaultRef)); err != nil {
+		fmt.Sprintf("+%s:remotes/origin/%s", g.Ref, g.Ref)); err != nil {
 		return "", err
 	}
 
@@ -77,7 +97,7 @@ func (g *GitDriver) Pull(dir string) (string, error) {
 		"git",
 		"reset",
 		"--hard",
-		fmt.Sprintf("origin/%s", defaultRef)); err != nil {
+		fmt.Sprintf("origin/%s", g.Ref)); err != nil {
 		return "", err
 	}
 
@@ -90,6 +110,7 @@ func (g *GitDriver) Clone(dir, url string) (string, error) {
 		"git",
 		"clone",
 		"--depth", "1",
+		"--branch", g.Ref,
 		url,
 		rep)
 	cmd.Dir = par
