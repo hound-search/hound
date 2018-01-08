@@ -2,13 +2,13 @@ package vcs
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"encoding/json"
 )
 
 const defaultRef = "master"
@@ -22,22 +22,18 @@ type GitDriver struct {
 }
 
 func newGit(b []byte) (Driver, error) {
-	d := &GitDriver{}
-	if e := getRef(b, d); e != nil {
+	d := &GitDriver{
+		Ref: defaultRef,
+	}
+	if e := setRefFromConfig(b, d); e != nil {
 		return nil, e
 	}
 	return d, nil
 }
 
-func getRef(b []byte, d *GitDriver) error {
+func setRefFromConfig(b []byte, d *GitDriver) error {
 	if b != nil {
-		if e := json.Unmarshal(b, d); e != nil {
-			return e
-		}
-	}
-	if d.Ref == "" {
-		d.Ref = defaultRef
-		return nil
+		return json.Unmarshal(b, d)
 	}
 	return nil
 }
