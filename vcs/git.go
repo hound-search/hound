@@ -25,17 +25,15 @@ func newGit(b []byte) (Driver, error) {
 	d := &GitDriver{
 		Ref: defaultRef,
 	}
-	if e := setRefFromConfig(b, d); e != nil {
+
+	if b == nil {
+		return d, nil
+	}
+
+	if e := json.Unmarshal(b, d); e != nil {
 		return nil, e
 	}
 	return d, nil
-}
-
-func setRefFromConfig(b []byte, d *GitDriver) error {
-	if b != nil {
-		return json.Unmarshal(b, d)
-	}
-	return nil
 }
 
 func (g *GitDriver) HeadRev(dir string) (string, error) {
