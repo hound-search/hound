@@ -23,14 +23,14 @@ type UrlPattern struct {
 }
 
 type Repo struct {
-	Url               string         `json:"url"`
-	MsBetweenPolls    int            `json:"ms-between-poll"`
-	Vcs               string         `json:"vcs"`
-	VcsConfigMessage  *SecretMessage `json:"vcs-config"`
-	UrlPattern        *UrlPattern    `json:"url-pattern"`
-	ExcludeDotFiles   bool           `json:"exclude-dot-files"`
-	EnablePollUpdates *bool          `json:"enable-poll-updates"`
-	EnablePushUpdates *bool          `json:"enable-push-updates"`
+	Url               string         `json:"url,omitempty"`
+	MsBetweenPolls    int            `json:"ms-between-poll,omitempty"`
+	Vcs               string         `json:"vcs,omitempty"`
+	VcsConfigMessage  *SecretMessage `json:"vcs-config,omitempty"`
+	UrlPattern        *UrlPattern    `json:"url-pattern,omitempty"`
+	ExcludeDotFiles   bool           `json:"exclude-dot-files,omitempty"`
+	EnablePollUpdates *bool          `json:"enable-poll-updates,omitempty"`
+	EnablePushUpdates *bool          `json:"enable-push-updates,omitempty"`
 }
 
 // Used for interpreting the config value for fields that use *bool. If a value
