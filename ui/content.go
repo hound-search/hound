@@ -64,5 +64,13 @@ func init() {
 			},
 			tplType: "html",
 		},
+
+		"/preferences.html": &content{
+			template: "preferences.tpl.html",
+			sources: []string{
+				"js/common.js",
+				"js/preferences.js",
+			},
+		},
 	}
 }
