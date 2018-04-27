@@ -71,6 +71,7 @@ var ParamsFromUrl = function(params) {
   params = params || {
     q: '',
     i: 'nope',
+    ia: 'nope',
     files: '',
     repos: '*'
   };
@@ -389,20 +390,23 @@ var SearchBar = React.createClass({
       q : this.refs.q.getDOMNode().value.trim(),
       files : this.refs.files.getDOMNode().value.trim(),
       repos : repos.join(','),
-      i: this.refs.icase.getDOMNode().checked ? 'fosho' : 'nope'
+      i: this.refs.icase.getDOMNode().checked ? 'fosho' : 'nope',
+      ia: this.refs.iinactive.getDOMNode().checked ? 'fosho' : 'nope'
     };
   },
   setParams: function(params) {
     var q = this.refs.q.getDOMNode(),
         i = this.refs.icase.getDOMNode(),
+        ia = this.refs.iinactive.getDOMNode(),
         files = this.refs.files.getDOMNode();
 
     q.value = params.q;
     i.checked = ParamValueToBool(params.i);
+    ia.checked = ParamValueToBool(params.ia);
     files.value = params.files;
   },
   hasAdvancedValues: function() {
-    return this.refs.files.getDOMNode().value.trim() !== '' || this.refs.icase.getDOMNode().checked || this.refs.repos.getDOMNode().value !== '';
+    return this.refs.files.getDOMNode().value.trim() !== '' || this.refs.icase.getDOMNode().checked || this.refs.iinactive.getDOMNode().checked|| this.refs.repos.getDOMNode().value !== '';
   },
   showAdvanced: function() {
     var adv = this.refs.adv.getDOMNode(),
@@ -499,6 +503,12 @@ var SearchBar = React.createClass({
               <label htmlFor="ignore-case">Ignore Case</label>
               <div className="field-input">
                 <input id="ignore-case" type="checkbox" ref="icase" />
+              </div>
+            </div>
+            <div className="field">
+              <label htmlFor="ignore-case">Ignore Inactive <small title="Ignore inactive or archived repos">?</small></label>
+              <div className="field-input">
+                <input id="ignore-inactive" type="checkbox" ref="iinactive" />
               </div>
             </div>
             <div className="field">
@@ -758,6 +768,7 @@ var App = React.createClass({
     this.setState({
       q: params.q,
       i: params.i,
+      ia: params.ia,
       files: params.files,
       repos: repos
     });
@@ -812,6 +823,7 @@ var App = React.createClass({
     var path = location.pathname +
       '?q=' + encodeURIComponent(params.q) +
       '&i=' + encodeURIComponent(params.i) +
+      '&ia=' + encodeURIComponent(params.ia) +
       '&files=' + encodeURIComponent(params.files) +
       '&repos=' + params.repos;
     history.pushState({path:path}, '', path);
@@ -822,6 +834,7 @@ var App = React.createClass({
         <SearchBar ref="searchBar"
             q={this.state.q}
             i={this.state.i}
+            ia={this.state.ia}
             files={this.state.files}
             repos={this.state.repos}
             onSearchRequested={this.onSearchRequested} />
