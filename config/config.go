@@ -24,6 +24,7 @@ type UrlPattern struct {
 
 type Repo struct {
 	Url               string         `json:"url"`
+	Inactive          bool           `json:"inactive"`
 	MsBetweenPolls    int            `json:"ms-between-poll"`
 	Vcs               string         `json:"vcs"`
 	VcsConfigMessage  *SecretMessage `json:"vcs-config"`

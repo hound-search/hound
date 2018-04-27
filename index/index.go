@@ -42,6 +42,7 @@ type IndexOptions struct {
 
 type SearchOptions struct {
 	IgnoreCase     bool
+	IgnoreInactive bool
 	LinesOfContext uint
 	FileRegexp     string
 	Offset         int
