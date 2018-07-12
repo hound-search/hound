@@ -1,13 +1,35 @@
+CMDS := $(GOPATH)/bin/houndd $(GOPATH)/bin/hound
 
-ALL: ui/bindata.go
+SRCS := $(shell find . -type f -name '*.go')
+
+WEBPACK_ARGS := -p
+ifdef DEBUG
+	WEBPACK_ARGS := -d
+endif
+
+ALL: $(CMDS)
+
+ui: ui/bindata.go
+
+node_modules:
+	npm install
+
+$(GOPATH)/bin/houndd: ui/bindata.go $(SRCS)
+	go install github.com/etsy/hound/cmds/houndd
+
+$(GOPATH)/bin/hound: ui/bindata.go $(SRCS)
+	go install github.com/etsy/hound/cmds/hound
 
 .build/bin/go-bindata:
 	GOPATH=`pwd`/.build go get github.com/jteeuwen/go-bindata/...
 
-ui/bindata.go: .build/bin/go-bindata $(wildcard ui/assets/**/*)
-	rsync -r --exclude '*.js' ui/assets/* .build/ui
-	jsx --no-cache-dir ui/assets/js .build/ui/js
+ui/bindata.go: .build/bin/go-bindata node_modules $(wildcard ui/assets/**/*)
+	rsync -r ui/assets/* .build/ui
+	npx webpack $(WEBPACK_ARGS)
 	$< -o $@ -pkg ui -prefix .build/ui -nomemcopy .build/ui/...
 
+test:
+	go test github.com/etsy/hound/...
+
 clean:
-	rm -rf .build
+	rm -rf .build node_modules

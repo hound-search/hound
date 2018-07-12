@@ -1,8 +1,8 @@
-/** @jsx React.DOM */
+import {UrlToRepo} from './common';
 
 var ExcludedRow = React.createClass({
   render: function() {
-    var url = lib.UrlToRepo(this.props.repo, this.props.file.Filename, this.props.rev);
+    var url = UrlToRepo(this.props.repo, this.props.file.Filename, this.props.rev);
     return (
       <tr>
         <td className="name">
