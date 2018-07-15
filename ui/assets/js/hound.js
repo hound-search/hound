@@ -208,7 +208,7 @@ var Model = {
         }
 
         results.sort(function(a, b) {
-          return b.Matches.length - a.Matches.length;
+          return b.Matches.length - a.Matches.length || a.Repo.localeCompare(b.Repo);
         });
 
         var byRepo = {};
