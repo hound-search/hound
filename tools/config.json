@@ -1,8 +1,0 @@
-{
-    "dbpath" : "data",
-    "repos" : {
-        "Hound" : {
-            "url" : "https://www.github.com/etsy/Hound.git"
-        }
-    }
-}
