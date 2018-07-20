@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 	html_template "html/template"
-	text_template "text/template"
 	"io"
 	"log"
 	"net/http"
 	"path/filepath"
 	"runtime"
+	text_template "text/template"
 
 	"github.com/etsy/hound/config"
 )
@@ -90,15 +90,8 @@ func renderForDev(w io.Writer, root string, c *content, cfg *config.Config, r *h
 	}
 
 	var buf bytes.Buffer
-	fmt.Fprintf(
-		&buf,
-		"<script src=\"js/JSXTransformer-%s.js\"></script>\n",
-		ReactVersion)
 	for _, path := range c.sources {
-		fmt.Fprintf(
-			&buf,
-			"<script type=\"text/jsx\" src=\"%s\"></script>",
-			path)
+		fmt.Fprintf(&buf, "<script src=\"http://localhost:8080/ui/%s\"></script>", path)
 	}
 
 	return c.tpl.Execute(w, map[string]interface{}{

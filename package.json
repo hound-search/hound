@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "react": "^16.4.1",
-    "react-dom": "^16.4.1"
+    "react-dom": "^16.4.1",
+    "webpack-dev-server": "^3.1.4"
   }
 }

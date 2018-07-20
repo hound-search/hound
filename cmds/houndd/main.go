@@ -6,7 +6,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"os/signal"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"syscall"
@@ -20,8 +22,10 @@ import (
 const gracefulShutdownSignal = syscall.SIGTERM
 
 var (
-	info_log  *log.Logger
-	error_log *log.Logger
+	info_log   *log.Logger
+	error_log  *log.Logger
+	_, b, _, _ = runtime.Caller(0)
+	basepath   = filepath.Dir(b)
 )
 
 func makeSearchers(cfg *config.Config) (map[string]*searcher.Searcher, bool, error) {
@@ -142,6 +146,18 @@ func main() {
 	host := *flagAddr
 	if strings.HasPrefix(host, ":") {
 		host = "localhost" + host
+	}
+
+	if *flagDev {
+		info_log.Printf("[DEV] starting webpack-dev-server at localhost:8080...")
+		webpack := exec.Command("./node_modules/.bin/webpack-dev-server", "--mode", "development")
+		webpack.Dir = basepath + "/../../"
+		webpack.Stdout = os.Stdout
+		webpack.Stderr = os.Stderr
+		err = webpack.Start()
+		if err != nil {
+			error_log.Println(err)
+		}
 	}
 
 	info_log.Printf("running server at http://%s...\n", host)
