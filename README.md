@@ -128,6 +128,14 @@ make ui
 
 To make development easier, there is a flag that will read the files from the file system (allowing the much-loved edit/refresh cycle).
 
+First you should ensure you have all the dependencies installed that you need by running:
+
+```
+make dev
+```
+
+Then run the hound server with the --dev option:
+
 ```
 bin/houndd --dev
 ```

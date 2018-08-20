@@ -28,6 +28,9 @@ ui/bindata.go: .build/bin/go-bindata node_modules $(wildcard ui/assets/**/*)
 	npx webpack $(WEBPACK_ARGS)
 	$< -o $@ -pkg ui -prefix .build/ui -nomemcopy .build/ui/...
 
+dev: ALL
+	npm install
+
 test:
 	go test github.com/etsy/hound/...
 
