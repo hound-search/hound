@@ -17,6 +17,7 @@ import (
 	"github.com/etsy/hound/config"
 	"github.com/etsy/hound/searcher"
 	"github.com/etsy/hound/ui"
+	"github.com/etsy/hound/web"
 )
 
 const gracefulShutdownSignal = syscall.SIGTERM
@@ -128,6 +129,9 @@ func main() {
 		panic(err)
 	}
 
+	// Start the web server on a background routine.
+	ws := web.Start(&cfg, *flagAddr, *flagDev)
+
 	// It's not safe to be killed during makeSearchers, so register the
 	// shutdown signal here and defer processing it until we are ready.
 	shutdownCh := registerShutdownSignal()
@@ -162,7 +166,6 @@ func main() {
 
 	info_log.Printf("running server at http://%s...\n", host)
 
-	if err := runHttp(*flagAddr, *flagDev, &cfg, idx); err != nil {
-		panic(err)
-	}
+	// Fully enable the web server now that we have indexes
+	panic(ws.ServeWithIndex(idx))
 }

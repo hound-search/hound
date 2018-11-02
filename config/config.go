@@ -15,6 +15,7 @@ const (
 	defaultVcs                   = "git"
 	defaultBaseUrl               = "{url}/blob/master/{path}{anchor}"
 	defaultAnchor                = "#L{line}"
+	defaultHealthChekURI         = "/healthz"
 )
 
 type UrlPattern struct {
@@ -56,6 +57,7 @@ type Config struct {
 	DbPath                string           `json:"dbpath"`
 	Repos                 map[string]*Repo `json:"repos"`
 	MaxConcurrentIndexers int              `json:"max-concurrent-indexers"`
+	HealthCheckURI        string           `json:"health-check-uri"`
 }
 
 // SecretMessage is just like json.RawMessage but it will not
@@ -116,6 +118,10 @@ func initRepo(r *Repo) {
 func initConfig(c *Config) {
 	if c.MaxConcurrentIndexers == 0 {
 		c.MaxConcurrentIndexers = defaultMaxConcurrentIndexers
+	}
+
+	if c.HealthCheckURI == "" {
+		c.HealthCheckURI = defaultHealthChekURI
 	}
 }
 
