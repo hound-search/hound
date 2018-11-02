@@ -1,6 +1,7 @@
 {
     "max-concurrent-indexers" : 2,
     "dbpath" : "data",
+    "health-check-uri" : "/healthz",
     "repos" : {
         "SomeGitRepo" : {
             "url" : "https://www.github.com/YourOrganization/RepoOne.git"
