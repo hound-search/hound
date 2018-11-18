@@ -46,7 +46,7 @@
         "BitbucketCustomUrl" : {
             "url" : "git@bitbucket.org:organization/project.git",
             "url-pattern" : {
-                "base-url" : "{url}/src/master/{path}{anchor}",
+                "base-url" : "https://{url}/src/master/{path}{anchor}",
                 "anchor" : "#{filename}-{line}"
             }
         },
