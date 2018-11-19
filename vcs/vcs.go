@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-
-	"github.com/etsy/hound/config"
 )
 
 // A collection that maps vcs names to their underlying
@@ -71,9 +69,9 @@ func exists(path string) bool {
 
 // A utility method that carries out the common operation of cloning
 // if the working directory is absent and pulling otherwise.
-func (w *WorkDir) PullOrClone(dir string, repo *config.Repo) (string, error) {
+func (w *WorkDir) PullOrClone(dir, url, ref string) (string, error) {
 	if exists(dir) {
-		return w.Pull(dir, repo.Ref)
+		return w.Pull(dir, ref)
 	}
-	return w.Clone(dir, repo.Url)
+	return w.Clone(dir, url)
 }
