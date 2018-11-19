@@ -7,6 +7,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/etsy/hound/config"
 )
 
 func init() {
@@ -18,6 +20,10 @@ func newBzr(b []byte) (Driver, error) {
 }
 
 type BzrDriver struct{}
+
+func (g *BzrDriver) WorkingDirForRepo(dbpath string, repo *config.Repo) (string, error) {
+	return generateWorkingDir(dbpath, repo.Url), nil
+}
 
 func (g *BzrDriver) HeadRev(dir string) (string, error) {
 	cmd := exec.Command(

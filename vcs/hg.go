@@ -7,6 +7,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/etsy/hound/config"
 )
 
 func init() {
@@ -17,6 +19,10 @@ type MercurialDriver struct{}
 
 func newHg(b []byte) (Driver, error) {
 	return &MercurialDriver{}, nil
+}
+
+func (g *MercurialDriver) WorkingDirForRepo(dbpath string, repo *config.Repo) (string, error) {
+	return generateWorkingDir(dbpath, repo.Url), nil
 }
 
 func (g *MercurialDriver) HeadRev(dir string) (string, error) {

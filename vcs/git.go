@@ -8,6 +8,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/etsy/hound/config"
 )
 
 const defaultRef = "master"
@@ -20,6 +22,10 @@ type GitDriver struct{}
 
 func newGit(b []byte) (Driver, error) {
 	return &GitDriver{}, nil
+}
+
+func (g *GitDriver) WorkingDirForRepo(dbpath string, repo *config.Repo) (string, error) {
+	return generateWorkingDir(dbpath, repo.Url), nil
 }
 
 func (g *GitDriver) HeadRev(dir string) (string, error) {

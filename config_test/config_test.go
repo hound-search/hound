@@ -5,6 +5,7 @@ import (
 	"runtime"
 	"testing"
 
+	"github.com/etsy/hound/config"
 	"github.com/etsy/hound/vcs"
 )
 
@@ -18,7 +19,7 @@ func rootDir() string {
 // Test that we can parse the example config file. This ensures that as we
 // add examples, we don't muck them up.
 func TestExampleConfigsAreValid(t *testing.T) {
-	var cfg Config
+	var cfg config.Config
 	if err := cfg.LoadFromFile(filepath.Join(rootDir(), exampleConfigFile)); err != nil {
 		t.Fatalf("Unable to parse %s: %s", exampleConfigFile, err)
 	}
