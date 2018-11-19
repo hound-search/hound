@@ -58,6 +58,10 @@
             "url" : "https://www.github.com/YourOrganization/RepoOne.git",
             "enable-push-updates" : true
         },
+        "RepoWithCustomRefs" : {
+            "url" : "https://www.github.com/YourOrganization/RepoOne.git",
+            "ref" : "develop"
+        },
         "RepoIsGitHubWiki" : {
           "url" : "https://github.com/YourOrganization/RepoWithWiki.wiki.git",
           "url-pattern" : {
