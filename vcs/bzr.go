@@ -43,7 +43,7 @@ func (g *BzrDriver) HeadRev(dir string) (string, error) {
 	return strings.TrimSpace(buf.String()), cmd.Wait()
 }
 
-func (g *BzrDriver) Pull(dir string) (string, error) {
+func (g *BzrDriver) Pull(dir string, _ string) (string, error) {
 	cmd := exec.Command("bzr", "pull")
 	cmd.Dir = dir
 	out, err := cmd.CombinedOutput()

@@ -54,7 +54,7 @@ func (g *SVNDriver) HeadRev(dir string) (string, error) {
 	return strings.TrimSpace(buf.String()), cmd.Wait()
 }
 
-func (g *SVNDriver) Pull(dir string) (string, error) {
+func (g *SVNDriver) Pull(dir string, _ string) (string, error) {
 	cmd := exec.Command(
 		"svn",
 		"update",
