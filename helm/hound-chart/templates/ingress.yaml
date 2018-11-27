@@ -1,0 +1,18 @@
+kind: Ingress
+apiVersion: extensions/v1beta1
+metadata:
+  name: hound
+  labels:
+    app: hound
+    chart: hound-chart
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  rules:
+  - host: 
+    http: cs.giantswarm.io
+      paths:
+      - path: /
+        backend:
+          serviceName: hound
+          servicePort: 6080

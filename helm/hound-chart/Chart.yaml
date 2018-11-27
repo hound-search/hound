@@ -1,0 +1,9 @@
+apiVersion: v1
+name: hound
+description: A Helm chart for Etsy hound
+version: 0.1.0
+appVersion: v0.1.0
+home: https://github.com/giantswarm/hound
+maintainers:
+ - name: giantswarm
+   email: support@giantswarm.io

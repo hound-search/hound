@@ -1,0 +1,6 @@
+
+Use port forward command to see if has indexed the content properly
+
+```
+$ kubectl port-forward POD_NAME 6080
+``` 

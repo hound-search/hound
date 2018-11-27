@@ -1,0 +1,13 @@
+
+replicaCount: 1
+image:
+  repository: quay.io/giantswarm/hound
+  tag: 0.1.0
+  pullPolicy: IfNotPresent
+
+# Repositories
+repositories:
+  giantswarm:
+    token: TOKEN
+    owner: giantswarm
+    username: USERNAME

@@ -1,0 +1,47 @@
+kind: Deployment
+apiVersion: apps/v1beta2
+metadata:
+  name: hound
+  labels:
+    app: hound
+    chart: hound-chart
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: hound
+      release: "{{ .Release.Name }}"
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: hound
+        release: "{{ .Release.Name }}"
+    spec:
+      volumes:
+      - name: hound
+        secret:
+          secretName: hound
+          items:
+          - key: config
+            path: "config.json"
+      containers:
+      - name: hound
+        image: pipo02mix/hound
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 6080
+            name: "http-server"
+        volumeMounts:
+          - name: hound
+            mountPath: "/data/"
+        resources:
+          requests:
+            memory: "300Mi"
+            cpu: "250m"
+          limits:
+            memory: "300Mi"
+            cpu: "250m"
