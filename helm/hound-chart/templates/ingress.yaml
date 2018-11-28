@@ -2,6 +2,10 @@ kind: Ingress
 apiVersion: extensions/v1beta1
 metadata:
   name: hound
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/auth-signin: https://cs.giantswarm.io/oauth2/start
+    nginx.ingress.kubernetes.io/auth-url: https://cs.giantswarm.io/oauth2/auth
   labels:
     app: hound
     chart: hound-chart
@@ -9,10 +13,33 @@ metadata:
     heritage: "{{ .Release.Service }}"
 spec:
   rules:
-  - host: 
-    http: cs.giantswarm.io
+  - host: cs.giantswarm.io
+    http: 
       paths:
       - path: /
         backend:
           serviceName: hound
           servicePort: 6080
+  tls:
+  - hosts:
+    - cs.giantswarm.io
+    secretName: hound-certs
+---
+kind: Ingress
+apiVersion: extensions/v1beta1
+metadata:
+  name: hound-oauth2-proxy
+  labels:
+    app: hound
+    chart: hound-chart
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  rules:
+  - host: cs.giantswarm.io
+    http: 
+      paths:
+      - path: /oauth2
+        backend:
+          serviceName: hound-oauth2-proxy
+          servicePort: 4180

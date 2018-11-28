@@ -14,3 +14,16 @@ spec:
   - name: hound
     protocol: TCP
     port: 6080
+--- 
+# Proxy requests from one namespace to another.
+apiVersion: v1
+kind: Service
+metadata:
+  name: hound-oauth2-proxy
+  labels:
+    app: hound
+spec:
+  type: ExternalName
+  externalName: oauth2-proxy.kube-system
+  ports:
+  - port: 4180

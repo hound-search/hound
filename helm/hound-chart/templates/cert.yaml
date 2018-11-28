@@ -1,0 +1,18 @@
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: hound
+spec:
+  acme:
+    config:
+    - domains:
+      - cs.giantswarm.io
+      http01:
+        ingress: ""
+  commonName: ""
+  dnsNames:
+  - cs.giantswarm.io
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-prod
+  secretName: hound-certs
