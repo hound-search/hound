@@ -337,7 +337,7 @@ func containsString(haystack []string, needle string) bool {
 	return false
 }
 
-func indexAllFiles(opt *IndexOptions, dst, src string) error {
+func indexAllFiles(opt *IndexOptions, dst, path string) error {
 	ix := index.Create(filepath.Join(dst, "tri"))
 	defer ix.Close()
 
@@ -349,6 +349,12 @@ func indexAllFiles(opt *IndexOptions, dst, src string) error {
 		return err
 	}
 	defer fileHandle.Close()
+
+	src, err := filepath.EvalSymlinks(path)
+
+	if err != nil {
+		return err
+	}
 
 	if err := filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
 		name := info.Name()
