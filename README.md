@@ -103,8 +103,17 @@ Go tools work accordingly. See [Setting GOPATH](https://github.com/golang/go/wik
 up your Go workspace. With a `GOPATH` set, the following commands will build hound locally.
 
 ```
-git clone https://github.com/etsy/hound.git ${GOPATH}/src/github.com/etsy/hound
+git clone https://github.com/hound-search/hound.git ${GOPATH}/src/github.com/etsy/hound
 cd ${GOPATH}/src/github.com/etsy/hound
+make
+```
+
+If this is your only Go project, you can set your GOPATH just for Hound:
+```
+git clone https://github.com/hound-search/hound.git
+cd hound
+export GOPATH=`pwd`
+go get github.com/etsy/hound/cmds/...
 make
 ```
 
