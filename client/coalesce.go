@@ -1,7 +1,7 @@
 package client
 
 import (
-	"github.com/etsy/hound/index"
+	"github.com/hound-search/hound/index"
 )
 
 type Block struct {

@@ -3,12 +3,13 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/etsy/hound/config"
-	"github.com/etsy/hound/index"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
+
+	"github.com/hound-search/hound/config"
+	"github.com/hound-search/hound/index"
 )
 
 type Response struct {
