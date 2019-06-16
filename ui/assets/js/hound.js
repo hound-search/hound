@@ -60,6 +60,10 @@ var ParamsFromQueryString = function(qs, params) {
       return;
     }
 
+    // Handle classic '+' representation of spaces, such as is used
+    // when Hound is set up in Chrome's Search Engine Manager settings
+    pair[1] = pair[1].replace('+', ' ');
+
     params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
   });
 
