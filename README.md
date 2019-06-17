@@ -108,6 +108,12 @@ cd ${GOPATH}/src/github.com/hound-search/hound
 make
 ```
 
+If this is your only Go project, you can set your GOPATH just for Hound:
+```
+git clone https://github.com/hound-search/hound.git src/github.com/hound-search/hound
+GOPATH=$(pwd) make -C src/github.com/hound-search/hound
+```
+
 ### Testing
 
 There are an increasing number of tests in each of the packages in Hound. Please make sure these pass before uploading your Pull Request. You can run the tests with the following command.
