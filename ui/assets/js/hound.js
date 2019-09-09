@@ -1,4 +1,7 @@
-import {UrlToRepo} from './common';
+import React from 'react';
+import createReactClass from 'create-react-class';
+import ReactDOM from 'react-dom';
+import { UrlToRepo } from './common';
 
 var Signal = function() {
 };
@@ -300,7 +303,7 @@ var Model = {
 
 };
 
-var RepoOption = React.createClass({
+var RepoOption = createReactClass({
   render: function() {
     return (
       <option value={this.props.value} selected={this.props.selected}>{this.props.value}</option>
@@ -308,7 +311,7 @@ var RepoOption = React.createClass({
   }
 });
 
-var SearchBar = React.createClass({
+var SearchBar = createReactClass({
   componentWillMount: function() {
     var _this = this;
     Model.didLoadRepos.tap(function(model, repos) {
@@ -317,7 +320,7 @@ var SearchBar = React.createClass({
   },
 
   componentDidMount: function() {
-    var q = this.refs.q.getDOMNode();
+    var q = this.refs.q;
 
     // TODO(knorton): Can't set this in jsx
     q.setAttribute('autocomplete', 'off');
@@ -341,7 +344,7 @@ var SearchBar = React.createClass({
     switch (event.keyCode) {
     case 40:
       // this will cause advanced to expand if it is not expanded.
-      this.refs.files.getDOMNode().focus();
+      this.refs.files.focus();
       break;
     case 38:
       this.hideAdvanced();
@@ -360,10 +363,10 @@ var SearchBar = React.createClass({
     switch (event.keyCode) {
     case 38:
       // if advanced is empty, close it up.
-      if (this.refs.files.getDOMNode().value.trim() === '') {
+      if (this.refs.files.value.trim() === '') {
         this.hideAdvanced();
       }
-      this.refs.q.getDOMNode().focus();
+      this.refs.q.focus();
       break;
     case 13:
       this.submitQuery();
@@ -378,41 +381,45 @@ var SearchBar = React.createClass({
   },
   getRegExp : function() {
     return new RegExp(
-      this.refs.q.getDOMNode().value.trim(),
-      this.refs.icase.getDOMNode().checked ? 'ig' : 'g');
+      this.refs.q.value.trim(),
+      this.refs.icase.checked ? 'ig' : 'g');
   },
   getParams: function() {
     // selecting all repos is the same as not selecting any, so normalize the url
     // to have none.
-    var repos = Model.ValidRepos(this.refs.repos.state.value);
+    var repos = Model.ValidRepos(
+        Array.prototype.map.call(this.refs.repos.querySelectorAll("option:checked"), function (option) {
+          return option.value;
+        })
+    );
     if (repos.length == Model.RepoCount()) {
       repos = [];
     }
 
     return {
-      q : this.refs.q.getDOMNode().value.trim(),
-      files : this.refs.files.getDOMNode().value.trim(),
+      q : this.refs.q.value.trim(),
+      files : this.refs.files.value.trim(),
       repos : repos.join(','),
-      i: this.refs.icase.getDOMNode().checked ? 'fosho' : 'nope'
+      i: this.refs.icase.checked ? 'fosho' : 'nope'
     };
   },
   setParams: function(params) {
-    var q = this.refs.q.getDOMNode(),
-        i = this.refs.icase.getDOMNode(),
-        files = this.refs.files.getDOMNode();
+    var q = this.refs.q,
+        i = this.refs.icase,
+        files = this.refs.files;
 
     q.value = params.q;
     i.checked = ParamValueToBool(params.i);
     files.value = params.files;
   },
   hasAdvancedValues: function() {
-    return this.refs.files.getDOMNode().value.trim() !== '' || this.refs.icase.getDOMNode().checked || this.refs.repos.getDOMNode().value !== '';
+    return this.refs.files.value.trim() !== '' || this.refs.icase.checked || this.refs.repos.value !== '';
   },
   showAdvanced: function() {
-    var adv = this.refs.adv.getDOMNode(),
-        ban = this.refs.ban.getDOMNode(),
-        q = this.refs.q.getDOMNode(),
-        files = this.refs.files.getDOMNode();
+    var adv = this.refs.adv,
+        ban = this.refs.ban,
+        q = this.refs.q,
+        files = this.refs.files;
 
     css(adv, 'height', 'auto');
     css(adv, 'padding', '10px 0');
@@ -425,9 +432,9 @@ var SearchBar = React.createClass({
     }
   },
   hideAdvanced: function() {
-    var adv = this.refs.adv.getDOMNode(),
-        ban = this.refs.ban.getDOMNode(),
-        q = this.refs.q.getDOMNode();
+    var adv = this.refs.adv,
+        ban = this.refs.ban,
+        q = this.refs.q;
 
     css(adv, 'height', '0');
     css(adv, 'padding', '0');
@@ -446,8 +453,8 @@ var SearchBar = React.createClass({
       selected[repo] = true;
     });
 
-    this.state.allRepos.forEach(function(repoName) {
-      repoOptions.push(<RepoOption value={repoName} selected={selected[repoName]}/>);
+    this.state.allRepos.forEach(function(repoName, index) {
+      repoOptions.push(<RepoOption key={repoName + "-option-" + index} value={repoName} selected={selected[repoName]}/>);
     });
 
     var stats = this.state.stats;
@@ -477,7 +484,7 @@ var SearchBar = React.createClass({
               type="text"
               placeholder="Search by Regexp"
               ref="q"
-              autocomplete="off"
+              autoComplete="off"
               onKeyDown={this.queryGotKeydown}
               onFocus={this.queryGotFocus}/>
           <div className="button-add-on">
@@ -636,7 +643,7 @@ var ContentFor = function(line, regexp) {
   return buffer.join('');
 };
 
-var FilesView = React.createClass({
+var FilesView = createReactClass({
   onLoadMore: function(event) {
     Model.LoadMore(this.props.repo);
   },
@@ -650,11 +657,11 @@ var FilesView = React.createClass({
     var files = matches.map(function(match, index) {
       var filename = match.Filename,
           blocks = CoalesceMatches(match.Matches);
-      var matches = blocks.map(function(block) {
-        var lines = block.map(function(line) {
+      var matches = blocks.map(function(block, mindex) {
+        var lines = block.map(function(line, lindex) {
           var content = ContentFor(line, regexp);
           return (
-            <div className="line">
+            <div className="line" key={repo + "-" + lindex + "-" + mindex + "-" + index}>
               <a href={Model.UrlToRepo(repo, filename, line.Number, rev)}
                   className="lnum"
                   target="_blank">{line.Number}</a>
@@ -664,12 +671,12 @@ var FilesView = React.createClass({
         });
 
         return (
-          <div className="match">{lines}</div>
+          <div className="match" key={repo + "-lines-" + mindex + "-" + index}>{lines}</div>
         );
       });
 
       return (
-        <div className="file">
+        <div className="file" key={repo + "-file-" + index}>
           <div className="title">
             <a href={Model.UrlToRepo(repo, match.Filename, null, rev)}>
               {match.Filename}
@@ -696,7 +703,7 @@ var FilesView = React.createClass({
   }
 });
 
-var ResultView = React.createClass({
+var ResultView = createReactClass({
   componentWillMount: function() {
     var _this = this;
     Model.willSearch.tap(function(model, params) {
@@ -735,7 +742,7 @@ var ResultView = React.createClass({
         results = this.state.results || [];
     var repos = results.map(function(result, index) {
       return (
-        <div className="repo">
+        <div className="repo" key={"results-view-" + index}>
           <div className="title">
             <span className="mega-octicon octicon-repo"></span>
             <span className="name">{Model.NameForRepo(result.Repo)}</span>
@@ -754,7 +761,7 @@ var ResultView = React.createClass({
   }
 });
 
-var App = React.createClass({
+var App = createReactClass({
   componentWillMount: function() {
     var params = ParamsFromUrl(),
         repos = (params.repos == '') ? [] : params.repos.split(',');
@@ -835,7 +842,7 @@ var App = React.createClass({
   }
 });
 
-React.renderComponent(
+ReactDOM.render(
   <App />,
   document.getElementById('root')
 );
