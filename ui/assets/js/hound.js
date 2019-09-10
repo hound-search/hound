@@ -1,6 +1,8 @@
 import React from 'react';
 import createReactClass from 'create-react-class';
 import ReactDOM from 'react-dom';
+import reqwest from 'reqwest';
+import merge from 'merge-anything';
 import { UrlToRepo } from './common';
 
 var Signal = function() {
@@ -144,9 +146,9 @@ var Model = {
       return;
     }
 
-    $.ajax({
+    reqwest({
       url: 'api/v1/repos',
-      dataType: 'json',
+      type: 'json',
       success: function(data) {
         _this.repos = data;
         next();
@@ -163,7 +165,7 @@ var Model = {
     var _this = this,
         startedAt = Date.now();
 
-    params = $.extend({
+    params = merge({
       stats: 'fosho',
       repos: '*',
       rng: ':20',
@@ -186,11 +188,10 @@ var Model = {
       return;
     }
 
-    $.ajax({
+    reqwest({
       url: 'api/v1/search',
       data: params,
-      type: 'GET',
-      dataType: 'json',
+      type: 'json',
       success: function(data) {
         if (data.Error) {
           _this.didError.raise(_this, data.Error);
@@ -249,16 +250,15 @@ var Model = {
 
     _this.willLoadMore.raise(this, repo, numLoaded, numNeeded, numToLoad);
 
-    var params = $.extend(this.params, {
+    var params = merge(this.params, {
       rng: numLoaded+':'+endAt,
       repos: repo
     });
 
-    $.ajax({
+    reqwest({
       url: 'api/v1/search',
       data: params,
-      type: 'GET',
-      dataType: 'json',
+      type: 'json',
       success: function(data) {
         if (data.Error) {
           _this.didError.raise(_this, data.Error);

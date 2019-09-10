@@ -2,11 +2,6 @@ package ui
 
 import "io"
 
-// Current versions of some dependencies.
-const (
-	JQueryVersion = "2.1.3"
-)
-
 var contents map[string]*content
 
 // This interface abstracts the Execute method on template which is
