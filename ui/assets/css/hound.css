@@ -108,7 +108,6 @@ button:focus {
 
 #adv {
   box-sizing: border-box;
-  overflow: hidden;
   height: 0;
   padding: 0;
   transition: height, padding 0.1s ease-in-out;
@@ -119,20 +118,35 @@ button:focus {
 }
 
 /* Media object clearfix */
-#adv > .field {
-  overflow: hidden;
+#adv > .field > label,
+#adv > .field-repo-select > label {
+  width: 90px;
+  color: #999;
 }
 
 #adv > .field > label {
   /* Media object left */
   float: left;
-  width: 90px;
-  color: #999;
 }
 
 #adv > .field > .field-input {
   /* New block formatting context for media object */
   overflow: hidden;
+}
+
+#adv > .field-repo-select {
+  display: flex;
+}
+
+#adv > .field-repo-select > .field-input {
+  color: #253858;
+  font-size: 14px;
+  flex-grow: 1;
+  line-height: 1.25;
+}
+
+#adv .field-repo-select input {
+  box-shadow: none;
 }
 
 #adv > .field input[type=text] {

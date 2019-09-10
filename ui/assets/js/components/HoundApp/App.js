@@ -27,8 +27,7 @@ export var App = createReactClass({
 
         Model.didSearch.tap(function(model, results, stats) {
             _this.refs.searchBar.setState({
-                stats: stats,
-                repos: repos,
+                stats: stats
             });
 
             _this.refs.resultView.setState({

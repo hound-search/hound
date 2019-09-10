@@ -2,13 +2,16 @@ import React from 'react';
 import createReactClass from 'create-react-class';
 import { Model } from '../../helpers/Model';
 import { css, FormatNumber, ParamValueToBool } from '../../utils';
-import { RepoOption } from './RepoOption';
+import Select from 'react-select';
 
 export var SearchBar = createReactClass({
     componentWillMount: function() {
         var _this = this;
         Model.didLoadRepos.tap(function(model, repos) {
-            _this.setState({ allRepos: Object.keys(repos) });
+            _this.setState({
+                allRepos: Object.keys(repos),
+                repos: _this.props.repos
+            });
         });
     },
 
@@ -80,11 +83,8 @@ export var SearchBar = createReactClass({
     getParams: function() {
         // selecting all repos is the same as not selecting any, so normalize the url
         // to have none.
-        var repos = Model.ValidRepos(
-            Array.prototype.map.call(this.refs.repos.querySelectorAll("option:checked"), function (option) {
-                return option.value;
-            })
-        );
+        var repos = Model.ValidRepos(this.state.repos);
+
         if (repos.length == Model.RepoCount()) {
             repos = [];
         }
@@ -106,7 +106,7 @@ export var SearchBar = createReactClass({
         files.value = params.files;
     },
     hasAdvancedValues: function() {
-        return this.refs.files.value.trim() !== '' || this.refs.icase.checked || this.refs.repos.value !== '';
+        return this.refs.files.value.trim() !== '' || this.refs.icase.checked || this.state.repos.length > 0;
     },
     showAdvanced: function() {
         var adv = this.refs.adv,
@@ -116,6 +116,7 @@ export var SearchBar = createReactClass({
 
         css(adv, 'height', 'auto');
         css(adv, 'padding', '10px 0');
+        css(adv, 'overflow', 'visible');
 
         css(ban, 'max-height', '0');
         css(ban, 'opacity', '0');
@@ -131,23 +132,35 @@ export var SearchBar = createReactClass({
 
         css(adv, 'height', '0');
         css(adv, 'padding', '0');
+        css(adv, 'overflow', 'hidden');
 
         css(ban, 'max-height', '100px');
         css(ban, 'opacity', '1');
 
         q.focus();
     },
+    repoSelected: function (selected) {
+        this.setState({
+            repos: selected
+                ? selected.map(function (item) {
+                    return item.value
+                })
+                : []
+        });
+    },
     render: function() {
-        var repoCount = this.state.allRepos.length,
-            repoOptions = [],
-            selected = {};
 
-        this.state.repos.forEach(function(repo) {
-            selected[repo] = true;
+        var _this = this;
+
+        var repoOptions = this.state.allRepos.map(function (repoName) {
+            return {
+                value: repoName,
+                label: repoName
+            };
         });
 
-        this.state.allRepos.forEach(function(repoName, index) {
-            repoOptions.push(<RepoOption key={repoName + "-option-" + index} value={repoName} selected={selected[repoName]}/>);
+        var selectedRepos = repoOptions.filter(function (option) {
+            return _this.state.repos.indexOf(option.value) >= 0;
         });
 
         var stats = this.state.stats;
@@ -205,12 +218,16 @@ export var SearchBar = createReactClass({
                                 <input id="ignore-case" type="checkbox" ref="icase" />
                             </div>
                         </div>
-                        <div className="field">
+                        <div className="field-repo-select">
                             <label className="multiselect_label" htmlFor="repos">Select Repo</label>
                             <div className="field-input">
-                                <select id="repos" className="form-control multiselect" multiple={true} size={Math.min(16, repoCount)} ref="repos">
-                                    {repoOptions}
-                                </select>
+                                <Select
+                                    options={ repoOptions }
+                                    onChange={ this.repoSelected }
+                                    value={ selectedRepos }
+                                    isMulti
+                                    closeMenuOnSelect={false}
+                                />
                             </div>
                         </div>
                     </div>
