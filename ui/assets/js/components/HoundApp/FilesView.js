@@ -1,64 +1,36 @@
 import React from 'react';
-import createReactClass from 'create-react-class';
-import { CoalesceMatches, ContentFor } from '../../utils';
 import { Model } from '../../helpers/Model';
+import { File } from './File';
 
-export var FilesView = createReactClass({
-    onLoadMore: function(event) {
-        Model.LoadMore(this.props.repo);
-    },
+export const FilesView = (props) => {
 
-    render: function() {
-        var rev = this.props.rev,
-            repo = this.props.repo,
-            regexp = this.props.regexp,
-            matches = this.props.matches,
-            totalMatches = this.props.totalMatches;
-        var files = matches.map(function(match, index) {
-            var filename = match.Filename,
-                blocks = CoalesceMatches(match.Matches);
-            var matches = blocks.map(function(block, mindex) {
-                var lines = block.map(function(line, lindex) {
-                    var content = ContentFor(line, regexp);
-                    return (
-                        <div className="line" key={repo + "-" + lindex + "-" + mindex + "-" + index}>
-                            <a href={Model.UrlToRepo(repo, filename, line.Number, rev)}
-                               className="lnum"
-                               target="_blank">{line.Number}</a>
-                            <span className="lval" dangerouslySetInnerHTML={{__html:content}} />
-                        </div>
-                    );
-                });
+    const { matches, rev, repo, regexp, totalMatches } = props;
 
-                return (
-                    <div className="match" key={repo + "-lines-" + mindex + "-" + index}>{lines}</div>
-                );
-            });
+    const onLoadMore = () => Model.LoadMore(repo);
 
-            return (
-                <div className="file" key={repo + "-file-" + index}>
-                    <div className="title">
-                        <a href={Model.UrlToRepo(repo, match.Filename, null, rev)}>
-                            {match.Filename}
-                        </a>
-                    </div>
-                    <div className="file-body">
-                        {matches}
-                    </div>
-                </div>
-            );
-        });
+    const files = matches.map((match, index) => (
+        <File
+            key={`${repo}-file-${index}`}
+            repo={ repo }
+            rev={ rev }
+            match={ match }
+            regexp={ regexp }
+        />
+    ));
 
-        var more = '';
-        if (matches.length < totalMatches) {
-            more = (<button className="moar" onClick={this.onLoadMore}>Load all {totalMatches} matches in {Model.NameForRepo(repo)}</button>);
-        }
+    const more = (matches.length < totalMatches)
+        ? (
+            <button className="moar" onClick={ onLoadMore }>
+                Load all {totalMatches} matches in { Model.NameForRepo(repo) }
+            </button>
+        )
+        : '';
 
-        return (
-            <div className="files">
-                {files}
-                {more}
-            </div>
-        );
-    }
-});
+    return (
+        <div className="files">
+            { files }
+            { more }
+        </div>
+    );
+
+};

@@ -22,8 +22,6 @@
     "@babel/preset-env": "^7.4.5",
     "@babel/preset-react": "^7.0.0",
     "babel-loader": "^8.0.6",
-    "create-react-class": "^15.6.3",
-    "merge-anything": "^2.4.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "reqwest": "^2.0.5",

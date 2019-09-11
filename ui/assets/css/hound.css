@@ -109,7 +109,10 @@ button:focus {
 #adv {
   box-sizing: border-box;
   height: 0;
+  overflow: hidden;
   padding: 0;
+  -moz-transition: height, padding 0.1s ease-in-out;;
+  -webkit-transition: height, padding 0.1s ease-in-out;
   transition: height, padding 0.1s ease-in-out;
 }
 
@@ -167,10 +170,24 @@ button:focus {
 }
 
 #inb > .ban {
+  cursor: pointer;
+  -moz-transition: max-height, opacity 0.1s ease-in-out;
+  -webkit-transition: max-height, opacity 0.1s ease-in-out;
   transition: max-height, opacity 0.1s ease-in-out;
   opacity: 1;
   overflow: hidden;
-  cursor: pointer;
+  max-height: 100px;
+}
+
+#inb.opened > #adv {
+  height: auto;
+  overflow: visible;
+  padding: 10px 0;
+}
+
+#inb.opened > .ban {
+  max-height: 0;
+  opacity: 0;
 }
 
 #inb > .ban > em {
@@ -212,6 +229,10 @@ button:focus {
   margin-top: 100px;
   color: #999;
   text-shadow: 1px 1px 0 #fff;
+}
+
+#no-result.hidden {
+  display: none;
 }
 
 #no-result > div {

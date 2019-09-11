@@ -1,5 +1,4 @@
 import reqwest from 'reqwest';
-import merge from 'merge-anything';
 import { Signal } from './Signal';
 import { UrlToRepo } from './common';
 import { ParamsFromUrl } from '../utils';
@@ -8,7 +7,7 @@ import { ParamsFromUrl } from '../utils';
  * The data model for the UI is responsible for conducting searches and managing
  * all results.
  */
-export var Model = {
+export const Model = {
     // raised when a search begins
     willSearch: new Signal(),
 
@@ -23,81 +22,74 @@ export var Model = {
 
     didLoadRepos : new Signal(),
 
-    ValidRepos: function(repos) {
-        var all = this.repos,
-            seen = {};
-        return repos.filter(function(repo) {
-            var valid = all[repo] && !seen[repo];
+    ValidRepos (repos) {
+        const all = this.repos;
+        const seen = {};
+        return repos.filter((repo) => {
+            const valid = all[repo] && !seen[repo];
             seen[repo] = true;
             return valid;
         });
     },
 
-    RepoCount: function() {
+    RepoCount () {
         return Object.keys(this.repos).length;
     },
 
-    Load: function() {
-        var _this = this;
-        var next = function() {
-            var params = ParamsFromUrl();
-            _this.didLoadRepos.raise(_this, _this.repos);
+    Load () {
 
+        const _this = this;
+
+        const next = () => {
+            const params = ParamsFromUrl();
+            this.didLoadRepos.raise(this, this.repos);
             if (params.q !== '') {
-                _this.Search(params);
+                this.Search(params);
             }
         };
-
-        if (typeof ModelData != 'undefined') {
-            var data = JSON.parse(ModelData),
-                repos = {};
-            for (var name in data) {
-                repos[name] = data[name];
-            }
-            this.repos = repos;
-            next();
-            return;
-        }
 
         reqwest({
             url: 'api/v1/repos',
             type: 'json',
-            success: function(data) {
+            success (data) {
                 _this.repos = data;
                 next();
             },
-            error: function(xhr, status, err) {
+            error (xhr, status, err) {
                 // TODO(knorton): Fix these
                 console.error(err);
             }
         });
     },
 
-    Search: function(params) {
-        this.willSearch.raise(this, params);
-        var _this = this,
-            startedAt = Date.now();
+    Search (params) {
 
-        params = merge({
+        const _this = this;
+        const startedAt = Date.now();
+
+        this.willSearch.raise(this, params);
+
+        params = {
             stats: 'fosho',
             repos: '*',
             rng: ':20',
-        }, params);
+            ...params
+        };
 
         if (params.repos === '') {
             params.repos = '*';
         }
 
-        _this.params = params;
+        this.params = params;
 
         // An empty query is basically useless, so rather than
         // sending it to the server and having the server do work
         // to produce an error, we simply return empty results
         // immediately in the client.
-        if (params.q == '') {
-            _this.results = [];
-            _this.resultsByRepo = {};
-            _this.didSearch.raise(_this, _this.Results);
+        if (params.q === '') {
+            this.results = [];
+            this.resultsByRepo = {};
+            this.didSearch.raise(this, this.Results);
             return;
         }
 
@@ -105,21 +97,22 @@ export var Model = {
             url: 'api/v1/search',
             data: params,
             type: 'json',
-            success: function(data) {
+            success (data) {
                 if (data.Error) {
                     _this.didError.raise(_this, data.Error);
                     return;
                 }
 
-                var matches = data.Results,
-                    stats = data.Stats,
-                    results = [];
-                for (var repo in matches) {
+                const matches = data.Results;
+                const stats = data.Stats;
+                const results = [];
+
+                for (let repo in matches) {
                     if (!matches[repo]) {
                         continue;
                     }
 
-                    var res = matches[repo];
+                    const res = matches[repo];
                     results.push({
                         Repo: repo,
                         Rev: res.Revision,
@@ -128,14 +121,9 @@ export var Model = {
                     });
                 }
 
-                results.sort(function(a, b) {
-                    return b.Matches.length - a.Matches.length || a.Repo.localeCompare(b.Repo);
-                });
+                results.sort((a, b) => b.Matches.length - a.Matches.length || a.Repo.localeCompare(b.Repo));
 
-                var byRepo = {};
-                results.forEach(function(res) {
-                    byRepo[res.Repo] = res;
-                });
+                const byRepo = results.reduce((obj, res) => (obj[res.Repo] = res, obj), {});
 
                 _this.results = results;
                 _this.resultsByRepo = byRepo;
@@ -147,62 +135,63 @@ export var Model = {
 
                 _this.didSearch.raise(_this, _this.results, _this.stats);
             },
-            error: function(xhr, status, err) {
+            error (xhr, status, err) {
                 _this.didError.raise(this, "The server broke down");
             }
         });
     },
 
-    LoadMore: function(repo) {
-        var _this = this,
-            results = this.resultsByRepo[repo],
-            numLoaded = results.Matches.length,
-            numNeeded = results.FilesWithMatch - numLoaded,
-            numToLoad = Math.min(2000, numNeeded),
-            endAt = numNeeded == numToLoad ? '' : '' + numToLoad;
+    LoadMore (repo) {
+        const _this = this;
+        const results = this.resultsByRepo[repo];
+        const numLoaded = results.Matches.length;
+        const numNeeded = results.FilesWithMatch - numLoaded;
+        const numToLoad = Math.min(2000, numNeeded);
+        const endAt = numNeeded == numToLoad ? '' : '' + numToLoad;
 
-        _this.willLoadMore.raise(this, repo, numLoaded, numNeeded, numToLoad);
+        this.willLoadMore.raise(this, repo, numLoaded, numNeeded, numToLoad);
 
-        var params = merge(this.params, {
+        const params = {...this.params,
             rng: numLoaded+':'+endAt,
             repos: repo
-        });
+        };
 
         reqwest({
             url: 'api/v1/search',
             data: params,
             type: 'json',
-            success: function(data) {
+            success (data) {
                 if (data.Error) {
                     _this.didError.raise(_this, data.Error);
                     return;
                 }
 
-                var result = data.Results[repo];
+                const result = data.Results[repo];
                 results.Matches = results.Matches.concat(result.Matches);
                 _this.didLoadMore.raise(_this, repo, _this.results);
             },
-            error: function(xhr, status, err) {
+            error (xhr, status, err) {
                 _this.didError.raise(this, "The server broke down");
             }
         });
     },
 
-    NameForRepo: function(repo) {
-        var info = this.repos[repo];
+    NameForRepo (repo) {
+        const info = this.repos[repo];
         if (!info) {
             return repo;
         }
 
-        var url = info.url,
-            ax = url.lastIndexOf('/');
+        const url = info.url;
+        const ax = url.lastIndexOf('/');
         if (ax  < 0) {
             return repo;
         }
 
-        var name = url.substring(ax + 1).replace(/\.git$/, '');
+        const name = url.substring(ax + 1).replace(/\.git$/, '');
 
-        var bx = url.lastIndexOf('/', ax - 1);
+        const bx = url.lastIndexOf('/', ax - 1);
+
         if (bx < 0) {
             return name;
         }
@@ -210,7 +199,7 @@ export var Model = {
         return url.substring(bx + 1, ax) + ' / ' + name;
     },
 
-    UrlToRepo: function(repo, path, line, rev) {
+    UrlToRepo (repo, path, line, rev) {
         return UrlToRepo(this.repos[repo], path, line, rev);
     }
 

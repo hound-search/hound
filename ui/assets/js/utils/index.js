@@ -1,10 +1,6 @@
-export var css = function(el, n, v) {
-    el.style.setProperty(n, v, '');
-};
-
-export var FormatNumber = function(t) {
-    var s = '' + (t|0),
-        b = [];
+export const FormatNumber = (t) => {
+    let s = '' + (t|0);
+    let b = [];
     while (s.length > 0) {
         b.unshift(s.substring(s.length - 3, s.length));
         s = s.substring(0, s.length - 3);
@@ -12,15 +8,14 @@ export var FormatNumber = function(t) {
     return b.join(',');
 };
 
-export var ParamsFromQueryString = function(qs, params) {
-    params = params || {};
+export const ParamsFromQueryString = (qs, params = {}) => {
 
     if (!qs) {
         return params;
     }
 
-    qs.substring(1).split('&').forEach(function(v) {
-        var pair = v.split('=');
+    qs.substring(1).split('&').forEach((v) => {
+        const pair = v.split('=');
         if (pair.length != 2) {
             return;
         }
@@ -35,30 +30,22 @@ export var ParamsFromQueryString = function(qs, params) {
     return params;
 };
 
-export var ParamsFromUrl = function(params) {
-    params = params || {
-        q: '',
-        i: 'nope',
-        files: '',
-        repos: '*'
-    };
-    return ParamsFromQueryString(location.search, params);
-};
+export const ParamsFromUrl = (params = { q: '', i: 'nope', files: '', repos: '*' }) => ParamsFromQueryString(location.search, params);
 
-export var ParamValueToBool = function(v) {
+export const ParamValueToBool = (v) => {
     v = v.toLowerCase();
-    return v == 'fosho' || v == 'true' || v == '1';
+    return v === 'fosho' || v === 'true' || v === '1';
 };
 
-export /**
+ /**
  * Take a list of matches and turn it into a simple list of lines.
  */
-var MatchToLines = function(match) {
-    var lines = [],
-        base = match.LineNumber,
-        nBefore = match.Before.length,
-        nAfter = match.After.length;
-    match.Before.forEach(function(line, index) {
+export const MatchToLines = (match) => {
+    const lines = [];
+    const base = match.LineNumber;
+    const nBefore = match.Before.length;
+
+    match.Before.forEach((line, index) => {
         lines.push({
             Number : base - nBefore + index,
             Content: line,
@@ -72,7 +59,7 @@ var MatchToLines = function(match) {
         Match: true
     });
 
-    match.After.forEach(function(line, index) {
+    match.After.forEach((line, index) => {
         lines.push({
             Number: base + index + 1,
             Content: line,
@@ -91,19 +78,19 @@ var MatchToLines = function(match) {
  * TODO(knorton): This code is a bit skanky. I wrote it while sleepy. It can surely be
  * made simpler.
  */
-export var CoalesceMatches = function(matches) {
-    var blocks = matches.map(MatchToLines),
-        res = [],
-        current;
+export const CoalesceMatches = (matches) => {
+    const blocks = matches.map(MatchToLines);
+    const res = [];
+    let current;
     // go through each block of lines and see if it overlaps
     // with the previous.
-    for (var i = 0, n = blocks.length; i < n; i++) {
-        var block = blocks[i],
-            max = current ? current[current.length - 1].Number : -1;
+    for (let i = 0, n = blocks.length; i < n; i++) {
+        const block = blocks[i];
+        const max = current ? current[current.length - 1].Number : -1;
         // if the first line in the block is before the last line in
         // current, we'll be merging.
         if (block[0].Number <= max) {
-            block.forEach(function(line) {
+            block.forEach((line) => {
                 if (line.Number > max) {
                     current.push(line);
                 } else if (current && line.Match) {
@@ -130,26 +117,28 @@ export var CoalesceMatches = function(matches) {
 /**
  * Use the DOM to safely htmlify some text.
  */
-export var EscapeHtml = function(text) {
-    var e = EscapeHtml.e;
-    e.textContent = text;
-    return e.innerHTML;
-};
-EscapeHtml.e = document.createElement('div');
+export const EscapeHtml = ((div) => {
+    return (
+        (text) => {
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    );
+})( document.createElement('div') );
 
 /**
  * Produce html for a line using the regexp to highlight matches.
  */
-export var ContentFor = function(line, regexp) {
+export const ContentFor = (line, regexp) => {
     if (!line.Match) {
         return EscapeHtml(line.Content);
     }
-    var content = line.Content,
-        buffer = [];
+    let content = line.Content;
+    const buffer = [];
 
     while (true) {
         regexp.lastIndex = 0;
-        var m = regexp.exec(content);
+        const m = regexp.exec(content);
         if (!m) {
             buffer.push(EscapeHtml(content));
             break;

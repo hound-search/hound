@@ -1,29 +1,35 @@
 import React from 'react';
-import createReactClass from 'create-react-class';
 import { ExcludedRow } from './ExcludedRow';
 
-export var ExcludedTable = createReactClass({
-    render: function() {
-        var _this = this;
-        if (this.props.searching) {
-            return (<div id="no-result"><img src="images/busy.gif" /><div>Searching...</div></div>);
-        }
+export const ExcludedTable = (props) => {
 
-        var rows = [];
-        this.props.files.forEach(function(file, index) {
-            rows.push(<ExcludedRow key={"exclude-row-" + index} file={file} repo={_this.props.repo} />);
-        });
+    const { files, searching, repo } = props;
 
+    if (searching) {
         return (
-            <table>
-                <thead>
-                <tr>
-                    <th>Filename</th>
-                    <th>Reason</th>
-                </tr>
-                </thead>
-                <tbody className="list">{rows}</tbody>
-            </table>
+            <div id="no-result">
+                <img src="images/busy.gif" /><div>Searching...</div>
+            </div>
         );
     }
-});
+
+    const rows = files.map((file, index) => (
+        <ExcludedRow
+            key={`exclude-row-${index}`}
+            file={ file }
+            repo={ repo }
+        />
+    ));
+
+    return (
+        <table>
+            <thead>
+            <tr>
+                <th>Filename</th>
+                <th>Reason</th>
+            </tr>
+            </thead>
+            <tbody className="list">{ rows }</tbody>
+        </table>
+    );
+};
