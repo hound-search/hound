@@ -3,6 +3,7 @@ import { ParamsFromUrl } from '../../utils';
 import { Model } from '../../helpers/Model';
 import { SearchBar } from './SearchBar';
 import { ResultView } from './ResultView';
+import { SelectionTooltip } from "./SelectionTooltip";
 
 export const App = function (props) {
 
@@ -95,6 +96,7 @@ export const App = function (props) {
                 results={ results }
                 error={ error }
             />
+            <SelectionTooltip delay={ 50 }/>
         </Fragment>
     );
 };

@@ -150,3 +150,18 @@ export const ContentFor = (line, regexp) => {
     }
     return buffer.join('');
 };
+
+/**
+ * Return the closest parent element
+ * @param element
+ * @param className
+ */
+export const closestElement = (element, className) => {
+    while (element.className !== className) {
+        element = element.parentNode;
+        if (!element) {
+            return null;
+        }
+    }
+    return element;
+};

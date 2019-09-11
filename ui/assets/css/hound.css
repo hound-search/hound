@@ -416,3 +416,53 @@ button:focus {
   margin-bottom: 40px;
 }
 
+.selection-tooltip {
+  background-color: white;
+  border: 1px solid #CCC;
+  border-radius: 4px;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, .25);
+  cursor: pointer;
+  display: none;
+  height: 20px;
+  overflow: hidden;
+  padding: 0px 30px 0px 10px;
+  position: absolute;
+}
+
+.selection-tooltip-text {
+  font-family: Consolas, "Liberation Mono", "Source Code Pro", Menlo, Courier, monospace;
+  font-size: 10px;
+  line-height: 20px;
+}
+
+.selection-tooltip,
+.selection-tooltip:link,
+.selection-tooltip:active,
+.selection-tooltip:hover{
+  color: #333;
+  text-decoration: none;
+}
+
+.selection-tooltip::before {
+  color: #FFF;
+  font-size: 11px;
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  z-index: 1;
+}
+
+.selection-tooltip::after {
+  background-color: #09f;
+  content: '';
+  display: block;
+  height: 20px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 20px;
+}
+
+.selection-tooltip.active {
+  display: block;
+}
