@@ -1,6 +1,6 @@
 # Hound
 
-[![Build Status](https://travis-ci.org/hound-search/hound.svg?branch=master)](https://travis-ci.org/hound-search/hound) 
+[![Build Status](https://travis-ci.org/it-projects-llc/hound.svg?branch=master)](https://travis-ci.org/it-projects-llc/hound) 
 
 Hound is an extremely fast source code search engine. The core is based on this article (and code) from Russ Cox:
 [Regular Expression Matching with a Trigram Index](http://swtch.com/~rsc/regexp/regexp4.html). Hound itself is a static
@@ -15,7 +15,7 @@ Hound is an extremely fast source code search engine. The core is based on this 
 1. Use the Go tools to install Hound. The binaries `houndd` (server) and `hound` (cli) will be installed in your $GOPATH.
 
 ```
-go get github.com/hound-search/hound/cmds/...
+go get github.com/it-projects-llc/hound/cmds/...
 ```
 
 2. Create a [config.json](config-example.json) in a directory with your list of repositories.
@@ -103,15 +103,15 @@ Go tools work accordingly. See [Setting GOPATH](https://github.com/golang/go/wik
 up your Go workspace. With a `GOPATH` set, the following commands will build hound locally.
 
 ```
-git clone https://github.com/hound-search/hound.git ${GOPATH}/src/github.com/hound-search/hound
-cd ${GOPATH}/src/github.com/hound-search/hound
+git clone https://github.com/it-projects-llc/hound.git ${GOPATH}/src/github.com/it-projects-llc/hound
+cd ${GOPATH}/src/github.com/it-projects-llc/hound
 make
 ```
 
 If this is your only Go project, you can set your GOPATH just for Hound:
 ```
-git clone https://github.com/hound-search/hound.git src/github.com/hound-search/hound
-GOPATH=$(pwd) make -C src/github.com/hound-search/hound
+git clone https://github.com/it-projects-llc/hound.git src/github.com/it-projects-llc/hound
+GOPATH=$(pwd) make -C src/github.com/it-projects-llc/hound
 ```
 
 ### Testing
