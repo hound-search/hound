@@ -4,7 +4,6 @@ import "io"
 
 // Current versions of some dependencies.
 const (
-	ReactVersion  = "0.12.2"
 	JQueryVersion = "2.1.3"
 )
 
