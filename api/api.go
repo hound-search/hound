@@ -178,6 +178,7 @@ func Setup(m *http.ServeMux, idx map[string]*searcher.Searcher) {
 		query := r.FormValue("q")
 		opt.Offset, opt.Limit = parseRangeValue(r.FormValue("rng"))
 		opt.FileRegexp = r.FormValue("files")
+		opt.ExcludeFileRegexp = r.FormValue("excludeFiles")
 		opt.IgnoreCase = parseAsBool(r.FormValue("i"))
 		opt.LinesOfContext = parseAsUintValue(
 			r.FormValue("ctx"),
