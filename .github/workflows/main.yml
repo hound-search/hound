@@ -1,4 +1,4 @@
-name: Node CI
+name: Publish
 
 on: [push]
 
@@ -6,7 +6,6 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
     steps:
     - name: Setup Node.js
       uses: actions/setup-node@v1
@@ -19,10 +18,11 @@ jobs:
     - uses: actions/checkout@v1
     - name: make
       run: |
-        # export PATH=$PATH:$(go env GOPATH)/bin  # temporary fix. See https://github.com/actions/setup-go/issues/14
         mkdir -p $(go env GOPATH)/src/github.com/it-projects-llc/
         ln -s $(pwd) $(go env GOPATH)/src/github.com/it-projects-llc/hound
         make
+    # Commiting updates from Github Actions doesn't trigger the action again, so
+    # next steps will not be executed twice
     - uses: matheusalbino/git-commit@v1.0.1
       name: Commit updates
       with:
@@ -33,3 +33,23 @@ jobs:
           
           Sent from Github Actions (see .github/workflows/main.yml )
         github-token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build and publish CI Docker Image
+      uses: elgohr/Publish-Docker-Github-Action@master
+      env:
+        INSTALL_CLI: yes
+      with:
+        name: it-projects-llc/hound/ci
+        registry: docker.pkg.github.com
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        buildargs: INSTALL_CLI
+    - name: Build and publish Production Docker Image
+      uses: elgohr/Publish-Docker-Github-Action@master
+      env:
+        DELETE_GO: yes
+      with:
+        name: it-projects-llc/hound/production
+        registry: docker.pkg.github.com
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        buildargs: DELETE_GO

@@ -1,0 +1,6 @@
+FROM docker.pkg.github.com/it-projects-llc/hound/ci
+
+COPY . /go/src/github.com/it-projects-llc/hound
+
+RUN go install github.com/it-projects-llc/hound/cmds/houndd \
+    && go install github.com/it-projects-llc/hound/cmds/hound
