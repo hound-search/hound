@@ -27,7 +27,9 @@ jobs:
       env:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-      run: docker pull docker.pkg.github.com/it-projects-llc/hound/ci -u $username -p $password
+      run: |
+        docker login docker.pkg.github.com -u $username -p $password
+        docker pull docker.pkg.github.com/it-projects-llc/hound/ci
     - name: Build and Publish PR Image
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
