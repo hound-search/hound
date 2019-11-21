@@ -1,9 +1,9 @@
-name: Preview PR
+name: PR
 
 on: [pull_request]
 
 jobs:
-  pr_image:
+  build_image:
 
     runs-on: ubuntu-latest
     env:
