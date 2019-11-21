@@ -3,7 +3,7 @@ name: Preview PR
 on: [pull_request]
 
 jobs:
-  build:
+  pr_image:
 
     runs-on: ubuntu-latest
     env:
@@ -43,4 +43,7 @@ jobs:
 
               docker run -p 6080:6080 --rm docker.pkg.github.com/it-projects-llc/hound/pr${PR}:${GITHUB_SHA}
 
-          Posted from Github Actions (see .github/workflows/pr.yml)
+          You may need be authenticated:
+          
+              docker login docker.pkg.github.com -u GITHUB_USERNAME -p GITHUB_TOKEN 
+          > Posted from Github Actions (see .github/workflows/pr.yml)
