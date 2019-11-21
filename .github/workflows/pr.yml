@@ -6,8 +6,6 @@ jobs:
   build_image:
 
     runs-on: ubuntu-latest
-    env:
-      PR: ${{ github.event.pull_request.number }}
     steps:
     - uses: actions/checkout@v1
     - name: Setup Node.js
@@ -33,7 +31,7 @@ jobs:
     - name: Build and Publish PR Image
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: it-projects-llc/hound/pr${PR}:${GITHUB_SHA}
+        name: it-projects-llc/hound/pr${{ github.event.pull_request.number }}:${{ github.event.pull_request.merge_commit_sha }}
         dockerfile: DockerfilePR
         registry: docker.pkg.github.com
         username: ${{ github.actor }}
@@ -45,7 +43,7 @@ jobs:
         body: |
           To test updates run:
 
-              docker run -p 6080:6080 --rm docker.pkg.github.com/it-projects-llc/hound/pr${PR}:${GITHUB_SHA}
+              docker run -p 6080:6080 --rm docker.pkg.github.com/it-projects-llc/hound/pr${{ github.event.pull_request.number }}:${{ github.event.pull_request.merge_commit_sha }}
 
           You may need be authenticated:
           
