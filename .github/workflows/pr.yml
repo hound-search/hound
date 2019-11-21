@@ -25,7 +25,6 @@ jobs:
       uses: peter-evans/commit-comment@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        sha: ${{ GITHUB_SHA }}
         body: |
           To test updates run:
 
