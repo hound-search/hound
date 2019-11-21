@@ -1,0 +1,34 @@
+name: Preview PR
+
+one: [pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    env:
+      PR: ${{ github.event.pull_request.number }}
+    steps:
+    - uses: actions/checkout@v1
+    - name: Fetch CI Image
+      run: |
+        docker pull $REGISTRY/ci
+    - name: Build and Publish PR Image
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: it-projects-llc/hound/pr${PR}:${GITHUB_SHA}
+        dockerfile: DockerfilePR
+        registry: docker.pkg.github.com
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Post instruction in PR
+      uses: peter-evans/commit-comment@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        sha: ${{ GITHUB_SHA }}
+        body: |
+          To test updates run:
+
+              docker run -p 6080:6080 --rm docker.pkg.github.com/it-projects-llc/hound/pr${PR}:${GITHUB_SHA}
+
+          Posted from Github Actions (see .github/workflows/pr.yml)

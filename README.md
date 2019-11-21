@@ -34,7 +34,7 @@ go get github.com/it-projects-llc/hound/cmds/...
 
 2. Run 
 ```
-docker run -d -p 6080:6080 --name hound -v $(pwd):/data etsy/hound
+docker run -d -p 6080:6080 --name hound -v $(pwd):/data docker.pkg.github.com/it-projects-llc/hound/production
 ```
 
 You should be able to navigate to [http://localhost:6080/](http://localhost:6080/) as usual.
@@ -146,9 +146,11 @@ Then run the hound server with the --dev option:
 bin/houndd --dev
 ```
 
-## Get in Touch
+## Credits
 
 Created at [Etsy](https://www.etsy.com) by:
 
 * [Kelly Norton](https://github.com/kellegous)
 * [Jonathan Klein](https://github.com/jklein)
+
+Maintained by [IT-Projects LLC](https://www.it-projects.info/team/).
