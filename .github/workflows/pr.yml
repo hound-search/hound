@@ -24,7 +24,7 @@ jobs:
     - name: Build and Publish PR Image
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: it-projects-llc/hound/pr${{ github.event.pull_request.number }}:${{ github.event.pull_request.head.sha }}
+        name: it-projects-llc/hound/pr${{ github.event.pull_request.number }}
         dockerfile: DockerfilePR
         registry: docker.pkg.github.com
         username: ${{ github.actor }}
