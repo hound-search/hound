@@ -10,6 +10,19 @@ jobs:
       PR: ${{ github.event.pull_request.number }}
     steps:
     - uses: actions/checkout@v1
+    - name: Setup Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+    - name: Setup Go for use with actions
+      uses: actions/setup-go@v1.0.0
+      with:
+        go-version: 1.10.x
+    - name: make
+      run: |
+        mkdir -p $(go env GOPATH)/src/github.com/it-projects-llc/
+        ln -s $(pwd) $(go env GOPATH)/src/github.com/it-projects-llc/hound
+        make
     - name: Fetch CI Image
       run: |
         docker pull $REGISTRY/ci

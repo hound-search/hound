@@ -35,14 +35,11 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
     - name: Build and publish CI Docker Image
       uses: elgohr/Publish-Docker-Github-Action@master
-      env:
-        INSTALL_CLI: yes
       with:
         name: it-projects-llc/hound/ci
         registry: docker.pkg.github.com
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-        buildargs: INSTALL_CLI
     - name: Build and publish Production Docker Image
       uses: elgohr/Publish-Docker-Github-Action@master
       env:
