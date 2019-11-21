@@ -24,7 +24,7 @@ jobs:
     - name: Build and Publish PR Image
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: it-projects-llc/hound/pr${{ github.event.pull_request.number }}:${{ github.event.pull_request.merge_commit_sha }}
+        name: it-projects-llc/hound/pr${{ github.event.pull_request.number }}:${{ github.event.pull_request.head.sha }}
         dockerfile: DockerfilePR
         registry: docker.pkg.github.com
         username: ${{ github.actor }}
@@ -36,7 +36,7 @@ jobs:
         body: |
           To test updates run:
 
-              docker run -p 6080:6080 --rm docker.pkg.github.com/it-projects-llc/hound/pr${{ github.event.pull_request.number }}:${{ github.event.pull_request.merge_commit_sha }}
+              docker run -p 6080:6080 --rm docker.pkg.github.com/it-projects-llc/hound/pr${{ github.event.pull_request.number }}:${{ github.event.pull_request.head.sha }}
 
           You may need be authenticated:
           
