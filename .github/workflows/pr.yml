@@ -24,8 +24,7 @@ jobs:
         ln -s $(pwd) $(go env GOPATH)/src/github.com/it-projects-llc/hound
         make
     - name: Fetch CI Image
-      run: |
-        docker pull $REGISTRY/ci
+      run: docker pull docker.pkg.github.com/it-projects-llc/hound/ci
     - name: Build and Publish PR Image
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
