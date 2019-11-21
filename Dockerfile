@@ -11,7 +11,7 @@ COPY default-config.json /data/config.json
 
 RUN apk update \
 	&& apk add go git subversion libc-dev mercurial bzr openssh \
-	go install github.com/it-projects-llc/hound/cmds/houndd
+	&& go install github.com/it-projects-llc/hound/cmds/houndd
 
 RUN [ "INSTALL_CLI" = "yes" ] \
     && go install github.com/it-projects-llc/hound/cmds/hound
