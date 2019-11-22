@@ -1,6 +1,6 @@
 FROM alpine
 
-ARG DELETE_GO=no
+ARG DEV=no
 
 ENV GOPATH /go
 
@@ -13,7 +13,11 @@ COPY default-config.json /data/config.json
 
 RUN go install github.com/it-projects-llc/hound/cmds/houndd
 
-RUN [ "$DELETE_GO" = "yes" ] && apk del go \
+RUN [ "$DEV" = "yes" ] \
+    && apk add npm || true
+
+RUN [ "$DEV" = "no" ] \
+    && apk del go \
     && rm -f /var/cache/apk/* \
     && rm -rf /go/src /go/pkg || true
 

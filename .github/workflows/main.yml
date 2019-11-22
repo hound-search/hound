@@ -9,12 +9,8 @@ jobs:
     steps:
     - name: Setup Node.js
       uses: actions/setup-node@v1
-      with:
-        node-version: 12.x
     - name: Setup Go for use with actions
       uses: actions/setup-go@v1.0.0
-      with:
-        go-version: 1.10.x
     - uses: actions/checkout@v1
     - name: make
       run: |
@@ -33,20 +29,20 @@ jobs:
           
           Sent from Github Actions (see .github/workflows/main.yml )
         github-token: ${{ secrets.GITHUB_TOKEN }}
-    - name: Build and publish CI Docker Image
+    - name: Build and publish DEV Docker Image
       uses: elgohr/Publish-Docker-Github-Action@master
+      env:
+        DEV: yes
       with:
-        name: it-projects-llc/hound/ci
+        name: it-projects-llc/hound/dev
         registry: docker.pkg.github.com
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
+        buildargs: DEV
     - name: Build and publish Production Docker Image
       uses: elgohr/Publish-Docker-Github-Action@master
-      env:
-        DELETE_GO: yes
       with:
         name: it-projects-llc/hound/production
         registry: docker.pkg.github.com
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-        buildargs: DELETE_GO
