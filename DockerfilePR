@@ -1,6 +1,6 @@
-# it's used in .github/workflow/pr.yml
-FROM docker.pkg.github.com/it-projects-llc/hound/ci
+# it's used in concourse.yml
+FROM docker.pkg.github.com/it-projects-llc/hound/dev
 
 COPY . /go/src/github.com/it-projects-llc/hound
 
-RUN go install github.com/it-projects-llc/hound/cmds/houndd
+RUN make -C /go/src/github.com/it-projects-llc/hound

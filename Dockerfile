@@ -14,7 +14,7 @@ COPY default-config.json /data/config.json
 RUN go install github.com/it-projects-llc/hound/cmds/houndd
 
 RUN [ "$DEV" = "yes" ] \
-    && apk add npm || true
+    && apk add npm make || true
 
 RUN [ "$DEV" = "no" ] \
     && apk del go \
