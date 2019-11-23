@@ -17,12 +17,12 @@ resources:
 - name: docker-registry
   type: docker-image
   source:
-    repository: docker.pkg.github.com/it-projects-llc/hound/dev
+    repository: docker.pkg.github.com/it-projects-llc/hound/pr
     username: ((github-username))
     password: ((github-token))
 
 jobs:
-- name: build_image
+- name: review-pull-request
   plan:
   - get: pr
     trigger: true
@@ -48,14 +48,14 @@ jobs:
         args:
           - -xce
           - |
-            BASE_SHA=$(cat pr/.git/resource/base_sha)
-            HEAD_SHA=$(cat pr/.git/resource/head_sha)
+            BASE_SHA=$(cat pr/.git/resource/base_sha | cut -c 1-7)
+            HEAD_SHA=$(cat pr/.git/resource/head_sha | cut -c 1-7)
             PR_NUM=$(cat pr/.git/resource/pr)
-            TAG="pr-$PR-head-$HEAD_SHA-base-$BASE"
+            TAG="pr-$PR_NUM-head-$HEAD_SHA-base-$BASE_SHA"
             echo $TAG > pr-info/tag.txt
             echo "To test updates run:
 
-                docker run -p 6080:6080 --rm docker.pkg.github.com/it-projects-llc/hound/dev:$TAG
+                docker run -p 6080:6080 --rm docker.pkg.github.com/it-projects-llc/hound/pr:$TAG
 
             You may need be [authenticated](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line):
             
@@ -75,6 +75,7 @@ jobs:
       build: pr
       dockerfile: pr/DockerfilePR
       tag_file: pr-info/tag.txt
+    get_params: {skip_download: true}
 
     on_failure:
       put: set-status-failure
