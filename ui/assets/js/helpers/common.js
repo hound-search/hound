@@ -1,18 +1,19 @@
-export function ExpandVars(template, values) {
-    for (var name in values) {
+export const ExpandVars = (template, values) => {
+    for (let name in values) {
         template = template.replace('{' + name + '}', values[name]);
     }
     return template;
 };
 
-export function UrlToRepo(repo, path, line, rev) {
-    var url = repo.url.replace(/\.git$/, ''),
-        pattern = repo['url-pattern'],
-        filename = path.substring(path.lastIndexOf('/') + 1),
-        anchor = line ? ExpandVars(pattern.anchor, { line : line, filename : filename }) : '';
+export const UrlToRepo = (repo, path, line, rev) => {
+    let url = repo.url.replace(/\.git$/, '');
+    const pattern = repo['url-pattern'];
+    const filename = path.substring(path.lastIndexOf('/') + 1);
+    let anchor = line ? ExpandVars(pattern.anchor, { line, filename }) : '';
 
     // Determine if the URL passed is a GitHub wiki
-    var wikiUrl = /\.wiki$/.exec(url);
+    const wikiUrl = /\.wiki$/.exec(url);
+
     if (wikiUrl) {
         url = url.replace(/\.wiki/, '/wiki')
         path = path.replace(/\.md$/, '')
@@ -26,16 +27,17 @@ export function UrlToRepo(repo, path, line, rev) {
     // Regex explained: Match either `git` or `hg` followed by an `@`.
     // Next, slurp up the hostname by reading until either a `:` or `/` is found.
     // Finally, grab all remaining characters.
-    var sshParts = /(git|hg)@(.*?)(:|\/)(.*)/.exec(url);
+    const sshParts = /(git|hg)@(.*?)(:|\/)(.*)/.exec(url);
+
     if (sshParts) {
         url = '//' + sshParts[2] + '/' + sshParts[4];
     }
 
     // I'm sure there is a nicer React/jsx way to do this:
     return ExpandVars(pattern['base-url'], {
-        url : url,
-        path: path,
-        rev: rev,
-        anchor: anchor
+        url,
+        path,
+        rev,
+        anchor
     });
-}
+};

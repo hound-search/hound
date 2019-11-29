@@ -108,9 +108,11 @@ button:focus {
 
 #adv {
   box-sizing: border-box;
-  overflow: hidden;
   height: 0;
+  overflow: hidden;
   padding: 0;
+  -moz-transition: height, padding 0.1s ease-in-out;;
+  -webkit-transition: height, padding 0.1s ease-in-out;
   transition: height, padding 0.1s ease-in-out;
 }
 
@@ -119,20 +121,35 @@ button:focus {
 }
 
 /* Media object clearfix */
-#adv > .field {
-  overflow: hidden;
+#adv > .field > label,
+#adv > .field-repo-select > label {
+  width: 90px;
+  color: #999;
 }
 
 #adv > .field > label {
   /* Media object left */
   float: left;
-  width: 100px;
-  color: #999;
 }
 
 #adv > .field > .field-input {
   /* New block formatting context for media object */
   overflow: hidden;
+}
+
+#adv > .field-repo-select {
+  display: flex;
+}
+
+#adv > .field-repo-select > .field-input {
+  color: #253858;
+  font-size: 14px;
+  flex-grow: 1;
+  line-height: 1.25;
+}
+
+#adv .field-repo-select input {
+  box-shadow: none;
 }
 
 #adv > .field input[type=text] {
@@ -153,10 +170,24 @@ button:focus {
 }
 
 #inb > .ban {
+  cursor: pointer;
+  -moz-transition: max-height, opacity 0.1s ease-in-out;
+  -webkit-transition: max-height, opacity 0.1s ease-in-out;
   transition: max-height, opacity 0.1s ease-in-out;
   opacity: 1;
   overflow: hidden;
-  cursor: pointer;
+  max-height: 100px;
+}
+
+#inb.opened > #adv {
+  height: auto;
+  overflow: visible;
+  padding: 10px 0;
+}
+
+#inb.opened > .ban {
+  max-height: 0;
+  opacity: 0;
 }
 
 #inb > .ban > em {
@@ -198,6 +229,10 @@ button:focus {
   margin-top: 100px;
   color: #999;
   text-shadow: 1px 1px 0 #fff;
+}
+
+#no-result.hidden {
+  display: none;
 }
 
 #no-result > div {
