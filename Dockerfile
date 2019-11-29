@@ -1,17 +1,25 @@
 FROM alpine
 
+ARG DEV=no
+
 ENV GOPATH /go
 
-COPY . /go/src/github.com/etsy/hound
+RUN apk update \
+	&& apk add go git subversion libc-dev mercurial bzr openssh
+
+COPY . /go/src/github.com/it-projects-llc/hound
 
 COPY default-config.json /data/config.json
 
-RUN apk update \
-	&& apk add go git subversion libc-dev mercurial bzr openssh \
-	&& go install github.com/etsy/hound/cmds/houndd \
-	&& apk del go \
-	&& rm -f /var/cache/apk/* \
-	&& rm -rf /go/src /go/pkg
+RUN go install github.com/it-projects-llc/hound/cmds/houndd
+
+RUN [ "$DEV" = "yes" ] \
+    && apk add npm make rsync || true
+
+RUN [ "$DEV" = "no" ] \
+    && apk del go \
+    && rm -f /var/cache/apk/* \
+    && rm -rf /go/src /go/pkg || true
 
 VOLUME ["/data"]
 

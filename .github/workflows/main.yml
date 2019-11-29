@@ -1,0 +1,48 @@
+name: Rebuilding Docker Images
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v1
+    - name: Setup Go for use with actions
+      uses: actions/setup-go@v1.0.0
+    - uses: actions/checkout@v1
+    - name: make
+      run: |
+        mkdir -p $(go env GOPATH)/src/github.com/it-projects-llc/
+        ln -s $(pwd) $(go env GOPATH)/src/github.com/it-projects-llc/hound
+        make
+    # Commiting updates from Github Actions doesn't trigger the action again, so
+    # next steps will not be executed twice
+    - uses: matheusalbino/git-commit@v1.0.1
+      name: Commit updates
+      with:
+        user-name: Marc Demo (from Github Actions)
+        user-email: i18n-bot@it-projects.info
+        message: |
+          :alien: rebuild bindata.go
+          
+          Sent from Github Actions (see .github/workflows/main.yml )
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build and publish DEV Docker Image
+      uses: elgohr/Publish-Docker-Github-Action@master
+      env:
+        DEV: yes
+      with:
+        name: it-projects-llc/hound/dev
+        registry: docker.pkg.github.com
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        buildargs: DEV
+    - name: Build and publish Production Docker Image
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: it-projects-llc/hound/production
+        registry: docker.pkg.github.com
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}

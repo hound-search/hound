@@ -12,7 +12,7 @@ import (
 	"runtime"
 	text_template "text/template"
 
-	"github.com/hound-search/hound/config"
+	"github.com/it-projects-llc/hound/config"
 )
 
 // An http.Handler for the dev-mode case.
@@ -95,9 +95,9 @@ func renderForDev(w io.Writer, root string, c *content, cfg *config.Config, r *h
 	}
 
 	return c.tpl.Execute(w, map[string]interface{}{
-		"ReposAsJson":   json,
-		"Source":        html_template.HTML(buf.String()),
-		"Host":          r.Host,
+		"ReposAsJson": json,
+		"Source":      html_template.HTML(buf.String()),
+		"Host":        r.Host,
 	})
 }
 
@@ -153,9 +153,9 @@ func renderForPrd(w io.Writer, c *content, cfgJson string, r *http.Request) erro
 	buf.WriteString("</script>")
 
 	return c.tpl.Execute(w, map[string]interface{}{
-		"ReposAsJson":   cfgJson,
-		"Source":        html_template.HTML(buf.String()),
-		"Host":          r.Host,
+		"ReposAsJson": cfgJson,
+		"Source":      html_template.HTML(buf.String()),
+		"Host":        r.Host,
 	})
 }
 

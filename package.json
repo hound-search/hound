@@ -8,20 +8,21 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/etsy/hound.git"
+    "url": "git+https://github.com/it-projects-llc/hound.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/etsy/hound/issues"
+    "url": "https://github.com/it-projects-llc/hound/issues"
   },
-  "homepage": "https://github.com/etsy/hound#readme",
+  "homepage": "https://github.com/it-projects-llc/hound#readme",
   "devDependencies": {
     "@babel/core": "^7.4.5",
     "@babel/preset-env": "^7.4.5",
     "@babel/preset-react": "^7.0.0",
     "babel-loader": "^8.0.6",
+    "create-react-class": "^15.6.3",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "reqwest": "^2.0.5",

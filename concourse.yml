@@ -1,0 +1,94 @@
+# see concourse.md for deployment instructions
+resource_types:
+- name: pull-request
+  type: docker-image
+  source:
+    repository: teliaoss/github-pr-resource
+
+resources:
+- name: pr
+  type: pull-request
+  #check_every: 24h
+  webhook_token: ((webhook-token))
+  source:
+    repository: it-projects-llc/hound
+    access_token: ((github-token))
+
+- name: docker-registry
+  type: docker-image
+  source:
+    repository: docker.pkg.github.com/it-projects-llc/hound/pr
+    username: ((github-username))
+    password: ((github-token))
+
+jobs:
+- name: review-pull-request
+  plan:
+  - get: pr
+    trigger: true
+    version: latest
+  - put: set-status-pending
+    resource: pr
+    params:
+      path: pr
+      status: pending
+
+  - task: analyze-pr
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source: {repository: alpine, tag: "latest"}
+      inputs:
+        - name: pr
+      outputs:
+        - name: pr-info
+      run:
+        path: /bin/sh
+        args:
+          - -xce
+          - |
+            BASE_SHA=$(cat pr/.git/resource/base_sha | cut -c 1-7)
+            HEAD_SHA=$(cat pr/.git/resource/head_sha | cut -c 1-7)
+            PR_NUM=$(cat pr/.git/resource/pr)
+            TAG="pr-$PR_NUM-head-$HEAD_SHA-base-$BASE_SHA"
+            echo $TAG > pr-info/tag.txt
+            echo "To test updates run:
+
+                docker run -p 6080:6080 --rm docker.pkg.github.com/it-projects-llc/hound/pr:$TAG
+
+            You may need be [authenticated](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line):
+            
+                docker login docker.pkg.github.com -u GITHUB_USERNAME -p GITHUB_TOKEN 
+
+            > Posted from Concourse CI (see concourse.yml)" > pr-info/comment.txt
+
+    on_failure:
+      put: set-status-failure
+      resource: pr
+      params:
+        path: pr
+        status: failure
+
+  - put: docker-registry
+    params:
+      build: pr
+      dockerfile: pr/DockerfilePR
+      tag_file: pr-info/tag.txt
+    get_params: {skip_download: true}
+
+    on_failure:
+      put: set-status-failure
+      resource: pr
+      params:
+        path: pr
+        status: failure
+
+  - put: set-status-success
+    resource: pr
+    params:
+      path: pr
+      status: success
+      target_url: $ATC_EXTERNAL_URL/builds/$BUILD_ID
+      # it's not neccesary to post comment if we print it as a log in the pipeline
+      comment_file: pr-info/comment.txt
