@@ -63,6 +63,12 @@
           "url-pattern" : {
               "base-url" : "{url}/{path}"
           }
+        },
+        "GitCustomBranch" : {
+            "url" : "https://www.github.com/YourOrganization/RepoOne.git",
+            "vcs-config": {
+                "ref": "custom"
+            }
         }
     }
 }
