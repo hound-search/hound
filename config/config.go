@@ -12,6 +12,7 @@ const (
 	defaultMaxConcurrentIndexers = 2
 	defaultPushEnabled           = false
 	defaultPollEnabled           = true
+	defaultTitle                 = "Hound"
 	defaultVcs                   = "git"
 	defaultBaseUrl               = "{url}/blob/master/{path}{anchor}"
 	defaultAnchor                = "#L{line}"
@@ -55,6 +56,7 @@ func (r *Repo) PushUpdatesEnabled() bool {
 
 type Config struct {
 	DbPath                string           `json:"dbpath"`
+	Title                 string           `json:"title"`
 	Repos                 map[string]*Repo `json:"repos"`
 	MaxConcurrentIndexers int              `json:"max-concurrent-indexers"`
 	HealthCheckURI        string           `json:"health-check-uri"`
@@ -134,6 +136,10 @@ func (c *Config) LoadFromFile(filename string) error {
 
 	if err := json.NewDecoder(r).Decode(c); err != nil {
 		return err
+	}
+
+	if c.Title == "" {
+		c.Title = defaultTitle
 	}
 
 	if !filepath.IsAbs(c.DbPath) {

@@ -384,7 +384,7 @@ func indexTplHtml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "index.tpl.html", size: 797, mode: os.FileMode(420), modTime: time.Unix(1561076741, 0)}
+	info := bindataFileInfo{name: "index.tpl.html", size: 811, mode: os.FileMode(420), modTime: time.Unix(1581463953, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
