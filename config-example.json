@@ -1,6 +1,7 @@
 {
     "max-concurrent-indexers" : 2,
     "dbpath" : "data",
+    "title" : "Hound",
     "health-check-uri" : "/healthz",
     "repos" : {
         "SomeGitRepo" : {
