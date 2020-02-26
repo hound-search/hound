@@ -245,7 +245,11 @@ func (ix *IndexWriter) Flush() {
 
 	os.Remove(ix.nameData.name)
 	for _, d := range ix.postData {
-		unmmap(d)
+		err := unmmap(d)
+		if err != nil {
+			// FIXME: Fails in write tests, probably because mmap was not called before.
+			log.Println(err)
+		}
 	}
 	for _, f := range ix.postFile {
 		f.Close()
@@ -309,7 +313,10 @@ func (ix *IndexWriter) flushPost() {
 	}
 
 	ix.post = ix.post[:0]
-	w.Seek(0, 0)
+	_, err = w.Seek(0, 0)
+	if err != nil {
+		log.Fatal(err)
+	}
 	ix.postFile = append(ix.postFile, w)
 }
 
@@ -552,7 +559,10 @@ func (b *bufWriter) flush() {
 func (b *bufWriter) finish() *os.File {
 	b.flush()
 	f := b.file
-	f.Seek(0, 0)
+	_, err := f.Seek(0, 0)
+	if err != nil {
+		log.Fatal(err)
+	}
 	return f
 }
 
