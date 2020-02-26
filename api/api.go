@@ -89,7 +89,7 @@ func searchAll(
 		*filesOpened += r.res.FilesOpened
 	}
 
-	*duration = int(time.Now().Sub(startedAt).Seconds() * 1000)
+	*duration = int(time.Since(startedAt).Seconds() * 1000)
 
 	return res, nil
 }
