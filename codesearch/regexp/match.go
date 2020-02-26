@@ -38,9 +38,7 @@ type flags uint32
 
 const (
 	flagBOL  flags = 1 << iota // beginning of line
-	flagEOL                    // end of line
 	flagBOT                    // beginning of text
-	flagEOT                    // end of text
 	flagWord                   // last byte was word byte
 )
 

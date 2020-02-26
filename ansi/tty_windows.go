@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	modkernel32 = syscall.MustLoadDLL("kernel32.dll")
+	modkernel32        = syscall.MustLoadDLL("kernel32.dll")
 	procGetConsoleMode = modkernel32.MustFindProc("GetConsoleMode")
 )
 

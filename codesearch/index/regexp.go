@@ -223,39 +223,6 @@ func trigramsImply(t []string, q *Query) bool {
 	return false
 }
 
-// maybeRewrite rewrites q to use op if it is possible to do so
-// without changing the meaning.  It also simplifies if the node
-// is an empty OR or AND.
-func (q *Query) maybeRewrite(op QueryOp) {
-	if q.Op != QAnd && q.Op != QOr {
-		return
-	}
-
-	// AND/OR doing real work?  Can't rewrite.
-	n := len(q.Sub) + len(q.Trigram)
-	if n > 1 {
-		return
-	}
-
-	// Nothing left in the AND/OR?
-	if n == 0 {
-		if q.Op == QAnd {
-			q.Op = QAll
-		} else {
-			q.Op = QNone
-		}
-		return
-	}
-
-	// Just a sub-node: throw away wrapper.
-	if len(q.Sub) == 1 {
-		*q = *q.Sub[0]
-	}
-
-	// Just a trigram: can use either op.
-	q.Op = op
-}
-
 // andTrigrams returns q AND the OR of the AND of the trigrams present in each string.
 func (q *Query) andTrigrams(t stringSet) *Query {
 	if t.minLen() < 3 {
@@ -735,16 +702,6 @@ func (s stringSet) have() bool {
 	return s != nil
 }
 
-// contains reports whether s contains str.
-func (s stringSet) contains(str string) bool {
-	for _, ss := range s {
-		if ss == str {
-			return true
-		}
-	}
-	return false
-}
-
 type byPrefix []string
 
 func (x *byPrefix) Len() int           { return len(*x) }
@@ -813,20 +770,6 @@ func (s stringSet) minLen() int {
 	return m
 }
 
-// maxLen returns the length of the longest string in s.
-func (s stringSet) maxLen() int {
-	if len(s) == 0 {
-		return 0
-	}
-	m := len(s[0])
-	for _, str := range s {
-		if m < len(str) {
-			m = len(str)
-		}
-	}
-	return m
-}
-
 // union returns the union of s and t, reusing s's storage.
 func (s stringSet) union(t stringSet, isSuffix bool) stringSet {
 	s = append(s, t...)
@@ -844,11 +787,6 @@ func (s stringSet) cross(t stringSet, isSuffix bool) stringSet {
 	}
 	p.clean(isSuffix)
 	return p
-}
-
-// clear empties the set but preserves the storage.
-func (s *stringSet) clear() {
-	*s = (*s)[:0]
 }
 
 // copy returns a copy of the set that does not share storage with the original.
