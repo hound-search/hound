@@ -581,28 +581,28 @@ func AssetNames() []string {
 
 // _bindata is a table, holding each asset generator, mapped to its name.
 var _bindata = map[string]func() (*asset, error){
-	"css/hound.css": cssHoundCss,
-	"css/octicons/LICENSE.txt": cssOcticonsLicenseTxt,
-	"css/octicons/README.md": cssOcticonsReadmeMd,
-	"css/octicons/octicons-local.ttf": cssOcticonsOcticonsLocalTtf,
-	"css/octicons/octicons.css": cssOcticonsOcticonsCss,
-	"css/octicons/octicons.eot": cssOcticonsOcticonsEot,
-	"css/octicons/octicons.less": cssOcticonsOcticonsLess,
-	"css/octicons/octicons.svg": cssOcticonsOcticonsSvg,
-	"css/octicons/octicons.ttf": cssOcticonsOcticonsTtf,
-	"css/octicons/octicons.woff": cssOcticonsOcticonsWoff,
+	"css/hound.css":                        cssHoundCss,
+	"css/octicons/LICENSE.txt":             cssOcticonsLicenseTxt,
+	"css/octicons/README.md":               cssOcticonsReadmeMd,
+	"css/octicons/octicons-local.ttf":      cssOcticonsOcticonsLocalTtf,
+	"css/octicons/octicons.css":            cssOcticonsOcticonsCss,
+	"css/octicons/octicons.eot":            cssOcticonsOcticonsEot,
+	"css/octicons/octicons.less":           cssOcticonsOcticonsLess,
+	"css/octicons/octicons.svg":            cssOcticonsOcticonsSvg,
+	"css/octicons/octicons.ttf":            cssOcticonsOcticonsTtf,
+	"css/octicons/octicons.woff":           cssOcticonsOcticonsWoff,
 	"css/octicons/sprockets-octicons.scss": cssOcticonsSprocketsOcticonsScss,
-	"excluded_files.tpl.html": excluded_filesTplHtml,
-	"favicon.ico": faviconIco,
-	"images/busy.gif": imagesBusyGif,
-	"index.tpl.html": indexTplHtml,
-	"js/JSXTransformer-0.12.2.js": jsJsxtransformer0122Js,
-	"js/common.js": jsCommonJs,
-	"js/excluded_files.js": jsExcluded_filesJs,
-	"js/hound.js": jsHoundJs,
-	"js/jquery-2.1.3.min.js": jsJquery213MinJs,
-	"js/react-0.12.2.min.js": jsReact0122MinJs,
-	"open_search.tpl.xml": open_searchTplXml,
+	"excluded_files.tpl.html":              excluded_filesTplHtml,
+	"favicon.ico":                          faviconIco,
+	"images/busy.gif":                      imagesBusyGif,
+	"index.tpl.html":                       indexTplHtml,
+	"js/JSXTransformer-0.12.2.js":          jsJsxtransformer0122Js,
+	"js/common.js":                         jsCommonJs,
+	"js/excluded_files.js":                 jsExcluded_filesJs,
+	"js/hound.js":                          jsHoundJs,
+	"js/jquery-2.1.3.min.js":               jsJquery213MinJs,
+	"js/react-0.12.2.min.js":               jsReact0122MinJs,
+	"open_search.tpl.xml":                  open_searchTplXml,
 }
 
 // AssetDir returns the file names below a certain
@@ -644,35 +644,36 @@ type bintree struct {
 	Func     func() (*asset, error)
 	Children map[string]*bintree
 }
+
 var _bintree = &bintree{nil, map[string]*bintree{
 	"css": &bintree{nil, map[string]*bintree{
 		"hound.css": &bintree{cssHoundCss, map[string]*bintree{}},
 		"octicons": &bintree{nil, map[string]*bintree{
-			"LICENSE.txt": &bintree{cssOcticonsLicenseTxt, map[string]*bintree{}},
-			"README.md": &bintree{cssOcticonsReadmeMd, map[string]*bintree{}},
-			"octicons-local.ttf": &bintree{cssOcticonsOcticonsLocalTtf, map[string]*bintree{}},
-			"octicons.css": &bintree{cssOcticonsOcticonsCss, map[string]*bintree{}},
-			"octicons.eot": &bintree{cssOcticonsOcticonsEot, map[string]*bintree{}},
-			"octicons.less": &bintree{cssOcticonsOcticonsLess, map[string]*bintree{}},
-			"octicons.svg": &bintree{cssOcticonsOcticonsSvg, map[string]*bintree{}},
-			"octicons.ttf": &bintree{cssOcticonsOcticonsTtf, map[string]*bintree{}},
-			"octicons.woff": &bintree{cssOcticonsOcticonsWoff, map[string]*bintree{}},
+			"LICENSE.txt":             &bintree{cssOcticonsLicenseTxt, map[string]*bintree{}},
+			"README.md":               &bintree{cssOcticonsReadmeMd, map[string]*bintree{}},
+			"octicons-local.ttf":      &bintree{cssOcticonsOcticonsLocalTtf, map[string]*bintree{}},
+			"octicons.css":            &bintree{cssOcticonsOcticonsCss, map[string]*bintree{}},
+			"octicons.eot":            &bintree{cssOcticonsOcticonsEot, map[string]*bintree{}},
+			"octicons.less":           &bintree{cssOcticonsOcticonsLess, map[string]*bintree{}},
+			"octicons.svg":            &bintree{cssOcticonsOcticonsSvg, map[string]*bintree{}},
+			"octicons.ttf":            &bintree{cssOcticonsOcticonsTtf, map[string]*bintree{}},
+			"octicons.woff":           &bintree{cssOcticonsOcticonsWoff, map[string]*bintree{}},
 			"sprockets-octicons.scss": &bintree{cssOcticonsSprocketsOcticonsScss, map[string]*bintree{}},
 		}},
 	}},
 	"excluded_files.tpl.html": &bintree{excluded_filesTplHtml, map[string]*bintree{}},
-	"favicon.ico": &bintree{faviconIco, map[string]*bintree{}},
+	"favicon.ico":             &bintree{faviconIco, map[string]*bintree{}},
 	"images": &bintree{nil, map[string]*bintree{
 		"busy.gif": &bintree{imagesBusyGif, map[string]*bintree{}},
 	}},
 	"index.tpl.html": &bintree{indexTplHtml, map[string]*bintree{}},
 	"js": &bintree{nil, map[string]*bintree{
 		"JSXTransformer-0.12.2.js": &bintree{jsJsxtransformer0122Js, map[string]*bintree{}},
-		"common.js": &bintree{jsCommonJs, map[string]*bintree{}},
-		"excluded_files.js": &bintree{jsExcluded_filesJs, map[string]*bintree{}},
-		"hound.js": &bintree{jsHoundJs, map[string]*bintree{}},
-		"jquery-2.1.3.min.js": &bintree{jsJquery213MinJs, map[string]*bintree{}},
-		"react-0.12.2.min.js": &bintree{jsReact0122MinJs, map[string]*bintree{}},
+		"common.js":                &bintree{jsCommonJs, map[string]*bintree{}},
+		"excluded_files.js":        &bintree{jsExcluded_filesJs, map[string]*bintree{}},
+		"hound.js":                 &bintree{jsHoundJs, map[string]*bintree{}},
+		"jquery-2.1.3.min.js":      &bintree{jsJquery213MinJs, map[string]*bintree{}},
+		"react-0.12.2.min.js":      &bintree{jsReact0122MinJs, map[string]*bintree{}},
 	}},
 	"open_search.tpl.xml": &bintree{open_searchTplXml, map[string]*bintree{}},
 }}
@@ -723,4 +724,3 @@ func _filePath(dir, name string) string {
 	cannonicalName := strings.Replace(name, "\\", "/", -1)
 	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
 }
-
