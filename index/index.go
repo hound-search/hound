@@ -364,7 +364,7 @@ func indexAllFiles(opt *IndexOptions, dst, src string) error {
 	}
 	defer fileHandle.Close()
 
-	if err := filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
+	if err := filepath.Walk(src, func(path string, info os.FileInfo, _ error) error {
 		name := info.Name()
 		rel, err := filepath.Rel(src, path)
 		if err != nil {
