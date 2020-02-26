@@ -122,7 +122,7 @@ func (ix *IndexWriter) AddFile(name string) {
 func (ix *IndexWriter) Add(name string, f io.Reader) string {
 	ix.trigram.Reset()
 	var (
-		c          = byte(0)
+		c          byte
 		i          = 0
 		buf        = ix.inbuf[:0]
 		tv         = uint32(0)
@@ -130,7 +130,7 @@ func (ix *IndexWriter) Add(name string, f io.Reader) string {
 		linelen    = 0
 		numLines   = 0
 		longLines  = 0
-		skipReason = ""
+		skipReason string
 	)
 
 	for {
