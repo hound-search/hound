@@ -264,7 +264,10 @@ func reportOnMemory() {
 // Utility function for producing a hex encoded sha1 hash for a string.
 func hashFor(name string) string {
 	h := sha1.New()
-	h.Write([]byte(name))
+	_, err := h.Write([]byte(name))
+	if err != nil {
+		log.Fatal(err)
+	}
 	return hex.EncodeToString(h.Sum(nil))
 }
 
