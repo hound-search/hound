@@ -64,7 +64,6 @@ func Merge(dst, src1, src2 string) {
 		for i1 < uint32(ix1.numName) && ix1.Name(i1) < limit {
 			i1++
 		}
-		hi := i1
 
 		// Record range before the shadow.
 		if old < lo {
@@ -82,7 +81,7 @@ func Merge(dst, src1, src2 string) {
 		for i2 < uint32(ix2.numName) && ix2.Name(i2) < limit {
 			i2++
 		}
-		hi = i2
+		hi := i2
 		if lo < hi {
 			map2 = append(map2, idrange{lo, hi, new})
 			new += hi - lo
