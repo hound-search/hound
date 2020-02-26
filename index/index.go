@@ -236,7 +236,7 @@ func (n *Index) Search(pat string, opt *SearchOptions) (*SearchResponse, error) 
 		Matches:        results,
 		FilesWithMatch: filesFound,
 		FilesOpened:    filesOpened,
-		Duration:       time.Now().Sub(startedAt),
+		Duration:       time.Since(startedAt),
 		Revision:       n.Ref.Rev,
 	}, nil
 }
