@@ -31,8 +31,11 @@ ui/bindata.go: .build/bin/go-bindata node_modules $(wildcard ui/assets/**/*)
 dev: ALL
 	npm install
 
-test:
-	go test github.com/hound-search/hound/...
+lint:
+	golangci-lint run ./...
+
+test: lint
+	go test -race ./...
 
 clean:
 	rm -rf .build node_modules
