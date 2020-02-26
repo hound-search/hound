@@ -43,7 +43,6 @@ type IndexWriter struct {
 	paths []string
 
 	nameData   *bufWriter // temp file holding list of names
-	nameLen    uint32     // number of bytes written to nameData
 	nameIndex  *bufWriter // temp file holding name index
 	numName    int        // number of names written
 	totalBytes int64
@@ -368,8 +367,6 @@ type postChunk struct {
 	m []postEntry // remaining entries after e
 }
 
-const postBuf = 4096
-
 // A postHeap is a heap (priority queue) of postChunks.
 type postHeap struct {
 	ch []*postChunk
@@ -386,23 +383,6 @@ func (h *postHeap) addMem(x []postEntry) {
 	h.add(&postChunk{m: x})
 }
 
-// step reads the next entry from ch and saves it in ch.e.
-// It returns false if ch is over.
-func (h *postHeap) step(ch *postChunk) bool {
-	old := ch.e
-	m := ch.m
-	if len(m) == 0 {
-		return false
-	}
-	ch.e = postEntry(m[0])
-	m = m[1:]
-	ch.m = m
-	if old >= ch.e {
-		panic("bad sort")
-	}
-	return true
-}
-
 // add adds the chunk to the postHeap.
 // All adds must be called before the first call to next.
 func (h *postHeap) add(ch *postChunk) {
@@ -411,11 +391,6 @@ func (h *postHeap) add(ch *postChunk) {
 		ch.m = ch.m[1:]
 		h.push(ch)
 	}
-}
-
-// empty reports whether the postHeap is empty.
-func (h *postHeap) empty() bool {
-	return len(h.ch) == 0
 }
 
 // next returns the next entry from the postHeap.
@@ -492,7 +467,6 @@ type bufWriter struct {
 	name string
 	file *os.File
 	buf  []byte
-	tmp  [8]byte
 }
 
 // bufCreate creates a new file with the given name and returns a

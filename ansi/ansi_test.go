@@ -11,10 +11,6 @@ var (
 	printTests = false
 )
 
-func makeReal(s string) string {
-	return strings.Replace(s, "~", "\x1b", -1)
-}
-
 func makeFake(s string) string {
 	return strings.Replace(s, "\x1b", "~", -1)
 }

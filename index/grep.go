@@ -28,23 +28,6 @@ func countLines(b []byte) int {
 	return n
 }
 
-func (g *grepper) grepFile(filename string, re *regexp.Regexp,
-	fn func(line []byte, lineno int) (bool, error)) error {
-	r, err := os.Open(filename)
-	if err != nil {
-		return err
-	}
-	defer r.Close()
-
-	c, err := gzip.NewReader(r)
-	if err != nil {
-		return err
-	}
-	defer c.Close()
-
-	return g.grep(c, re, fn)
-}
-
 func (g *grepper) grep2File(filename string, re *regexp.Regexp, nctx int,
 	fn func(line []byte, lineno int, before [][]byte, after [][]byte) (bool, error)) error {
 	r, err := os.Open(filename)
@@ -185,68 +168,4 @@ func (g *grepper) grep2(
 		lineno++
 		buf = buf[end:]
 	}
-}
-
-// This nonsense is adapted from https://code.google.com/p/codesearch/source/browse/regexp/match.go#399
-// and I assume it is a mess to make it faster, but I would like to try a much simpler cleaner version.
-func (g *grepper) grep(r io.Reader, re *regexp.Regexp, fn func(line []byte, lineno int) (bool, error)) error {
-	if g.buf == nil {
-		g.buf = make([]byte, 1<<20)
-	}
-
-	var (
-		buf       = g.buf[:0]
-		lineno    = 1
-		beginText = true
-		endText   = false
-	)
-
-	for {
-		n, err := io.ReadFull(r, buf[len(buf):cap(buf)])
-		buf = buf[:len(buf)+n]
-		end := len(buf)
-		if err == nil {
-			end = bytes.LastIndex(buf, nl) + 1
-		} else {
-			endText = true
-		}
-		chunkStart := 0
-		for chunkStart < end {
-			m1 := re.Match(buf[chunkStart:end], beginText, endText) + chunkStart
-			beginText = false
-			if m1 < chunkStart {
-				break
-			}
-			lineStart := bytes.LastIndex(buf[chunkStart:m1], nl) + 1 + chunkStart
-			lineEnd := m1 + 1
-			if lineEnd > end {
-				lineEnd = end
-			}
-			lineno += countLines(buf[chunkStart:lineStart])
-			line := buf[lineStart:lineEnd]
-			more, err := fn(line, lineno)
-			if err != nil {
-				return err
-			}
-			if !more {
-				return nil
-			}
-			lineno++
-			chunkStart = lineEnd
-		}
-		if err == nil {
-			lineno += countLines(buf[chunkStart:end])
-		}
-
-		n = copy(buf, buf[end:])
-		buf = buf[:n]
-		if len(buf) == 0 && err != nil {
-			if err != io.EOF && err != io.ErrUnexpectedEOF {
-				return err
-			}
-			return nil
-		}
-	}
-
-	return nil
 }
