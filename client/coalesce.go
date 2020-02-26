@@ -30,15 +30,9 @@ func matchToBlock(m *index.Match) *Block {
 
 	v[b] = true
 
-	for _, line := range m.Before {
-		l = append(l, line)
-	}
-
+	l = append(l, m.Before...)
 	l = append(l, m.Line)
-
-	for _, line := range m.After {
-		l = append(l, line)
-	}
+	l = append(l, m.After...)
 
 	return &Block{
 		Lines:   l,
