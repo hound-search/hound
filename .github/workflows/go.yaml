@@ -1,0 +1,48 @@
+on: [push]
+jobs:
+  go-build:
+    strategy:
+      matrix:
+        go: ["1.14", "1.13", "1.12"]
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2-beta
+        with:
+          go-version: ${{ matrix.go }}
+      - run: go build -x -work ./cmds/...
+  node-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "10.x"
+      - run: npm install
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2-beta
+        with:
+          go-version: "1.13"
+      - run: |
+          GO111MODULE=on go get github.com/golangci/golangci-lint/cmd/golangci-lint
+          export PATH=$GOPATH/bin:$PATH
+          golangci-lint run ./...
+        env:
+          GOPATH: /tmp/gopath
+  go-test:
+    strategy:
+      matrix:
+        go: ["1.14", "1.13", "1.12"]
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2-beta
+        with:
+          go-version: ${{ matrix.go }}
+      - run: go test -race ./...
+  # There are no npm tests, yet.
