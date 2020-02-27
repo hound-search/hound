@@ -2,7 +2,7 @@
   "dbpath" : "db",
   "repos" : {
     "Hound" : {
-      "url" : "https://github.com/etsy/hound.git"
+      "url" : "https://github.com/hound-search/hound.git"
     }
   }
 }
