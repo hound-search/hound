@@ -4,7 +4,8 @@
   "description": "Hound",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "format": "pretty-quick --staged --pattern '**/*.*(js|jsx)'"
   },
   "repository": {
     "type": "git",
@@ -22,6 +23,9 @@
     "@babel/preset-env": "^7.8.4",
     "@babel/preset-react": "^7.8.3",
     "babel-loader": "^8.0.6",
+    "jest": "^25.3.0",
+    "prettier": "^2.0.4",
+    "pretty-quick": "^2.0.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "webpack": "^4.41.6",

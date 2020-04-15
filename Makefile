@@ -33,6 +33,7 @@ dev: ALL
 
 test:
 	go test github.com/hound-search/hound/...
+	npm test
 
 clean:
 	rm -rf .build node_modules
