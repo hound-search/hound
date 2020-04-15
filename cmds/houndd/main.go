@@ -164,7 +164,7 @@ func main() {
 		}
 	}
 
-	info_log.Printf("running server at http://%s...\n", host)
+	info_log.Printf("running server at http://%s\n", host)
 
 	// Fully enable the web server now that we have indexes
 	panic(ws.ServeWithIndex(idx))
