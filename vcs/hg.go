@@ -47,7 +47,7 @@ func (g *MercurialDriver) HeadRev(dir string) (string, error) {
 	return strings.TrimSpace(buf.String()), cmd.Wait()
 }
 
-func (g *MercurialDriver) Pull(dir string) (string, error) {
+func (g *MercurialDriver) Pull(dir string, _ string) (string, error) {
 	cmd := exec.Command("hg", "pull", "-u")
 	cmd.Dir = dir
 	err := cmd.Run()

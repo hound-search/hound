@@ -30,6 +30,7 @@ type Repo struct {
 	Vcs               string         `json:"vcs"`
 	VcsConfigMessage  *SecretMessage `json:"vcs-config"`
 	UrlPattern        *UrlPattern    `json:"url-pattern"`
+	Ref               string         `json:"ref"`
 	ExcludeDotFiles   bool           `json:"exclude-dot-files"`
 	EnablePollUpdates *bool          `json:"enable-poll-updates"`
 	EnablePushUpdates *bool          `json:"enable-push-updates"`

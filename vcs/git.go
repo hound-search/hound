@@ -61,7 +61,11 @@ func run(desc, dir, cmd string, args ...string) error {
 	return nil
 }
 
-func (g *GitDriver) Pull(dir string) (string, error) {
+func (g *GitDriver) Pull(dir string, configRef string) (string, error) {
+	ref := configRef
+	if ref == "" {
+		ref = defaultRef
+	}
 	if err := run("git fetch", dir,
 		"git",
 		"fetch",
@@ -69,7 +73,7 @@ func (g *GitDriver) Pull(dir string) (string, error) {
 		"--no-tags",
 		"--depth", "1",
 		"origin",
-		fmt.Sprintf("+%s:remotes/origin/%s", defaultRef, defaultRef)); err != nil {
+		fmt.Sprintf("+%s:remotes/origin/%s", ref, ref)); err != nil {
 		return "", err
 	}
 
