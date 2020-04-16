@@ -2,6 +2,7 @@ package vcs
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -16,10 +17,23 @@ func init() {
 	Register(newGit, "git")
 }
 
-type GitDriver struct{}
+type GitDriver struct {
+	Ref string `json:"ref"`
+}
 
 func newGit(b []byte) (Driver, error) {
-	return &GitDriver{}, nil
+	var d GitDriver
+
+	if b != nil {
+		if err := json.Unmarshal(b, &d); err != nil {
+			return nil, err
+		}
+	}
+	if d.Ref == "" {
+		d.Ref = defaultRef
+	}
+
+	return &d, nil
 }
 
 func (g *GitDriver) HeadRev(dir string) (string, error) {
@@ -69,7 +83,7 @@ func (g *GitDriver) Pull(dir string) (string, error) {
 		"--no-tags",
 		"--depth", "1",
 		"origin",
-		fmt.Sprintf("+%s:remotes/origin/%s", defaultRef, defaultRef)); err != nil {
+		fmt.Sprintf("+%s:remotes/origin/%s", g.Ref, g.Ref)); err != nil {
 		return "", err
 	}
 
@@ -77,7 +91,7 @@ func (g *GitDriver) Pull(dir string) (string, error) {
 		"git",
 		"reset",
 		"--hard",
-		fmt.Sprintf("origin/%s", defaultRef)); err != nil {
+		fmt.Sprintf("origin/%s", g.Ref)); err != nil {
 		return "", err
 	}
 
