@@ -52,10 +52,10 @@ func run(desc, dir, cmd string, args ...string) error {
 	c.Dir = dir
 	if out, err := c.CombinedOutput(); err != nil {
 		log.Printf(
-			"Failed to %s %s, see output below\n%sContinuing...",
+			"Failed to %s %v at %q, see output below\n%s: %+v\nContinuing...",
 			desc,
-			dir,
-			out)
+			c.Args, c.Dir,
+			out, err)
 		return err
 	}
 	return nil

@@ -64,6 +64,10 @@
           "url-pattern" : {
               "base-url" : "{url}/{path}"
           }
-        }
+        },
+		"FakeRepo": {
+			"url": "file:///absolute/path/to/directory",
+			"vcs": "fake"
+		}
     }
 }
