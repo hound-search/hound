@@ -350,6 +350,11 @@ func indexAllFiles(opt *IndexOptions, dst, src string) error {
 	}
 	defer fileHandle.Close()
 
+	if fi, err := os.Stat(src); err == nil && fi.Mode()|os.ModeSymlink != 0 {
+		if s, err := os.Readlink(src); err == nil {
+			src = s
+		}
+	}
 	if err := filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
 		name := info.Name()
 		rel, err := filepath.Rel(src, path)
