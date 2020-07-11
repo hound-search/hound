@@ -3,6 +3,11 @@
     "dbpath" : "data",
     "title" : "Hound",
     "health-check-uri" : "/healthz",
+    "vcs-config" : {
+        "git": {
+            "detect-ref" : true
+        }
+    },
     "repos" : {
         "SomeGitRepo" : {
             "url" : "https://www.github.com/YourOrganization/RepoOne.git"
@@ -12,13 +17,19 @@
             "ms-between-poll": 10000,
             "exclude-dot-files": true
         },
+        "GitRepoWithDetectRefDisabled" : {
+            "url" : "https://www.github.com/YourOrganization/RepoOne.git",
+            "vcs-config" : {
+                "detect-ref" : false
+            }
+        },
         "SomeMercurialRepo" : {
             "url" : "https://www.example.com/foo/hg",
             "vcs" : "hg"
         },
         "Subversion" : {
             "url" : "http://my-svn.com/repo",
-            "url-pattern" : { 
+            "url-pattern" : {
                 "base-url" : "{url}/{path}{anchor}"
             },
             "vcs" : "svn"
@@ -49,6 +60,9 @@
             "url-pattern" : {
                 "base-url" : "https://{url}/src/master/{path}{anchor}",
                 "anchor" : "#{filename}-{line}"
+            },
+            "vcs-config" : {
+                "ref" : "main"
             }
         },
         "RepoWithPollingDisabled" : {
