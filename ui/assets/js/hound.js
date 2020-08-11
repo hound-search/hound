@@ -76,6 +76,7 @@ var ParamsFromUrl = function(params) {
     q: '',
     i: 'nope',
     files: '',
+    excludeFiles: '',
     repos: '*'
   };
   return ParamsFromQueryString(location.search, params);
@@ -373,6 +374,23 @@ var SearchBar = React.createClass({
   filesGotFocus: function(event) {
     this.showAdvanced();
   },
+  excludeFilesGotKeydown: function(event) {
+    switch (event.keyCode) {
+    case 38:
+      // if advanced is empty, close it up.
+      if (this.refs.excludeFiles.getDOMNode().value.trim() === '') {
+        this.hideAdvanced();
+      }
+      this.refs.q.getDOMNode().focus();
+      break;
+    case 13:
+      this.submitQuery();
+      break;
+    }
+  },
+  excludeFilesGotFocus: function(event) {
+    this.showAdvanced();
+  },
   submitQuery: function() {
     this.props.onSearchRequested(this.getParams());
   },
@@ -392,6 +410,7 @@ var SearchBar = React.createClass({
     return {
       q : this.refs.q.getDOMNode().value.trim(),
       files : this.refs.files.getDOMNode().value.trim(),
+      excludeFiles : this.refs.excludeFiles.getDOMNode().value.trim(),
       repos : repos.join(','),
       i: this.refs.icase.getDOMNode().checked ? 'fosho' : 'nope'
     };
@@ -399,30 +418,29 @@ var SearchBar = React.createClass({
   setParams: function(params) {
     var q = this.refs.q.getDOMNode(),
         i = this.refs.icase.getDOMNode(),
-        files = this.refs.files.getDOMNode();
+        files = this.refs.files.getDOMNode(),
+        excludeFiles = this.refs.excludeFiles.getDOMNode();
 
     q.value = params.q;
     i.checked = ParamValueToBool(params.i);
     files.value = params.files;
+    excludeFiles.value = params.excludeFiles;
   },
   hasAdvancedValues: function() {
-    return this.refs.files.getDOMNode().value.trim() !== '' || this.refs.icase.getDOMNode().checked || this.refs.repos.getDOMNode().value !== '';
+    return this.refs.files.getDOMNode().value.trim() !== '' || this.refs.excludeFiles.getDOMNode().value.trim() !== '' || this.refs.icase.getDOMNode().checked || this.refs.repos.getDOMNode().value !== '';
   },
   showAdvanced: function() {
     var adv = this.refs.adv.getDOMNode(),
         ban = this.refs.ban.getDOMNode(),
         q = this.refs.q.getDOMNode(),
-        files = this.refs.files.getDOMNode();
+        files = this.refs.files.getDOMNode(),
+        excludeFiles = this.refs.excludeFiles.getDOMNode();
 
     css(adv, 'height', 'auto');
     css(adv, 'padding', '10px 0');
 
     css(ban, 'max-height', '0');
     css(ban, 'opacity', '0');
-
-    if (q.value.trim() !== '') {
-      files.focus();
-    }
   },
   hideAdvanced: function() {
     var adv = this.refs.adv.getDOMNode(),
@@ -497,6 +515,17 @@ var SearchBar = React.createClass({
                     ref="files"
                     onKeyDown={this.filesGotKeydown}
                     onFocus={this.filesGotFocus} />
+              </div>
+            </div>
+            <div className="field">
+              <label htmlFor="excludeFiles">Exclude File Path</label>
+              <div className="field-input">
+                <input type="text"
+                    id="excludeFiles"
+                    placeholder="regexp"
+                    ref="excludeFiles"
+                    onKeyDown={this.excludeFilesGotKeydown}
+                    onFocus={this.excludeFilesGotFocus} />
               </div>
             </div>
             <div className="field">
@@ -763,6 +792,7 @@ var App = React.createClass({
       q: params.q,
       i: params.i,
       files: params.files,
+      excludeFiles: params.excludeFiles,
       repos: repos
     });
 
@@ -817,6 +847,7 @@ var App = React.createClass({
       '?q=' + encodeURIComponent(params.q) +
       '&i=' + encodeURIComponent(params.i) +
       '&files=' + encodeURIComponent(params.files) +
+      '&excludeFiles=' + encodeURIComponent(params.excludeFiles) +
       '&repos=' + params.repos;
     history.pushState({path:path}, '', path);
   },
@@ -827,6 +858,7 @@ var App = React.createClass({
             q={this.state.q}
             i={this.state.i}
             files={this.state.files}
+            excludeFiles={this.state.excludeFiles}
             repos={this.state.repos}
             onSearchRequested={this.onSearchRequested} />
         <ResultView ref="resultView" q={this.state.q} />
