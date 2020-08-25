@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/json"
 	"path/filepath"
 	"runtime"
 	"testing"
@@ -34,4 +35,21 @@ func TestExampleConfigsAreValid(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
+
+	// Ensure that global VCS config vals are merged
+	repo := cfg.Repos["SomeGitRepo"]
+	vcsConfigBytes := repo.VcsConfig()
+	var vcsConfigVals map[string]interface{}
+	json.Unmarshal(vcsConfigBytes, &vcsConfigVals)
+	if detectRef, ok := vcsConfigVals["detect-ref"]; !ok || !detectRef.(bool) {
+		t.Error("global detectRef vcs config setting not set for repo")
+	}
+
+	repo = cfg.Repos["GitRepoWithDetectRefDisabled"]
+	vcsConfigBytes = repo.VcsConfig()
+	json.Unmarshal(vcsConfigBytes, &vcsConfigVals)
+	if detectRef, ok := vcsConfigVals["detect-ref"]; !ok || detectRef.(bool) {
+		t.Error("global detectRef vcs config setting not overriden by repo-level setting")
+	}
+
 }
