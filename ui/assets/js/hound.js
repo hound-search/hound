@@ -361,7 +361,7 @@ var SearchBar = React.createClass({
     switch (event.keyCode) {
     case 38:
       // if advanced is empty, close it up.
-      if (this.refs.files.getDOMNode().value.trim() === '') {
+      if (this.isAdvancedEmpty()) {
         this.hideAdvanced();
       }
       this.refs.q.getDOMNode().focus();
@@ -378,7 +378,7 @@ var SearchBar = React.createClass({
     switch (event.keyCode) {
     case 38:
       // if advanced is empty, close it up.
-      if (this.refs.excludeFiles.getDOMNode().value.trim() === '') {
+      if (this.isAdvancedEmpty()) {
         this.hideAdvanced();
       }
       this.refs.q.getDOMNode().focus();
@@ -428,6 +428,9 @@ var SearchBar = React.createClass({
   },
   hasAdvancedValues: function() {
     return this.refs.files.getDOMNode().value.trim() !== '' || this.refs.excludeFiles.getDOMNode().value.trim() !== '' || this.refs.icase.getDOMNode().checked || this.refs.repos.getDOMNode().value !== '';
+  },
+  isAdvancedEmpty: function() {
+    return this.refs.files.getDOMNode().value.trim() === '' && this.refs.excludeFiles.getDOMNode().value.trim() === '';
   },
   showAdvanced: function() {
     var adv = this.refs.adv.getDOMNode(),
