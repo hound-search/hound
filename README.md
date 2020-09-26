@@ -160,3 +160,10 @@ Created at [Etsy](https://www.etsy.com) by:
 
 * [Kelly Norton](https://github.com/kellegous)
 * [Jonathan Klein](https://github.com/jklein)
+
+Hound is maintained by:
+
+* [David Schott](https://github.com/dschott68)
+* [Jacob Rose](https://github.com/jacobrose)
+* [Nick Sawyer](https://github.com/nickmoorman)
+* [Salem Hilal](https://github.com/salemhilal)
