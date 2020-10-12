@@ -6,11 +6,17 @@ Hound is an extremely fast source code search engine. The core is based on this 
 [Regular Expression Matching with a Trigram Index](http://swtch.com/~rsc/regexp/regexp4.html). Hound itself is a static
 [React](http://facebook.github.io/react/) frontend that talks to a [Go](http://golang.org/) backend. The backend keeps an up-to-date index for each repository and answers searches through a minimal API. Here it is in action:
 
-![Hound Screen Capture](screen_capture.gif)
+![Hound Screen Capture](imgs/screen_capture.gif)
 
 ## Quick Start Guide
 
 ### Using Go Tools
+
+0. [Install the Go tools](https://golang.org/doc/install) if you don't have it. 
+
++ After installing Go, make sure go's version is 1.4+ by typing `go version` in the command line. 
++ Set up your [`GOPATH`](https://github.com/golang/go/wiki/GOPATH) to a directory where you want to store all your Go packages. Otherwise
+all packages will be installed to `$HOME/go` by default.
 
 1. Use the Go tools to install Hound. The binaries `houndd` (server) and `hound` (cli) will be installed in your $GOPATH.
 
@@ -18,9 +24,12 @@ Hound is an extremely fast source code search engine. The core is based on this 
 go get github.com/hound-search/hound/cmds/...
 ```
 
-2. Create a [config.json](config-example.json) in a directory with your list of repositories.
+2. Create a [simple-config-example.json](config-examples/simple-config-example.json) in your local file directory. For simplicity, we just showed 
+the simplest configuration for local file search only. (For a more hybrid solution, please refer to [config-example.json](config-examples/config-example.json))
 
-3. Run the Hound server with `houndd` and you should see output similar to:
+In the simple configuration file, we placed a tensorflow repo at `/home/rfan/tensorflow` path. 
+
+3. Run the Hound server with `houndd -addr=localhost:6880 -conf <your config.json file>` and you should see output similar to:
 ```
 2015/03/13 09:07:42 Searcher started for statsd
 2015/03/13 09:07:42 Searcher started for Hound
@@ -28,9 +37,16 @@ go get github.com/hound-search/hound/cmds/...
 2015/03/13 09:07:42 running server at http://localhost:6080
 ```
 
+4. Open your browser at `http://localhost:6880`, you should be able to search the tensorflow repo rapidly like the following.
+
+![Tensorflow Hound Search Screenshot](imgs/tensorflow_hound_search.png)
+
 ### Using Docker (1.4+)
 
-1. Create a [config.json](config-example.json) in a directory with your list of repositories.
+0. [Install the docker](https://docs.docker.com/get-docker/) if you don't have it.
+
+1. Create a [simple-config-example.json](config-examples/simple-config-example.json) in your local file directory. For simplicity, we just showed 
+the simplest configuration for local file search only. (For a more hybrid solution, please refer to [config-example.json](config-examples/config-example.json))
 
 2. Run 
 ```
@@ -42,7 +58,8 @@ You should be able to navigate to [http://localhost:6080/](http://localhost:6080
 
 ## Running in Production
 
-There are no special flags to run Hound in production. You can use the `--addr=:6880` flag to control the port to which the server binds. Currently, Hound does not support TLS as most users simply run Hound behind either Apache or nginx. Adding TLS support is pretty straight forward though if anyone wants to add it.
+There are no special flags to run Hound in production. You can use the `--addr=:6880` flag to control the port to which the server binds. 
+Currently, Hound does not support TLS as most users simply run Hound behind either Apache or nginx. Adding TLS support is pretty straight forward though if anyone wants to add it.
 
 ## Why Another Code Search Tool?
 
@@ -66,7 +83,7 @@ Hound supports the following version control systems:
 * SVN - use `"vcs" : "svn"` in the config
 * Bazaar - use `"vcs" : "bzr"` in the config
 
-See [config-example.json](config-example.json) for examples of how to use each VCS.
+See [config-example.json](config-examples/config-example.json) for examples of how to use each VCS.
 
 ## Private Repositories
 
@@ -79,7 +96,7 @@ not work. (This also doesn't work on local folders that are not of a supported r
 
 ## Keeping Repos Updated
 
-By default Hound polls the URL in the config for updates every 30 seconds. You can override this value by setting the `ms-between-poll` key on a per repo basis in the config. If you are indexing a large number of repositories, you may also be interested in tweaking the `max-concurrent-indexers` property. You can see how these work in the [example config](config-example.json). 
+By default Hound polls the URL in the config for updates every 30 seconds. You can override this value by setting the `ms-between-poll` key on a per repo basis in the config. If you are indexing a large number of repositories, you may also be interested in tweaking the `max-concurrent-indexers` property. You can see how these work in the [example config](config-examples/config-example.json). 
 
 ## Editor Integration
 
