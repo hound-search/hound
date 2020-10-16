@@ -13,6 +13,9 @@ RUN apk update \
 	&& rm -f /var/cache/apk/* \
 	&& rm -rf /go/src /go/pkg
 
+RUN addgroup -S hound && adduser -S -g hound hound
+USER hound
+
 VOLUME ["/data"]
 
 EXPOSE 6080
