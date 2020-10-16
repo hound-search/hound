@@ -282,24 +282,32 @@ func init() {
 // occurred and no other return values are valid. If an error occurs that is specific
 // to a particular searcher, that searcher will not be present in the searcher map and
 // will have an error entry in the error map.
-func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error) {
+func MakeAll(cfg *config.Config, searchers map[string]*Searcher) (map[string]error, error) {
 	errs := map[string]error{}
-	searchers := map[string]*Searcher{}
 
 	refs, err := findExistingRefs(cfg.DbPath)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	lim := makeLimiter(cfg.MaxConcurrentIndexers)
 
-	n := len(cfg.Repos)
+	n := 0
+	for name := range cfg.Repos {
+		if _, ok := searchers[name]; ok {
+			continue
+		}
+		n++
+	}
 	// Channel to receive the results from newSearcherConcurrent function.
 	resultCh := make(chan searcherResult, n)
 
 	// Start new searchers for all repos in different go routines while
 	// respecting cfg.MaxConcurrentIndexers.
 	for name, repo := range cfg.Repos {
+		if _, ok := searchers[name]; ok {
+			continue
+		}
 		go newSearcherConcurrent(cfg.DbPath, name, repo, refs, lim, resultCh)
 	}
 
@@ -315,7 +323,7 @@ func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error)
 	}
 
 	if err := refs.removeUnclaimed(); err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	// after all the repos are in good shape, we start their polling
@@ -323,7 +331,7 @@ func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error)
 		s.begin()
 	}
 
-	return searchers, errs, nil
+	return errs, nil
 }
 
 // Creates a new Searcher that is available for searches as soon as this returns.
