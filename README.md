@@ -88,7 +88,7 @@ Hound supports the following version control systems:
 * SVN - use `"vcs" : "svn"` in the config
 * Bazaar - use `"vcs" : "bzr"` in the config
 
-See [config-example.json](config-examples/config-example.json) for examples of how to use each VCS.
+See [config-example.json](config-example.json) for examples of how to use each VCS.
 
 ## Private Repositories
 
@@ -101,7 +101,7 @@ not work. (This also doesn't work on local folders that are not of a supported r
 
 ## Keeping Repos Updated
 
-By default Hound polls the URL in the config for updates every 30 seconds. You can override this value by setting the `ms-between-poll` key on a per repo basis in the config. If you are indexing a large number of repositories, you may also be interested in tweaking the `max-concurrent-indexers` property. You can see how these work in the [example config](config-examples/config-example.json). 
+By default Hound polls the URL in the config for updates every 30 seconds. You can override this value by setting the `ms-between-poll` key on a per repo basis in the config. If you are indexing a large number of repositories, you may also be interested in tweaking the `max-concurrent-indexers` property. You can see how these work in the [example config](config-example.json). 
 
 ## Editor Integration
 
