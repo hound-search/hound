@@ -12,11 +12,10 @@ Hound is an extremely fast source code search engine. The core is based on this 
 
 ### Using Go Tools
 
-0. [Install the Go tools](https://golang.org/doc/install) if you don't have it. 
-
-+ After installing Go, make sure go's version is 1.4+ by typing `go version` in the command line. 
-+ Set up your [`GOPATH`](https://github.com/golang/go/wiki/GOPATH) to a directory where you want to store all your Go packages. Otherwise
-all packages will be installed to `$HOME/go` by default.
+0. [Install Go](https://golang.org/doc/install) if you don't have it already. Hound requires version 1.4 or later. 
+You might also want to define a [`GOPATH`](https://github.com/golang/go/wiki/GOPATH) environment variable) 
+(it defaults to $HOME/go if you don't explicitly have one set). If everything is installed properly, go version will 
+print out the installed version of go. 
 
 1. Use the Go tools to install Hound. The binaries `houndd` (server) and `hound` (cli) will be installed in your $GOPATH.
 
@@ -24,9 +23,17 @@ all packages will be installed to `$HOME/go` by default.
 go get github.com/hound-search/hound/cmds/...
 ```
 
-2. Create a [config.json](config-example.json) in your local file directory. For simplicity, you can use the minimalist's 
-[default-config.json](default-config.json) that hosts this repo only. Please download the `default-config.json` to a separate
-directory, e.g. `$HOME/hound-config`. 
+2. Create a config.json file and use it to list your repositories. Check out our [example-config.json](config-example.json) 
+to see how to set up various types of repositories. For example, we can configure Hound to search its own source code using 
+the config found in [default-config.json](default-config.json):
+```json
+{
+  "dbpath" : "db",
+  "repos" : {
+    "Hound" : { "url" : "https://github.com/etsy/hound.git" }
+  }
+}
+```
 
 3. Run the Hound server with `houndd` in the same directory and you should see output similar to:
 ```
@@ -40,18 +47,19 @@ directory, e.g. `$HOME/hound-config`.
 
 ### Using Docker (1.4+)
 
-0. [Install the docker](https://docs.docker.com/get-docker/) if you don't have it.
+0. [Install the docker](https://docs.docker.com/get-docker/) if you don't have it. We need at least `Docker >= 1.14`.
 
-1. Create a [simple-config-example.json](config-examples/simple-config-example.json) in your local file directory. For simplicity, we just showed 
-the simplest configuration for local file search only. (For a more hybrid solution, please refer to [config-example.json](config-examples/config-example.json))
+2. Create a config.json file and use it to list your repositories. Check out our [example-config.json](config-example.json) 
+to see how to set up various types of repositories. For example, we can configure Hound to search its own source code using 
+the config found in [default-config.json](default-config.json). 
 
 2. Run 
 ```
 docker run -d -p 6080:6080 --name hound -v $(pwd):/data etsy/hound
 ```
 
-You should be able to navigate to [http://localhost:6080/](http://localhost:6080/) as usual.
-
+You should be able to navigate to [http://localhost:6080/](http://localhost:6080/) as usual. This docker use the 
+[`default-config.json`](default-config.json) as the configuration file. 
 
 ## Running in Production
 
