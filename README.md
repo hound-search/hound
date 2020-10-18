@@ -24,12 +24,11 @@ all packages will be installed to `$HOME/go` by default.
 go get github.com/hound-search/hound/cmds/...
 ```
 
-2. Create a [simple-config-example.json](config-examples/simple-config-example.json) in your local file directory. For simplicity, we just showed 
-the simplest configuration for local file search only. (For a more hybrid solution, please refer to [config-example.json](config-examples/config-example.json))
+2. Create a [config.json](config-example.json) in your local file directory. For simplicity, you can use the minimalist's 
+[default-config.json](default-config.json) that hosts this repo only. Please download the `default-config.json` to a separate
+directory, e.g. `$HOME/hound-config`. 
 
-In the simple configuration file, we placed a tensorflow repo at `/home/rfan/tensorflow` path. 
-
-3. Run the Hound server with `houndd -addr=localhost:6880 -conf <your config.json file>` and you should see output similar to:
+3. Run the Hound server with `houndd` in the same directory and you should see output similar to:
 ```
 2015/03/13 09:07:42 Searcher started for statsd
 2015/03/13 09:07:42 Searcher started for Hound
@@ -37,9 +36,7 @@ In the simple configuration file, we placed a tensorflow repo at `/home/rfan/ten
 2015/03/13 09:07:42 running server at http://localhost:6080
 ```
 
-4. Open your browser at `http://localhost:6880`, you should be able to search the tensorflow repo rapidly like the following.
-
-![Tensorflow Hound Search Screenshot](imgs/tensorflow_hound_search.png)
+4. By default, hound hosts a web ui at http://localhost:6080 . Open it in your browser, and start searching.
 
 ### Using Docker (1.4+)
 
@@ -145,7 +142,11 @@ If you want to just run the JavaScript test suite, use:
 npm test
 ```
 
-Any Go files that end in `_test.go` are assumed to be test files.  Similarly, any JavaScript files that ends in `.test.js` are automatically run by Jest, our test runner. Tests should live next to the files that they cover. [Check out Jest's docs](https://jestjs.io/docs/en/getting-started) for more details on writing Jest tests, and [check out Go's testing docs](https://golang.org/pkg/testing/) for more details on testing Go code.
+Any Go files that end in `_test.go` are assumed to be test files.  Similarly, any JavaScript files that ends in `.test.js` are automatically run by Jest, our test runner. Tests should live next to the files that they cover. 
+[Check out Jest's docs](https://jestjs.io/docs/en/getting-started) for more details on writing Jest tests, 
+and [check out Go's testing docs](https://golang.org/pkg/testing/) for more details on testing Go code.
+
+You might want to install `Node.js >= 12` and install `jest` by `npm install jest` to run the JS tests.
 
 ### Working on the web UI
 
