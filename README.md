@@ -56,7 +56,7 @@ You should be able to navigate to [http://localhost:6080/](http://localhost:6080
 ## Running in Production
 
 There are no special flags to run Hound in production. You can use the `--addr=:6880` flag to control the port to which the server binds. 
-Currently, Hound does not support TLS as most users simply run Hound behind either Apache or nginx. Adding TLS support is pretty straight forward though if anyone wants to add it.
+Currently, Hound does not support TLS as most users simply run Hound behind either Apache or nginx. However, we are open to contributions to add TLS support.
 
 ## Why Another Code Search Tool?
 
