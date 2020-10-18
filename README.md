@@ -154,7 +154,7 @@ Any Go files that end in `_test.go` are assumed to be test files.  Similarly, an
 [Check out Jest's docs](https://jestjs.io/docs/en/getting-started) for more details on writing Jest tests, 
 and [check out Go's testing docs](https://golang.org/pkg/testing/) for more details on testing Go code.
 
-You might want to install `Node.js >= 12` and install `jest` by `npm install jest` to run the JS tests.
+You need to install `Node.js >= 12` and install `jest` by `npm install jest` to run the JS tests.
 
 ### Working on the web UI
 
