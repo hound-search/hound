@@ -58,8 +58,7 @@ the config found in [default-config.json](default-config.json).
 docker run -d -p 6080:6080 --name hound -v $(pwd):/data etsy/hound
 ```
 
-You should be able to navigate to [http://localhost:6080/](http://localhost:6080/) as usual. This docker use the 
-[`default-config.json`](default-config.json) as the configuration file. 
+You should be able to navigate to [http://localhost:6080/](http://localhost:6080/) as usual. 
 
 ## Running in Production
 
