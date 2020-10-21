@@ -49,7 +49,7 @@ the config found in [default-config.json](default-config.json):
 
 0. [Install the docker](https://docs.docker.com/get-docker/) if you don't have it. We need at least `Docker >= 1.14`.
 
-2. Create a config.json file and use it to list your repositories. Check out our [example-config.json](config-example.json) 
+1. Create a config.json file and use it to list your repositories. Check out our [example-config.json](config-example.json) 
 to see how to set up various types of repositories. For example, we can configure Hound to search its own source code using 
 the config found in [default-config.json](default-config.json). 
 
