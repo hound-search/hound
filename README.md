@@ -35,7 +35,7 @@ the config found in [default-config.json](default-config.json):
 }
 ```
 
-3. Run the Hound server with `houndd` in the same directory and you should see output similar to:
+3. Run the Hound server with `houndd` in the same directory as your `config.json`. You should see output similar to:
 ```
 2015/03/13 09:07:42 Searcher started for statsd
 2015/03/13 09:07:42 Searcher started for Hound
