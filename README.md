@@ -12,12 +12,14 @@ Hound is an extremely fast source code search engine. The core is based on this 
 
 ### Using Go Tools
 
+
 0. [Install Go](https://golang.org/doc/install) if you don't have it already. Hound requires version 1.4 or later. 
 You might also want to define a [`GOPATH`](https://github.com/golang/go/wiki/GOPATH) environment variable) 
 (it defaults to $HOME/go if you don't explicitly have one set). If everything is installed properly, `go version` should 
 print out the installed version of go. 
 
-1. Use the Go tools to install Hound. The binaries `houndd` (server) and `hound` (cli) will be installed in your $GOPATH.
+1. Use the Go tools to install Hound. The binaries `houndd` (server) and `hound` (cli) will be installed in your $GOPATH/bin directory. Your $GOPATH should be in your $PATH (`echo $PATH` to check).
+
 
 ```
 go get github.com/hound-search/hound/cmds/...
