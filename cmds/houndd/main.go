@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -27,6 +28,7 @@ var (
 	error_log  *log.Logger
 	_, b, _, _ = runtime.Caller(0)
 	basepath   = filepath.Dir(b)
+	version    string
 )
 
 func makeSearchers(cfg *config.Config) (map[string]*searcher.Searcher, bool, error) {
@@ -121,8 +123,14 @@ func main() {
 	flagConf := flag.String("conf", "config.json", "")
 	flagAddr := flag.String("addr", ":6080", "")
 	flagDev := flag.Bool("dev", false, "")
+	flagVer := flag.Bool("version", false, "Display version and exit")
 
 	flag.Parse()
+
+	if *flagVer {
+		fmt.Printf("houndd %s", version)
+		os.Exit(0)
+	}
 
 	var cfg config.Config
 	if err := cfg.LoadFromFile(*flagConf); err != nil {
