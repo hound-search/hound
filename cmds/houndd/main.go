@@ -14,6 +14,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/blang/semver"
 	"github.com/hound-search/hound/api"
 	"github.com/hound-search/hound/config"
 	"github.com/hound-search/hound/searcher"
@@ -115,6 +116,18 @@ func runHttp(
 	return http.ListenAndServe(addr, m)
 }
 
+func getVersion() semver.Version {
+	ver, err := semver.Parse(version)
+	if err == nil {
+		return ver
+	}
+	return semver.Version{
+		Major: 1,
+		Minor: 0,
+		Patch: 0,
+	}
+}
+
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	info_log = log.New(os.Stdout, "", log.LstdFlags)
@@ -128,7 +141,7 @@ func main() {
 	flag.Parse()
 
 	if *flagVer {
-		fmt.Printf("houndd %s", version)
+		fmt.Printf("houndd v%s", getVersion())
 		os.Exit(0)
 	}
 

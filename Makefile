@@ -7,8 +7,6 @@ ifdef DEBUG
 	WEBPACK_ARGS := -d
 endif
 
-VERSION?=1.0.0
-
 ALL: $(CMDS)
 
 ui: ui/bindata.go
@@ -17,7 +15,7 @@ node_modules:
 	npm install
 
 $(GOPATH)/bin/houndd: ui/bindata.go $(SRCS)
-	go install -ldflags "-X main.version=$(VERSION)" github.com/hound-search/hound/cmds/houndd 
+	go install -ldflags "-X main.version=$(VERSION)" github.com/hound-search/hound/cmds/houndd
 
 $(GOPATH)/bin/hound: ui/bindata.go $(SRCS)
 	go install github.com/hound-search/hound/cmds/hound
