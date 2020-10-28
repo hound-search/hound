@@ -122,8 +122,8 @@ func getVersion() semver.Version {
 		return ver
 	}
 	return semver.Version{
-		Major: 1,
-		Minor: 0,
+		Major: 0,
+		Minor: 3,
 		Patch: 0,
 	}
 }
