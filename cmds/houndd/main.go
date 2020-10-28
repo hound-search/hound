@@ -29,7 +29,6 @@ var (
 	error_log  *log.Logger
 	_, b, _, _ = runtime.Caller(0)
 	basepath   = filepath.Dir(b)
-	version    string
 )
 
 func makeSearchers(cfg *config.Config) (map[string]*searcher.Searcher, bool, error) {
@@ -117,10 +116,6 @@ func runHttp(
 }
 
 func getVersion() semver.Version {
-	ver, err := semver.Parse(version)
-	if err == nil {
-		return ver
-	}
 	return semver.Version{
 		Major: 0,
 		Minor: 3,

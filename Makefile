@@ -15,7 +15,7 @@ node_modules:
 	npm install
 
 $(GOPATH)/bin/houndd: ui/bindata.go $(SRCS)
-	go install -ldflags "-X main.version=$(VERSION)" github.com/hound-search/hound/cmds/houndd
+	go install github.com/hound-search/hound/cmds/houndd
 
 $(GOPATH)/bin/hound: ui/bindata.go $(SRCS)
 	go install github.com/hound-search/hound/cmds/hound
