@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -11,6 +12,8 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/blang/semver"
+	"github.com/hound-search/hound/api"
 	"github.com/hound-search/hound/config"
 	"github.com/hound-search/hound/searcher"
 	"github.com/hound-search/hound/web"
@@ -73,6 +76,50 @@ func registerShutdownSignal() <-chan os.Signal {
 	return shutdownCh
 }
 
+func makeTemplateData(cfg *config.Config) (interface{}, error) {
+	var data struct {
+		ReposAsJson string
+	}
+
+	res := map[string]*config.Repo{}
+	for name, repo := range cfg.Repos {
+		res[name] = repo
+	}
+
+	b, err := json.Marshal(res)
+	if err != nil {
+		return nil, err
+	}
+
+	data.ReposAsJson = string(b)
+	return &data, nil
+}
+
+func runHttp(
+	addr string,
+	dev bool,
+	cfg *config.Config,
+	idx map[string]*searcher.Searcher) error {
+	m := http.DefaultServeMux
+
+	h, err := ui.Content(dev, cfg)
+	if err != nil {
+		return err
+	}
+
+	m.Handle("/", h)
+	api.Setup(m, idx)
+	return http.ListenAndServe(addr, m)
+}
+
+func getVersion() semver.Version {
+	return semver.Version{
+		Major: 0,
+		Minor: 3,
+		Patch: 0,
+	}
+}
+
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	info_log = log.New(os.Stdout, "", log.LstdFlags)
@@ -81,8 +128,14 @@ func main() {
 	flagConf := flag.String("conf", "config.json", "")
 	flagAddr := flag.String("addr", ":6080", "")
 	flagDev := flag.Bool("dev", false, "")
+	flagVer := flag.Bool("version", false, "Display version and exit")
 
 	flag.Parse()
+
+	if *flagVer {
+		fmt.Printf("houndd v%s", getVersion())
+		os.Exit(0)
+	}
 
 	var cfg config.Config
 	if err := cfg.LoadFromFile(*flagConf); err != nil {
