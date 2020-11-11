@@ -1,6 +1,7 @@
 # Hound
 
 [![Build Status](https://travis-ci.org/hound-search/hound.svg?branch=master)](https://travis-ci.org/hound-search/hound)
+[![.github/workflows/go.yaml](https://github.com/hound-search/hound/workflows/.github/workflows/go.yaml/badge.svg)](https://github.com/hound-search/hound/actions)
 
 Hound is an extremely fast source code search engine. The core is based on this article (and code) from Russ Cox:
 [Regular Expression Matching with a Trigram Index](http://swtch.com/~rsc/regexp/regexp4.html). Hound itself is a static
