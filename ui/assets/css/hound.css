@@ -1,4 +1,3 @@
-
 body {
   margin: 0;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -102,7 +101,7 @@ button:focus {
   box-shadow: 0 1px 6px rgba(0,0,0,0.2);
   color: #aaa;
   font-size: 12px;
-  line-height: 24px;
+  line-height: 1.5rem;
   background-color: #fff;
 }
 
@@ -141,6 +140,10 @@ button:focus {
   width: 100%;
   padding: 0 10px;
   color: #666;
+}
+
+.field:not(:last-child) {
+  margin-bottom: 0.5rem;
 }
 
 .multiselect {

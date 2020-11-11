@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -12,6 +13,7 @@ import (
 	"syscall"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/blang/semver"
 	"github.com/hound-search/hound/config"
 	"github.com/hound-search/hound/searcher"
 	"github.com/hound-search/hound/web"
@@ -74,6 +76,14 @@ func registerShutdownSignal() <-chan os.Signal {
 	return shutdownCh
 }
 
+func getVersion() semver.Version {
+	return semver.Version{
+		Major: 0,
+		Minor: 3,
+		Patch: 0,
+	}
+}
+
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	info_log = log.New(os.Stdout, "", log.LstdFlags)
@@ -82,11 +92,17 @@ func main() {
 	flagConf := flag.String("conf", "config.json", "")
 	flagAddr := flag.String("addr", ":6080", "")
 	flagDev := flag.Bool("dev", false, "")
+	flagVer := flag.Bool("version", false, "Display version and exit")
 
 	flag.Parse()
 
-	idx := make(map[string]*searcher.Searcher)
+	if *flagVer {
+		fmt.Printf("houndd v%s", getVersion())
+		os.Exit(0)
+  }
 
+  idx := make(map[string]*searcher.Searcher)
+  
 	var cfg config.Config
 
 	loadConfig := func() {
