@@ -52,7 +52,7 @@ type limiter chan bool
  */
 type foundRefs struct {
 	refs    []*index.IndexRef
-	claimed map[*index.IndexRef]bool
+	claimed map[string]bool
 	lock    sync.Mutex
 }
 
@@ -89,7 +89,7 @@ func (r *foundRefs) claim(ref *index.IndexRef) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
-	r.claimed[ref] = true
+	r.claimed[ref.Dir()] = true
 }
 
 /**
@@ -101,7 +101,7 @@ func (r *foundRefs) removeUnclaimed() error {
 	defer r.lock.Unlock()
 
 	for _, ref := range r.refs {
-		if r.claimed[ref] {
+		if r.claimed[ref.Dir()] {
 			continue
 		}
 
@@ -223,7 +223,7 @@ func findExistingRefs(dbpath string) (*foundRefs, error) {
 
 	return &foundRefs{
 		refs:    refs,
-		claimed: map[*index.IndexRef]bool{},
+		claimed: map[string]bool{},
 	}, nil
 }
 
@@ -294,7 +294,9 @@ func MakeAll(cfg *config.Config, searchers map[string]*Searcher) (map[string]err
 
 	n := 0
 	for name := range cfg.Repos {
-		if _, ok := searchers[name]; ok {
+		if s, ok := searchers[name]; ok {
+			// claim any already running searcher refs so that they don't get removed
+			refs.claim(s.idx.Ref)
 			continue
 		}
 		n++
