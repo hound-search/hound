@@ -1,11 +1,9 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -15,10 +13,8 @@ import (
 	"syscall"
 
 	"github.com/blang/semver"
-	"github.com/hound-search/hound/api"
 	"github.com/hound-search/hound/config"
 	"github.com/hound-search/hound/searcher"
-	"github.com/hound-search/hound/ui"
 	"github.com/hound-search/hound/web"
 )
 
@@ -77,42 +73,6 @@ func registerShutdownSignal() <-chan os.Signal {
 	shutdownCh := make(chan os.Signal, 1)
 	signal.Notify(shutdownCh, gracefulShutdownSignal)
 	return shutdownCh
-}
-
-func makeTemplateData(cfg *config.Config) (interface{}, error) {
-	var data struct {
-		ReposAsJson string
-	}
-
-	res := map[string]*config.Repo{}
-	for name, repo := range cfg.Repos {
-		res[name] = repo
-	}
-
-	b, err := json.Marshal(res)
-	if err != nil {
-		return nil, err
-	}
-
-	data.ReposAsJson = string(b)
-	return &data, nil
-}
-
-func runHttp(
-	addr string,
-	dev bool,
-	cfg *config.Config,
-	idx map[string]*searcher.Searcher) error {
-	m := http.DefaultServeMux
-
-	h, err := ui.Content(dev, cfg)
-	if err != nil {
-		return err
-	}
-
-	m.Handle("/", h)
-	api.Setup(m, idx)
-	return http.ListenAndServe(addr, m)
 }
 
 func getVersion() semver.Version {
