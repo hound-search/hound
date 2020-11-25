@@ -22,13 +22,13 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
       - uses: actions/setup-go@v2-beta
         with:
           go-version: "1.13"
       - run: |
-          GO111MODULE=on go get github.com/golangci/golangci-lint/cmd/golangci-lint
-          export PATH=$GOPATH/bin:$PATH
+          echo "GO111MODULE=on go get github.com/golangci/golangci-lint/cmd/golangci-lint" >> $GITHUB_ENV
+          echo "$GOPATH/bin:$PATH" >> $GITHUB_PATH
           golangci-lint run ./...
         env:
           GOPATH: /tmp/gopath
