@@ -1,9 +1,20 @@
 on: [push]
 jobs:
+  go-build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: ["1.14", "1.13", "1.12"]
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - uses: actions/setup-go@v2-beta
+        with:
+          go-version: ${{ matrix.go }}
+      - run: go build -x -work ./cmds/...
   node-build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
       - uses: actions/setup-node@v1
         with:
           node-version: "10.x"
@@ -28,7 +39,7 @@ jobs:
         os: [windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
       - uses: actions/setup-go@v2-beta
         with:
           go-version: ${{ matrix.go }}

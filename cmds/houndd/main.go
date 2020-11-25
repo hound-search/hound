@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -13,6 +14,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/blang/semver"
 	"github.com/hound-search/hound/api"
 	"github.com/hound-search/hound/config"
 	"github.com/hound-search/hound/searcher"
@@ -113,6 +115,14 @@ func runHttp(
 	return http.ListenAndServe(addr, m)
 }
 
+func getVersion() semver.Version {
+	return semver.Version{
+		Major: 0,
+		Minor: 3,
+		Patch: 0,
+	}
+}
+
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	info_log = log.New(os.Stdout, "", log.LstdFlags)
@@ -121,8 +131,14 @@ func main() {
 	flagConf := flag.String("conf", "config.json", "")
 	flagAddr := flag.String("addr", ":6080", "")
 	flagDev := flag.Bool("dev", false, "")
+	flagVer := flag.Bool("version", false, "Display version and exit")
 
 	flag.Parse()
+
+	if *flagVer {
+		fmt.Printf("houndd v%s", getVersion())
+		os.Exit(0)
+	}
 
 	var cfg config.Config
 	if err := cfg.LoadFromFile(*flagConf); err != nil {
