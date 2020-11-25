@@ -6,7 +6,7 @@ jobs:
       matrix:
         go: ["1.14", "1.13", "1.12"]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
       - uses: actions/setup-go@v2
         with:
           go-version: ${{ matrix.go }}
@@ -14,7 +14,7 @@ jobs:
   node-build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
       - uses: actions/setup-node@v1
         with:
           node-version: "10.x"
@@ -22,14 +22,14 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
       - uses: actions/setup-go@v2
         with:
           go-version: "1.13"
       - run: |
-        GO111MODULE=on go get github.com/golangci/golangci-lint/cmd/golangci-lint
-        export PATH=$GOPATH/bin:$PATH
-        golangci-lint run ./...
+          GO111MODULE=on go get github.com/golangci/golangci-lint/cmd/golangci-lint
+          export PATH=$GOPATH/bin:$PATH
+          golangci-lint run ./...
         env:
           GOPATH: /tmp/gopath
   go-test:
@@ -38,7 +38,7 @@ jobs:
       matrix:
         go: ["1.14", "1.13", "1.12"]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2.3.4
       - uses: actions/setup-go@v2
         with:
           go-version: ${{ matrix.go }}
