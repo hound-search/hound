@@ -7,7 +7,7 @@ jobs:
         go: ["1.14", "1.13", "1.12"]
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-go@v2-beta
+      - uses: actions/setup-go@v2
         with:
           go-version: ${{ matrix.go }}
       - run: go build -x -work ./cmds/...
@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-go@v2-beta
+      - uses: actions/setup-go@v2
         with:
           go-version: "1.13"
       - run: |
@@ -39,7 +39,7 @@ jobs:
         go: ["1.14", "1.13", "1.12"]
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-go@v2-beta
+      - uses: actions/setup-go@v2
         with:
           go-version: ${{ matrix.go }}
       - run: go test -race ./...
