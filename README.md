@@ -97,7 +97,7 @@ See [config-example.json](config-example.json) for examples of how to use each V
 There are a couple of ways to get Hound to index private repositories:
 
 * Use the `file://` protocol. This allows you to index a local clone of a repository. The downside here is that the polling to keep the repo up to date will
-not work. (This also doesn't work on local folders that are not of a supported repository type.)
+not work. (This also doesn't work on local folders that are not of a supported repository type.) If you're using Docker, you must mount a volume to your repository (e.g., `-v $(pwd)/src:/src`) and use the relative path to the repo in your configuration.
 * Use SSH style URLs in the config: `"url" : "git@github.com:foo/bar.git"`. As long as you have your 
 [SSH keys](https://help.github.com/articles/generating-ssh-keys/) set up on the box where Hound is running this will work.
 
