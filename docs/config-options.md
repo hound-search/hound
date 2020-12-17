@@ -1,27 +1,49 @@
-ConfigOption | Description
-:------ | :-----
-MaxConcurrentIndexers | defines the total number of indexers required to be used for indexing code. If not provided defaults `2`
-HealthCheckURI |  health check url for hound , if not provided defaults to `/healthz`
-DbPath | absolute file path where the `config.json` file exists. By default is `data`
-title | Title used for the application.Defaulted to 'Hound'
-url-pattern | composed of base url and anchor values in form of key value pairs.
-vs-config | holds the version control config, default VCS used in Hound is git.Other options for VCS are svn,mercurial,bitbucket,hg, etc.Refer to `config-example.json` to get the list of vcs and usage
-Repos | holds the list of repos which are required to be indexed by Hound . Each Repo is added with reponame as a Json Key with options associated with repo as values similar to example provided in `config-example.json`
+- [ConfigOptions](#configoptions)
+  * [Git options](#git-options)
+  * [SVN options](#svn-options)
+  * [URL options](#url-options)
 
 
-gitOptions  | Description
-:------ | :-----
-ms-between-polls | time interval to poll the repo url ,default is `30s`
-detect-ref    | used to determine branch , defaults to `master` branch 
-ref | used to provide reference for the branch for repo.
 
-svn-options  | Descriptions
------- | -----
-username  | user name for the svn repo
-password | password to authenticate use for svn repo.
+### ConfigOptions
+Various options available in `config.json` are used by hound.Comprehensive list of available options are provided below with some sane defaults.
+keys used in the config json file are the options,description provides details about keys.Default values gives idea about value which can be used for the option.
 
-url-options | Description
------- | -----
-url-pattern | when provided used by Hound for config, else defaults to `{url}/blob/{rev}/{path}{anchor}`
-anchor | when provided used for vcs config else set to `#L{line}`
+
+ConfigOption | Description | Default Values
+:------ | :----- | :-----
+max-concurrent-indexers | defines the total number of indexers required to be used for indexing code | 2
+health-check-uri |  health check url for hound | `/healthz`
+dbpath | absolute file path where the `config.json` file exists| `data`
+title | Title used for the application | Hound
+url-pattern | composed of base url and anchor values in form of key value pairs | n/a
+vcs-config | holds the version control config, default VCS used in Hound is git.Other options for VCS are svn,mercurial,bitbucket,hg, etc.Refer to `config-example.json` to get the list of vcs and usage. Below tables provide detailed options list of each type of vcs | git
+repos | holds the list of repos which are required to be indexed by Hound . Each Repo is added with reponame as a Json Key with options associated with repo as values similar to example provided in `config-example.json` | n/a
+
+#### Git options
+List of options associated with git vcs in repos
+
+GitOptions  | Description | Default Values
+:------ | :----- | :-----
+ms-between-polls | time interval to poll the repo url | 30s
+detect-ref    | used to determine branch |  master branch 
+ref | used to provide reference for the branch for repo| n/a
+
+#### SVN options
+
+List of options available for SVN vcs in repos
+
+SvnOptions  | Descriptions| Default Values
+:------ | :-----| :-----
+username  | user name for the svn repo | n/a
+password | password to authenticate use for svn repo | n/a
+
+
+#### URL options 
+Options for url used for repo link under repos
+
+URLOptions | Description | Default Values
+:------ | :--- | :-----
+url-pattern | when provided used by Hound for config|`{url}/blob/{rev}/{path}{anchor}`
+anchor | when provided used for vcs config| `#L{line}`
 
