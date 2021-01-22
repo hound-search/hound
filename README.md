@@ -40,7 +40,7 @@ the config found in [default-config.json](default-config.json):
 ```
 
 
-complete list of available config options can be found under [config-options](docs/config-options.md).  
+A complete list of available config options can be found [here](docs/config-options.md).  
 3. Run the Hound server with `houndd` in the same directory as your `config.json`. You should see output similar to:
 ```
 2015/03/13 09:07:42 Searcher started for statsd
