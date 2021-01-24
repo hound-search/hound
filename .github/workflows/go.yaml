@@ -19,19 +19,23 @@ jobs:
         with:
           node-version: "10.x"
       - run: npm install
-  lint:
-    runs-on: ubuntu-latest
+  golangci:
+    name: lint
+    strategy:
+      matrix:
+        go: ["1.14", "1.13", "1.12"]
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2.3.4
-      - uses: actions/setup-go@v2
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2.3.0
         with:
-          go-version: "1.13"
-      - run: |
-          GO111MODULE=on go get github.com/golangci/golangci-lint/cmd/golangci-lint
-          export PATH=$GOPATH/bin:$PATH
-          golangci-lint --new-from-rev=HEAD~1 run ./...
-        env:
-          GOPATH: /tmp/gopath
+          # the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
+          version: v1.35.2
+
+          # show only new issues if it's a pull request. The default value is `false`.
+          only-new-issues: true
   go-test:
     strategy:
       matrix:
