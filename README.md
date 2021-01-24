@@ -29,6 +29,7 @@ go get github.com/hound-search/hound/cmds/...
 2. Create a config.json file and use it to list your repositories. Check out our [example-config.json](config-example.json) 
 to see how to set up various types of repositories. For example, we can configure Hound to search its own source code using 
 the config found in [default-config.json](default-config.json):
+
 ```json
 {
   "dbpath" : "db",
@@ -38,6 +39,8 @@ the config found in [default-config.json](default-config.json):
 }
 ```
 
+
+A complete list of available config options can be found [here](docs/config-options.md).  
 3. Run the Hound server with `houndd` in the same directory as your `config.json`. You should see output similar to:
 ```
 2015/03/13 09:07:42 Searcher started for statsd
