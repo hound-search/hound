@@ -29,7 +29,7 @@ jobs:
       - run: |
           GO111MODULE=on go get github.com/golangci/golangci-lint/cmd/golangci-lint
           export PATH=$GOPATH/bin:$PATH
-          golangci-lint run ./...
+          golangci-lint --new-from-rev=HEAD~1 run ./...
         env:
           GOPATH: /tmp/gopath
   go-test:
