@@ -115,7 +115,7 @@ func fileList(list ...uint32) string {
 	return string(buf)
 }
 
-func buildFlushIndex(out string, paths []string, doFlush bool, fileData map[string]string) error {
+func buildFlushIndex(out string, paths []string, doFlush bool, fileData map[string]string) {
 	ix := Create(out)
 	ix.AddPaths(paths)
 	var files []string
@@ -129,21 +129,18 @@ func buildFlushIndex(out string, paths []string, doFlush bool, fileData map[stri
 	if doFlush {
 		ix.flushPost()
 	}
-	return ix.Flush()
+	ix.Flush()
 }
 
-func buildIndex(name string, paths []string, fileData map[string]string) error {
-	return buildFlushIndex(name, paths, false, fileData)
+func buildIndex(name string, paths []string, fileData map[string]string) {
+	buildFlushIndex(name, paths, false, fileData)
 }
 
 func testTrivialWrite(t *testing.T, doFlush bool) {
 	f, _ := ioutil.TempFile("", "index-test")
 	defer os.Remove(f.Name())
 	out := f.Name()
-	err := buildFlushIndex(out, nil, doFlush, trivialFiles)
-	if err != nil {
-		t.Fatal(err)
-	}
+	buildFlushIndex(out, nil, doFlush, trivialFiles)
 
 	data, err := ioutil.ReadFile(out)
 	if err != nil {

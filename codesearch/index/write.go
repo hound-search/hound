@@ -220,7 +220,7 @@ func (ix *IndexWriter) Add(name string, f io.Reader) string {
 }
 
 // Flush flushes the index entry to the target file.
-func (ix *IndexWriter) Flush() error {
+func (ix *IndexWriter) Flush() {
 	ix.addName("")
 
 	var off [5]uint32
@@ -257,7 +257,7 @@ func (ix *IndexWriter) Flush() error {
 
 	log.Printf("%d data bytes, %d index bytes", ix.totalBytes, ix.main.offset())
 
-	return ix.main.flush()
+	ix.main.flush()
 }
 
 func (ix *IndexWriter) Close() {
@@ -563,16 +563,15 @@ func (b *bufWriter) offset() uint32 {
 	return uint32(off)
 }
 
-func (b *bufWriter) flush() error {
+func (b *bufWriter) flush() {
 	if len(b.buf) == 0 {
-		return nil
+		return
 	}
 	_, err := b.file.Write(b.buf)
 	if err != nil {
-		return fmt.Errorf("writing %s: %s", b.name, err)
+		log.Fatalf("writing %s: %v", b.name, err)
 	}
 	b.buf = b.buf[:0]
-	return nil
 }
 
 // finish flushes the file to disk and returns an open file ready for reading.
