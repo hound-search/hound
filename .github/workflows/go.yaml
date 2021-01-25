@@ -7,7 +7,7 @@ jobs:
         go: ["1.14", "1.13", "1.12"]
     steps:
       - uses: actions/checkout@v2.3.4
-      - uses: actions/setup-go@v2-beta
+      - uses: actions/setup-go@v2
         with:
           go-version: ${{ matrix.go }}
       - run: go build -x -work ./cmds/...
@@ -19,14 +19,29 @@ jobs:
         with:
           node-version: "10.x"
       - run: npm install
+  golangci:
+    name: lint
+    strategy:
+      matrix:
+        go: ["1.14"]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2.3.0
+        with:
+          # the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
+          version: v1.35.2
   go-test:
-    runs-on: ubuntu-latest
     strategy:
       matrix:
         go: ["1.14", "1.13", "1.12"]
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2.3.4
-      - uses: actions/setup-go@v2-beta
+      - uses: actions/setup-go@v2
         with:
           go-version: ${{ matrix.go }}
       - run: go test -race ./...

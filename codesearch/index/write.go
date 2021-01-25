@@ -43,7 +43,7 @@ type IndexWriter struct {
 	paths []string
 
 	nameData   *bufWriter // temp file holding list of names
-	nameLen    uint32     // number of bytes written to nameData
+	nameLen    uint32     //nolint number of bytes written to nameData
 	nameIndex  *bufWriter // temp file holding name index
 	numName    int        // number of names written
 	totalBytes int64
@@ -123,7 +123,7 @@ func (ix *IndexWriter) AddFile(name string) {
 func (ix *IndexWriter) Add(name string, f io.Reader) string {
 	ix.trigram.Reset()
 	var (
-		c          = byte(0)
+		c          = byte(0)  //nolint
 		i          = 0
 		buf        = ix.inbuf[:0]
 		tv         = uint32(0)
@@ -131,7 +131,7 @@ func (ix *IndexWriter) Add(name string, f io.Reader) string {
 		linelen    = 0
 		numLines   = 0
 		longLines  = 0
-		skipReason = ""
+		skipReason = ""  //nolint
 	)
 
 	for {
@@ -246,7 +246,7 @@ func (ix *IndexWriter) Flush() {
 
 	os.Remove(ix.nameData.name)
 	for _, d := range ix.postData {
-		unmmap(d)
+		unmmap(d)  //nolint
 	}
 	for _, f := range ix.postFile {
 		f.Close()
@@ -310,7 +310,7 @@ func (ix *IndexWriter) flushPost() {
 	}
 
 	ix.post = ix.post[:0]
-	w.Seek(0, 0)
+	w.Seek(0, 0)  //nolint
 	ix.postFile = append(ix.postFile, w)
 }
 
@@ -368,7 +368,7 @@ type postChunk struct {
 	m []postEntry // remaining entries after e
 }
 
-const postBuf = 4096
+const postBuf = 4096  //nolint
 
 // A postHeap is a heap (priority queue) of postChunks.
 type postHeap struct {
@@ -388,7 +388,7 @@ func (h *postHeap) addMem(x []postEntry) {
 
 // step reads the next entry from ch and saves it in ch.e.
 // It returns false if ch is over.
-func (h *postHeap) step(ch *postChunk) bool {
+func (h *postHeap) step(ch *postChunk) bool {  //nolint
 	old := ch.e
 	m := ch.m
 	if len(m) == 0 {
@@ -414,7 +414,7 @@ func (h *postHeap) add(ch *postChunk) {
 }
 
 // empty reports whether the postHeap is empty.
-func (h *postHeap) empty() bool {
+func (h *postHeap) empty() bool {  //nolint
 	return len(h.ch) == 0
 }
 
@@ -492,7 +492,7 @@ type bufWriter struct {
 	name string
 	file *os.File
 	buf  []byte
-	tmp  [8]byte
+	tmp  [8]byte  //nolint
 }
 
 // bufCreate creates a new file with the given name and returns a
@@ -578,7 +578,7 @@ func (b *bufWriter) flush() {
 func (b *bufWriter) finish() *os.File {
 	b.flush()
 	f := b.file
-	f.Seek(0, 0)
+	f.Seek(0, 0)  //nolint
 	return f
 }
 

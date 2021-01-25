@@ -216,7 +216,7 @@ func (b *runeBuilder) addRange(lo, hi rune, fold bool) {
 	}
 
 	// TODO: Pick off 80-10FFFF for special handling?
-	if lo == 0x80 && hi == 0x10FFFF {
+	if lo == 0x80 && hi == 0x10FFFF {  //nolint
 	}
 
 	// Split range into same-length sized ranges.

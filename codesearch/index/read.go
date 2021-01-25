@@ -133,7 +133,7 @@ func (ix *Index) Close() error {
 }
 
 // uvarint returns the varint value at the given offset in the index data.
-func (ix *Index) uvarint(off uint32) uint32 {
+func (ix *Index) uvarint(off uint32) uint32 {  //nolint
   v, n := binary.Uvarint(ix.slice(off, -1))
   if n <= 0 {
     corrupt(ix.data.f)
@@ -185,7 +185,7 @@ func (ix *Index) listAt(off uint32) (trigram, count, offset uint32) {
   return
 }
 
-func (ix *Index) dumpPosting() {
+func (ix *Index) dumpPosting() {  //nolint
   d := ix.slice(ix.postIndex, postEntrySize*ix.numPost)
   for i := 0; i < ix.numPost; i++ {
     j := i * postEntrySize
