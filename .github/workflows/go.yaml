@@ -35,11 +35,7 @@ jobs:
           version: v1.35.2
 
           # golangci-lint command line arguments.
-          args: -v
-
-
-          # show only new issues if it's a pull request. The default value is `false`.
-          only-new-issues: true
+          args: --new-from-rev=HEAD~1 -v
   go-test:
     strategy:
       matrix:
