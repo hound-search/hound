@@ -5,7 +5,8 @@ ENV GOPATH /go
 COPY . /go/src/github.com/hound-search/hound
 
 RUN apk update \
-	&& apk add go git subversion libc-dev mercurial bzr openssh \
+	&& apk add go git subversion libc-dev mercurial openssh \
+	&& go get github.com/fsnotify/fsnotify \
 	&& go install github.com/hound-search/hound/cmds/houndd \
 	&& apk del go \
 	&& rm -f /var/cache/apk/* \
