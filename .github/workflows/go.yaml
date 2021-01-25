@@ -23,8 +23,8 @@ jobs:
     name: lint
     strategy:
       matrix:
-        go: ["1.14", "1.13", "1.12"]
-        os: [windows-latest, ubuntu-latest]
+        go: ["1.14"]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2.3.4
