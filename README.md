@@ -92,6 +92,7 @@ Hound supports the following version control systems:
 * Mercurial - use `"vcs" : "hg"` in the config
 * SVN - use `"vcs" : "svn"` in the config
 * Bazaar - use `"vcs" : "bzr"` in the config
+* Local Symlink - use `"vcs": "link"` in the config
 
 See [config-example.json](config-example.json) for examples of how to use each VCS.
 
