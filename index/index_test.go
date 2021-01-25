@@ -35,7 +35,7 @@ func TestSearch(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer ref.Remove()
+	defer ref.Remove()  //nolint
 
 	// Make sure the metadata in the ref is good.
 	if ref.Rev != rev {
@@ -79,7 +79,7 @@ func TestRead(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer ref.Remove()
+	defer ref.Remove()  //nolint
 
 	r, err := Read(ref.Dir())
 	if err != nil {

@@ -47,7 +47,7 @@ func makeSearchers(cfg *config.Config) (map[string]*searcher.Searcher, bool, err
 	if len(errs) > 0 {
 		// NOTE: This mutates the original config so the repos
 		// are not even seen by other code paths.
-		for name, _ := range errs {
+		for name, _ := range errs {  //nolint
 			delete(cfg.Repos, name)
 		}
 
@@ -79,7 +79,7 @@ func registerShutdownSignal() <-chan os.Signal {
 	return shutdownCh
 }
 
-func makeTemplateData(cfg *config.Config) (interface{}, error) {
+func makeTemplateData(cfg *config.Config) (interface{}, error) {  //nolint
 	var data struct {
 		ReposAsJson string
 	}
@@ -98,7 +98,7 @@ func makeTemplateData(cfg *config.Config) (interface{}, error) {
 	return &data, nil
 }
 
-func runHttp(
+func runHttp(  //nolint
 	addr string,
 	dev bool,
 	cfg *config.Config,

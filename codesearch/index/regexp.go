@@ -226,7 +226,7 @@ func trigramsImply(t []string, q *Query) bool {
 // maybeRewrite rewrites q to use op if it is possible to do so
 // without changing the meaning.  It also simplifies if the node
 // is an empty OR or AND.
-func (q *Query) maybeRewrite(op QueryOp) {
+func (q *Query) maybeRewrite(op QueryOp) {  //nolint
 	if q.Op != QAnd && q.Op != QOr {
 		return
 	}
@@ -736,7 +736,7 @@ func (s stringSet) have() bool {
 }
 
 // contains reports whether s contains str.
-func (s stringSet) contains(str string) bool {
+func (s stringSet) contains(str string) bool {  //nolint
 	for _, ss := range s {
 		if ss == str {
 			return true
@@ -814,7 +814,7 @@ func (s stringSet) minLen() int {
 }
 
 // maxLen returns the length of the longest string in s.
-func (s stringSet) maxLen() int {
+func (s stringSet) maxLen() int {  //nolint
 	if len(s) == 0 {
 		return 0
 	}
@@ -847,7 +847,7 @@ func (s stringSet) cross(t stringSet, isSuffix bool) stringSet {
 }
 
 // clear empties the set but preserves the storage.
-func (s *stringSet) clear() {
+func (s *stringSet) clear() {  //nolint
 	*s = (*s)[:0]
 }
 

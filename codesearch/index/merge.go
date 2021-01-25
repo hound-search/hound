@@ -41,10 +41,10 @@ type idrange struct {
   lo, hi, new uint32
 }
 
-type postIndex struct {
-  tri    uint32
-  count  uint32
-  offset uint32
+type postIndex struct {  //nolint
+  tri    uint32  //nolint
+  count  uint32  //nolint
+  offset uint32  //nolint
 }
 
 // Merge creates a new index in the file dst that corresponds to merging
@@ -70,7 +70,7 @@ func Merge(dst, src1, src2 string) {
     for i1 < uint32(ix1.numName) && ix1.Name(i1) < limit {
       i1++
     }
-    hi := i1
+    hi := i1  //nolint
 
     // Record range before the shadow.
     if old < lo {
@@ -304,7 +304,7 @@ func (r *postMapReader) nextId() bool {
 type postDataWriter struct {
   out           *bufWriter
   postIndexFile *bufWriter
-  buf           [10]byte
+  buf           [10]byte  //nolint
   base          uint32
   count, offset uint32
   last          uint32

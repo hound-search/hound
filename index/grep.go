@@ -28,7 +28,7 @@ func countLines(b []byte) int {
 	return n
 }
 
-func (g *grepper) grepFile(filename string, re *regexp.Regexp,
+func (g *grepper) grepFile(filename string, re *regexp.Regexp,  //nolint
 	fn func(line []byte, lineno int) (bool, error)) error {
 	r, err := os.Open(filename)
 	if err != nil {
@@ -189,7 +189,7 @@ func (g *grepper) grep2(
 
 // This nonsense is adapted from https://code.google.com/p/codesearch/source/browse/regexp/match.go#399
 // and I assume it is a mess to make it faster, but I would like to try a much simpler cleaner version.
-func (g *grepper) grep(r io.Reader, re *regexp.Regexp, fn func(line []byte, lineno int) (bool, error)) error {
+func (g *grepper) grep(r io.Reader, re *regexp.Regexp, fn func(line []byte, lineno int) (bool, error)) error {  //nolint
 	if g.buf == nil {
 		g.buf = make([]byte, 1<<20)
 	}
@@ -248,5 +248,5 @@ func (g *grepper) grep(r io.Reader, re *regexp.Regexp, fn func(line []byte, line
 		}
 	}
 
-	return nil
+	return nil  //nolint
 }

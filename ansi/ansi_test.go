@@ -11,7 +11,7 @@ var (
 	printTests = false
 )
 
-func makeReal(s string) string {
+func makeReal(s string) string {  //nolint
 	return strings.Replace(s, "~", "\x1b", -1)
 }
 
