@@ -5,7 +5,7 @@ ENV GOPATH /go
 COPY . /go/src/github.com/hound-search/hound
 
 RUN apk update \
-	&& apk add go git subversion libc-dev mercurial bzr openssh \
+	&& apk add go git subversion libc-dev mercurial bzr openssh tini \
 	&& cd /go/src/github.com/hound-search/hound \
 	&& go mod download \
 	&& go install github.com/hound-search/hound/cmds/houndd \
@@ -17,4 +17,4 @@ VOLUME ["/data"]
 
 EXPOSE 6080
 
-ENTRYPOINT ["/go/bin/houndd", "-conf", "/data/config.json"]
+ENTRYPOINT ["/sbin/tini", "--", "/go/bin/houndd", "-conf", "/data/config.json"]
