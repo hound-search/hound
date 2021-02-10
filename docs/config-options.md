@@ -25,7 +25,7 @@ List of options associated with git vcs in repos
 
 GitOptions  | Description | Default Values
 :------ | :----- | :-----
-ms-between-polls | time interval to poll the repo url | 30s
+ms-between-poll | time interval to poll the repo url | 30s
 detect-ref    | used to determine branch |  master branch 
 ref | used to provide reference for the branch for repo| n/a
 
