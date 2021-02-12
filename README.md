@@ -84,7 +84,7 @@ Yup, that's it. You can proxy requests to the Go service through Apache/nginx/et
 
 ## Support
 
-Currently Hound is only tested on MacOS and CentOS, but it should work on any *nix system. Hound on Windows is not supported but we've heard it compiles and runs just fine.
+Currently Hound is only tested on MacOS and CentOS, but it should work on any *nix system. Hound on Windows is not supported but we've heard it compiles and runs just fine, just remember to exclude your data folder from Windows Search Indexer and possibly the virus scanner.
 
 Hound supports the following version control systems: 
 
