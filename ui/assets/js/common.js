@@ -25,10 +25,10 @@ export function UrlToRepo(repo, path, line, rev) {
 
     // Regex explained: Match either `git` or `hg` followed by an `@`.
     // Next, slurp up the hostname by reading until either a `:` or `/` is found.
-    // Finally, grab all remaining characters.
-    var sshParts = /(git|hg)@(.*?)(:|\/)(.*)/.exec(url);
+    // If a port is specified, slurp that up too. Finally, grab all remaining characters.
+    var sshParts = /(git|hg)@(.*?)(:[0-9]+)?(:|\/)(.*)/.exec(url);
     if (sshParts) {
-        url = '//' + sshParts[2] + '/' + sshParts[4];
+        url = '//' + sshParts[2] + '/' + sshParts[5];
     }
 
     // I'm sure there is a nicer React/jsx way to do this:

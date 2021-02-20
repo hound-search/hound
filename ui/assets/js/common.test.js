@@ -88,4 +88,21 @@ describe("UrlToRepo", () => {
             "//bitbucket.org/YourOrganization/RepoOne/src/master/test.txt"
         );
     });
+
+    test("Generate url from for ssh bitbucket style repo with port", () => {
+        const repo = {
+            url: "ssh://git@bitbucket.org:7999/YourOrganization/RepoOne",
+            "url-pattern":
+            {
+                "base-url" : "{url}/src/master/{path}{anchor}",
+                "anchor" : "#{filename}-{line}"
+            }
+        };
+        const path = "test.txt"
+        const line = null
+        const rev = "master"
+        expect(UrlToRepo(repo, path, line, rev)).toBe(
+            "//bitbucket.org/YourOrganization/RepoOne/src/master/test.txt"
+        );
+    });
 });
