@@ -32,9 +32,9 @@ describe("UrlToRepo", () => {
         };
         const path = "test.txt"
         const line = null
-        const rev = "master"
+        const rev = "main"
         expect(UrlToRepo(repo, path, line, rev)).toBe(
-            "https://www.github.com/YourOrganization/RepoOne/blob/master/test.txt"
+            "https://www.github.com/YourOrganization/RepoOne/blob/main/test.txt"
         );
     });
 
@@ -49,9 +49,9 @@ describe("UrlToRepo", () => {
         };
         const path = "test.txt"
         const line = "12"
-        const rev = "master"
+        const rev = "main"
         expect(UrlToRepo(repo, path, line, rev)).toBe(
-            "https://www.github.com/YourOrganization/RepoOne/blob/master/test.txt#L12"
+            "https://www.github.com/YourOrganization/RepoOne/blob/main/test.txt#L12"
         );
     });
 
@@ -66,9 +66,9 @@ describe("UrlToRepo", () => {
         };
         const path = "test.txt"
         const line = null
-        const rev = "master"
+        const rev = "main"
         expect(UrlToRepo(repo, path, line, rev)).toBe(
-            "//github.com/YourOrganization/RepoOne/blob/master/test.txt"
+            "//github.com/YourOrganization/RepoOne/blob/main/test.txt"
         );
     });
 
@@ -77,15 +77,15 @@ describe("UrlToRepo", () => {
             url: "ssh://hg@bitbucket.org/YourOrganization/RepoOne",
             "url-pattern":
             {
-                "base-url" : "{url}/src/master/{path}{anchor}",
+                "base-url" : "{url}/src/main/{path}{anchor}",
                 "anchor" : "#{filename}-{line}"
             }
         };
         const path = "test.txt"
         const line = null
-        const rev = "master"
+        const rev = "main"
         expect(UrlToRepo(repo, path, line, rev)).toBe(
-            "//bitbucket.org/YourOrganization/RepoOne/src/master/test.txt"
+            "//bitbucket.org/YourOrganization/RepoOne/src/main/test.txt"
         );
     });
 
@@ -94,15 +94,15 @@ describe("UrlToRepo", () => {
             url: "ssh://git@bitbucket.org:7999/YourOrganization/RepoOne",
             "url-pattern":
             {
-                "base-url" : "{url}/src/master/{path}{anchor}",
+                "base-url" : "{url}/src/main/{path}{anchor}",
                 "anchor" : "#{filename}-{line}"
             }
         };
         const path = "test.txt"
         const line = null
-        const rev = "master"
+        const rev = "main"
         expect(UrlToRepo(repo, path, line, rev)).toBe(
-            "//bitbucket.org/YourOrganization/RepoOne/src/master/test.txt"
+            "//bitbucket.org/YourOrganization/RepoOne/src/main/test.txt"
         );
     });
 });
