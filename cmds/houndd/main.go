@@ -118,7 +118,7 @@ func runHttp(  //nolint
 func getVersion() semver.Version {
 	return semver.Version{
 		Major: 0,
-		Minor: 3,
+		Minor: 4,
 		Patch: 0,
 	}
 }
