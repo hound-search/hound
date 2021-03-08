@@ -250,4 +250,51 @@ func Setup(m *http.ServeMux, idx map[string]*searcher.Searcher) {
 
 		writeResp(w, "ok")
 	})
+
+	m.HandleFunc("/api/v1/github-webhook", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			writeError(w,
+				errors.New(http.StatusText(http.StatusMethodNotAllowed)),
+				http.StatusMethodNotAllowed)
+			return
+		}
+
+		type Webhook struct {
+			Repository struct {
+				Name string
+				Full_name string
+			}
+		}
+
+		var h Webhook
+
+		err := json.NewDecoder(r.Body).Decode(&h)
+
+		if err != nil {
+		   writeError(w,
+				errors.New(http.StatusText(http.StatusBadRequest)),
+				http.StatusBadRequest)
+			return
+		}
+
+		repo := h.Repository.Full_name
+
+		searcher := idx[h.Repository.Full_name]
+
+		if searcher == nil {
+			writeError(w,
+				fmt.Errorf("No such repository: %s", repo),
+				http.StatusNotFound)
+			return
+		}
+
+		if !searcher.Update() {
+			writeError(w,
+				fmt.Errorf("Push updates are not enabled for repository %s", repo),
+				http.StatusForbidden)
+			return
+		}
+
+		writeResp(w, "ok")
+	})
 }
