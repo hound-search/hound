@@ -14,13 +14,14 @@ import (
 
 	"github.com/hound-search/hound/codesearch/index"
 	"github.com/hound-search/hound/codesearch/regexp"
+	"golang.org/x/text/encoding"
 )
 
 const (
 	matchLimit               = 5000
 	manifestFilename         = "metadata.gob"
 	excludedFileJsonFilename = "excluded_files.json"
-	filePeekSize             = 2048
+	filePeekSize             = 1 << 20
 )
 
 const (
@@ -38,6 +39,7 @@ type Index struct {
 type IndexOptions struct {
 	ExcludeDotFiles bool
 	SpecialFiles    []string
+	FallbackEnc     encoding.Encoding
 }
 
 type SearchOptions struct {
@@ -236,34 +238,34 @@ func (n *Index) Search(pat string, opt *SearchOptions) (*SearchResponse, error) 
 		Matches:        results,
 		FilesWithMatch: filesFound,
 		FilesOpened:    filesOpened,
-		Duration:       time.Now().Sub(startedAt),  //nolint
+		Duration:       time.Now().Sub(startedAt), //nolint
 		Revision:       n.Ref.Rev,
 	}, nil
 }
 
-func isTextFile(filename string) (bool, error) {
+func isTextFile(filename string) (isText bool, isUTF8 bool, err error) {
 	buf := make([]byte, filePeekSize)
 	r, err := os.Open(filename)
 	if err != nil {
-		return false, err
+		return false, false, err
 	}
 	defer r.Close()
 
 	n, err := io.ReadFull(r, buf)
 	if err != nil && err != io.ErrUnexpectedEOF && err != io.EOF {
-		return false, err
+		return false, false, err
 	}
 
 	buf = buf[:n]
 
-	if n < filePeekSize {
-		// read the whole file, must be valid.
-		return utf8.Valid(buf), nil
+	if n < filePeekSize && utf8.Valid(buf) || // read the whole file, must be valid.
+		n >= filePeekSize && validUTF8IgnoringPartialTrailingRune(buf) { // read a prefix, allow trailing partial runes.
+		return true, true, nil
 	}
-
-	// read a prefix, allow trailing partial runes.
-	return validUTF8IgnoringPartialTrailingRune(buf), nil
-
+	if isBinary(buf) {
+		return false, false, nil
+	}
+	return true, false, nil
 }
 
 // Determines if the buffer contains valid UTF8 encoded string data. The buffer is assumed
@@ -292,17 +294,30 @@ func validUTF8IgnoringPartialTrailingRune(p []byte) bool {
 	return true
 }
 
-func addFileToIndex(ix *index.IndexWriter, dst, src, path string) (string, error) {
+func isBinary(p []byte) bool {
+	for _, c := range p {
+		if c < 10 {
+			return true
+		}
+	}
+	return false
+}
+
+func addFileToIndex(ix *index.IndexWriter, dst, src, path string, enc encoding.Encoding) (string, error) {
 	rel, err := filepath.Rel(src, path)
 	if err != nil {
 		return "", err
 	}
 
-	r, err := os.Open(path)
+	fh, err := os.Open(path)
 	if err != nil {
 		return "", err
 	}
-	defer r.Close()
+	defer fh.Close()
+	r := io.Reader(fh)
+	if enc != nil {
+		r = enc.NewDecoder().Reader(r)
+	}
 
 	dup := filepath.Join(dst, "raw", rel)
 	w, err := os.Create(dup)
@@ -364,7 +379,7 @@ func indexAllFiles(opt *IndexOptions, dst, src string) error {
 	}
 	defer fileHandle.Close()
 
-	if err := filepath.Walk(src, func(path string, info os.FileInfo, err error) error {  //nolint
+	if err := filepath.Walk(src, func(path string, info os.FileInfo, err error) error { //nolint
 		name := info.Name()
 		rel, err := filepath.Rel(src, path)
 		if err != nil {
@@ -404,20 +419,24 @@ func indexAllFiles(opt *IndexOptions, dst, src string) error {
 			return nil
 		}
 
-		txt, err := isTextFile(path)
+		isText, isUTF8, err := isTextFile(path)
 		if err != nil {
 			return err
 		}
 
-		if !txt {
+		if !isText {
 			excluded = append(excluded, &ExcludedFile{
 				rel,
 				reasonNotText,
 			})
 			return nil
 		}
+		var enc encoding.Encoding
+		if !isUTF8 {
+			enc = opt.FallbackEnc
+		}
 
-		reasonForExclusion, err := addFileToIndex(ix, dst, src, path)
+		reasonForExclusion, err := addFileToIndex(ix, dst, src, path, enc)
 		if err != nil {
 			return err
 		}

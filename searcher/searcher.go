@@ -16,6 +16,7 @@ import (
 	"github.com/hound-search/hound/config"
 	"github.com/hound-search/hound/index"
 	"github.com/hound-search/hound/vcs"
+	"golang.org/x/text/encoding/htmlindex"
 )
 
 type Searcher struct {
@@ -264,7 +265,7 @@ func reportOnMemory() {
 // Utility function for producing a hex encoded sha1 hash for a string.
 func hashFor(name string) string {
 	h := sha1.New()
-	h.Write([]byte(name))  //nolint
+	h.Write([]byte(name)) //nolint
 	return hex.EncodeToString(h.Sum(nil))
 }
 
@@ -410,6 +411,11 @@ func newSearcher(
 	opt := &index.IndexOptions{
 		ExcludeDotFiles: repo.ExcludeDotFiles,
 		SpecialFiles:    wd.SpecialFiles(),
+	}
+	if repo.FallbackEncoding != "" {
+		if opt.FallbackEnc, err = htmlindex.Get(repo.FallbackEncoding); err != nil {
+			return nil, fmt.Errorf("%s.fallback-encoding=%q: %w", name, repo.FallbackEncoding, err)
+		}
 	}
 
 	rev, err := wd.PullOrClone(vcsDir, repo.Url)
