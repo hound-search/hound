@@ -1,5 +1,10 @@
 {
   "dbpath" : "db",
+  "vcs-config" : {
+    "git": {
+      "ref" : "main"
+    }
+  },
   "repos" : {
     "Hound" : {
       "url" : "https://github.com/hound-search/hound.git"
