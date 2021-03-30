@@ -1,6 +1,3 @@
 github.com/blang/semver v1.1.0 h1:ol1rO7QQB5uy7umSNV7VAmLugfLRD+17sYJujRNYPhg=
 github.com/blang/semver v3.5.1+incompatible h1:cQNTCjp13qL8KC3Nbxr/y2Bqb63oX6wdnnjpJbkM4JQ=
 github.com/blang/semver v3.5.1+incompatible/go.mod h1:kRBLl5iJ+tD4TcOOxsy/0fnwebNt5EWlYSAyrTnjyyk=
-github.com/go-bindata/go-bindata v1.0.0 h1:DZ34txDXWn1DyWa+vQf7V9ANc2ILTtrEjtlsdJRF26M=
-github.com/go-bindata/go-bindata v3.1.2+incompatible h1:5vjJMVhowQdPzjE1LdxyFF7YFTXg5IgGVW4gBr5IbvE=
-github.com/go-bindata/go-bindata v3.1.2+incompatible/go.mod h1:xK8Dsgwmeed+BBsSy2XTopBn/8uK2HWuGSnA11C3Joo=
