@@ -17,7 +17,7 @@ Hound is an extremely fast source code search engine. The core is based on this 
 ### Using Go Tools
 
 
-0. [Install Go](https://golang.org/doc/install) if you don't have it already. Hound requires version 1.4 or later. 
+0. [Install Go](https://golang.org/doc/install) if you don't have it already. Hound requires version 1.16 or later. 
 You might also want to define a [`GOPATH`](https://github.com/golang/go/wiki/GOPATH) environment variable) 
 (it defaults to $HOME/go if you don't explicitly have one set). If everything is installed properly, `go version` should 
 print out the installed version of go. 
@@ -80,7 +80,7 @@ We've used many similar tools in the past, and most of them are either too slow,
 Which brings us to...
 
 ## Requirements
-* Go 1.13+
+* Go 1.16+
 
 Yup, that's it. You can proxy requests to the Go service through Apache/nginx/etc., but that's not required.
 
