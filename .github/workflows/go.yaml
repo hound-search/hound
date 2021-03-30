@@ -4,7 +4,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: ["1.18", "1.17", "1.14"]
+        go: ["1.18", "1.17"]
     steps:
       - uses: actions/checkout@v2.3.4
       - uses: actions/setup-go@v2
@@ -72,7 +72,7 @@ jobs:
   go-test:
     strategy:
       matrix:
-        go: ["1.18", "1.17", "1.14"]
+        go: ["1.18", "1.17"]
         os: [windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
