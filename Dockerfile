@@ -1,20 +1,20 @@
-FROM alpine:3.11.7
+FROM golang:1.16-buster
 
 ENV GOPATH /go
 
 COPY . /go/src/github.com/hound-search/hound
 
-RUN apk update \
-	&& apk add go git subversion libc-dev mercurial bzr openssh tini \
+RUN apt update \
+	&& apt upgrade -y \
+	&& apt install -y git subversion libc-dev mercurial bzr openssh-client tini \
 	&& cd /go/src/github.com/hound-search/hound \
 	&& go mod download \
 	&& go install github.com/hound-search/hound/cmds/houndd \
-	&& apk del go \
-	&& rm -f /var/cache/apk/* \
+	&& apt clean \
 	&& rm -rf /go/src /go/pkg
 
 VOLUME ["/data"]
 
 EXPOSE 6080
 
-ENTRYPOINT ["/sbin/tini", "--", "/go/bin/houndd", "-conf", "/data/config.json"]
+ENTRYPOINT ["/usr/bin/tini", "--", "/go/bin/houndd", "-conf", "/data/config.json"]
