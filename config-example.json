@@ -78,6 +78,16 @@
           "url-pattern" : {
               "base-url" : "{url}/{path}"
           }
+        },
+        "BitbucketServerUrl" : {
+            "url" : "git@bitbucket.internal.org:7999:organization/project.git",
+            "url-pattern" : {
+                "base-url" : "https://{hostname}/projects/{project}/repos/{repo}/browse/{path}?at={rev}{anchor}",
+                "anchor" : "#{line}"
+            },
+            "vcs-config" : {
+                "ref" : "main"
+            }
         }
     }
 }

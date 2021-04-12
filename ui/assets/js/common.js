@@ -8,6 +8,10 @@ export function ExpandVars(template, values) {
 export function UrlToRepo(repo, path, line, rev) {
     var url = repo.url.replace(/\.git$/, ''),
         pattern = repo['url-pattern'],
+        hostname = '',
+        project = '',
+        repoName = '',
+        port = '',
         filename = path.substring(path.lastIndexOf('/') + 1),
         anchor = line ? ExpandVars(pattern.anchor, { line : line, filename : filename }) : '';
 
@@ -25,15 +29,28 @@ export function UrlToRepo(repo, path, line, rev) {
 
     // Regex explained: Match either `git` or `hg` followed by an `@`.
     // Next, slurp up the hostname by reading until either a `:` or `/` is found.
-    // Finally, grab all remaining characters.
-    var sshParts = /(git|hg)@(.*?)(:|\/)(.*)/.exec(url);
+    // If a port is specified, slurp that up too. Finally, grab the project and
+    // repo names.
+    var sshParts = /(git|hg)@(.*?)(:[0-9]+)?(:|\/)(.*)(\/)(.*)/.exec(url);
     if (sshParts) {
-        url = '//' + sshParts[2] + '/' + sshParts[4];
+        hostname = '//' + sshParts[2]
+        project = sshParts[5]
+        repoName = sshParts[7]
+        // Port is omitted in most cases. Bitbucket Server is special:
+        // ssh://git@bitbucket.atlassian.com:7999/ATLASSIAN/jira.git
+        if(sshParts[3]){
+            port = sshParts[3]
+        }
+        url = hostname + port + '/' + project + '/' + repoName;
     }
 
     // I'm sure there is a nicer React/jsx way to do this:
     return ExpandVars(pattern['base-url'], {
         url : url,
+        hostname: hostname,
+        port: port,
+        project: project,
+        'repo': repoName,
         path: path,
         rev: rev,
         anchor: anchor
