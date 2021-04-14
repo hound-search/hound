@@ -180,6 +180,7 @@ func Setup(m *http.ServeMux, idx map[string]*searcher.Searcher) {
 		opt.FileRegexp = r.FormValue("files")
 		opt.ExcludeFileRegexp = r.FormValue("excludeFiles")
 		opt.IgnoreCase = parseAsBool(r.FormValue("i"))
+		opt.LiteralSearch = parseAsBool(r.FormValue("literal"))
 		opt.LinesOfContext = parseAsUintValue(
 			r.FormValue("ctx"),
 			0,

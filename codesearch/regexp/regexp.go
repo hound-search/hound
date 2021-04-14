@@ -6,7 +6,10 @@
 // use in grep-like programs.
 package regexp
 
-import "regexp/syntax"
+import (
+	"regexp"
+	"regexp/syntax"
+)
 
 func bug() {
 	panic("codesearch/regexp: internal error")
@@ -56,4 +59,10 @@ func (r *Regexp) Match(b []byte, beginText, endText bool) (end int) {
 
 func (r *Regexp) MatchString(s string, beginText, endText bool) (end int) {
 	return r.m.matchString(s, beginText, endText)
+}
+
+// QuoteMeta returns a string that escapes all regular expression
+// metacharacters inside the argument text.
+func QuoteMeta(s string) string {
+	return regexp.QuoteMeta(s)
 }

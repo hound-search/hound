@@ -75,6 +75,7 @@ var ParamsFromUrl = function(params) {
   params = params || {
     q: '',
     i: 'nope',
+    literal: 'nope',
     files: '',
     excludeFiles: '',
     repos: '*'
@@ -394,9 +395,16 @@ var SearchBar = React.createClass({
   submitQuery: function() {
     this.props.onSearchRequested(this.getParams());
   },
+  escapeRegExp: function(regexp) {
+    return regexp.replace(/[-[\]{}()*+!<=:?.\/\\^$|#\s,]/g, '\\$&');
+  },
   getRegExp : function() {
+    var regexp = this.refs.q.getDOMNode().value.trim()
+    if (this.refs.lsearch.getDOMNode().checked) {
+      regexp = this.escapeRegExp(regexp)
+    }
     return new RegExp(
-      this.refs.q.getDOMNode().value.trim(),
+      regexp,
       this.refs.icase.getDOMNode().checked ? 'ig' : 'g');
   },
   getParams: function() {
@@ -412,22 +420,29 @@ var SearchBar = React.createClass({
       files : this.refs.files.getDOMNode().value.trim(),
       excludeFiles : this.refs.excludeFiles.getDOMNode().value.trim(),
       repos : repos.join(','),
-      i: this.refs.icase.getDOMNode().checked ? 'fosho' : 'nope'
+      i: this.refs.icase.getDOMNode().checked ? 'fosho' : 'nope',
+      literal: this.refs.lsearch.getDOMNode().checked ? 'fosho' : 'nope'
     };
   },
   setParams: function(params) {
     var q = this.refs.q.getDOMNode(),
         i = this.refs.icase.getDOMNode(),
+        literal = this.refs.lsearch.getDOMNode(),
         files = this.refs.files.getDOMNode(),
         excludeFiles = this.refs.excludeFiles.getDOMNode();
 
     q.value = params.q;
     i.checked = ParamValueToBool(params.i);
+    literal.checked = ParamValueToBool(params.literal)
     files.value = params.files;
     excludeFiles.value = params.excludeFiles;
   },
   hasAdvancedValues: function() {
-    return this.refs.files.getDOMNode().value.trim() !== '' || this.refs.excludeFiles.getDOMNode().value.trim() !== '' || this.refs.icase.getDOMNode().checked || this.refs.repos.getDOMNode().value !== '';
+    return this.refs.files.getDOMNode().value.trim() !== ''
+        || this.refs.excludeFiles.getDOMNode().value.trim() !== ''
+        || this.refs.icase.getDOMNode().checked
+        || this.refs.lsearch.getDOMNode().checked
+        || this.refs.repos.getDOMNode().value !== '';
   },
   isAdvancedEmpty: function() {
     return this.refs.files.getDOMNode().value.trim() === '' && this.refs.excludeFiles.getDOMNode().value.trim() === '';
@@ -535,6 +550,12 @@ var SearchBar = React.createClass({
               <label htmlFor="ignore-case">Ignore Case</label>
               <div className="field-input">
                 <input id="ignore-case" type="checkbox" ref="icase" />
+              </div>
+            </div>
+            <div className="field">
+              <label htmlFor="literal-search">Use string literally</label>
+              <div className="field-input">
+                <input id="literal-search" type="checkbox" ref="lsearch" />
               </div>
             </div>
             <div className="field">
@@ -794,6 +815,7 @@ var App = React.createClass({
     this.setState({
       q: params.q,
       i: params.i,
+      literal: params.literal,
       files: params.files,
       excludeFiles: params.excludeFiles,
       repos: repos
@@ -849,6 +871,7 @@ var App = React.createClass({
     var path = location.pathname +
       '?q=' + encodeURIComponent(params.q) +
       '&i=' + encodeURIComponent(params.i) +
+      '&literal=' + encodeURIComponent(params.literal) +
       '&files=' + encodeURIComponent(params.files) +
       '&excludeFiles=' + encodeURIComponent(params.excludeFiles) +
       '&repos=' + params.repos;
@@ -860,6 +883,7 @@ var App = React.createClass({
         <SearchBar ref="searchBar"
             q={this.state.q}
             i={this.state.i}
+            literal={this.state.literal}
             files={this.state.files}
             excludeFiles={this.state.excludeFiles}
             repos={this.state.repos}
