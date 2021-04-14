@@ -119,7 +119,6 @@ describe("UrlParts", () => {
             url: "ssh://git@bitbucket.internal.com:7999/YourOrganization/RepoOne",
             "url-pattern":
             {
-                "base-url" : "{hostname}/projects/{project}/repos/{repo}/browse/{path}?at={rev}{anchor}",
                 "anchor" : "#{line}",
             }
         };
