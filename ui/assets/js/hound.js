@@ -1,4 +1,4 @@
-import {UrlToRepo} from './common';
+import {UrlParts, UrlToRepo} from './common';
 
 var Signal = function() {
 };
@@ -297,6 +297,10 @@ var Model = {
 
   UrlToRepo: function(repo, path, line, rev) {
     return UrlToRepo(this.repos[repo], path, line, rev);
+  },
+
+  UrlToRoot: function(repo) {
+    return UrlParts(this.repos[repo]).url
   }
 
 };
@@ -770,7 +774,9 @@ var ResultView = React.createClass({
         <div className="repo">
           <div className="title">
             <span className="mega-octicon octicon-repo"></span>
-            <span className="name">{Model.NameForRepo(result.Repo)}</span>
+            <span className="name">
+              <a href={Model.UrlToRoot(result.Repo)}>{Model.NameForRepo(result.Repo)}</a>
+            </span>
           </div>
           <FilesView matches={result.Matches}
               rev={result.Rev}
