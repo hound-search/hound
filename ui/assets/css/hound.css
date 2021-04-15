@@ -160,11 +160,11 @@ button:focus {
   opacity: 1;
   overflow: hidden;
   cursor: pointer;
+  color: #767676;
 }
 
 #inb > .ban > em {
   font-style: normal;
-  color: #aaa;
 }
 
 #input > .stats {
