@@ -291,7 +291,7 @@ button:focus {
   border-right: 1px solid #eee;
   display: inline-block;
   font-size: 14px;
-  color: #aaa;
+  color: #767676;
 }
 
 .match > .line:last-child > .lnum {
