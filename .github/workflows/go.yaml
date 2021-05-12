@@ -41,7 +41,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
-          repository: inful/hound
+          repository: inful/hound/hound
           tag_with_ref: true
   golangci:
     name: lint
