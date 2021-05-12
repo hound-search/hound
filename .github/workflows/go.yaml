@@ -19,6 +19,30 @@ jobs:
         with:
           node-version: "10.x"
       - run: npm install
+  docker-build:
+    name: Create docker image
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - uses: actions/setup-go@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "10.x"
+      - name: Build hound
+        run: go build -x -work ./cmds/... 
+      - name: Build ui
+        run: npm install
+      - name: Build and push
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.pkg.github.com
+          repository: inful/hound
+          tag_with_ref: true
   golangci:
     name: lint
     strategy:
