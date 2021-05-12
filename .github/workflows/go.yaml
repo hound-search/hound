@@ -41,7 +41,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.CR_PAT }}
           registry: ghrc.io
-          repository: inful/hound/hound
+          repository: inful/hound:latest
           tag_with_ref: true
   golangci:
     name: lint
