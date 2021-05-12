@@ -36,11 +36,11 @@ jobs:
       - name: Build ui
         run: npm install
       - name: Build and push
-        uses: docker/build-push-action@v1
+        uses: docker/build-push-action@v2
         with:
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          registry: docker.pkg.github.com
+          password: ${{ secrets.CR_PAT }}
+          registry: ghrc.io
           repository: inful/hound/hound
           tag_with_ref: true
   golangci:
