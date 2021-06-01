@@ -27,7 +27,7 @@ jobs:
       - name: Prepare
         id: prep
         run: |
-          DOCKER_IMAGE=ghcr.io/inful/hound
+          DOCKER_IMAGE=ghcr.io/${{ github.actor }}/hound
           VERSION=latest
           if [[ $GITHUB_REF == refs/tags/* ]]; then
             VERSION=${GITHUB_REF#refs/tags/v}
