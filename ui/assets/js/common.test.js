@@ -122,4 +122,21 @@ describe("UrlToRepo", () => {
             "//bitbucket.internal.com/projects/YourOrganization/repos/RepoOne/browse/test.txt?at=main#10"
         );
     });
+
+    test("Generate url for https gitlab with token style repo", () => {
+        const repo = {
+		url: "https://gitlab-user:gitlab-secret@gitlab.server.internal:1234/a_group/a_subgroup/your_repo.git",
+            "url-pattern":
+            {
+                "base-url" : "{url}/blob/main/{path}{anchor}",
+                "anchor" : "#L{line}",
+            }
+        };
+        const path = "test.txt"
+        const line = 10
+        const rev = "main"
+        expect(UrlToRepo(repo, path, line, rev)).toBe(
+            "https://gitlab.server.internal:1234/a_group/a_subgroup/your_repo/blob/main/test.txt#L10"
+        );
+    });
 });

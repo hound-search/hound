@@ -43,6 +43,16 @@ export function UrlToRepo(repo, path, line, rev) {
         }
         url = hostname + port + '/' + project + '/' + repoName;
     }
+    var httpsWithTokenParts = /(https?:)\/\/.+:.+@(.*?)(:[0-9]+)?(:|\/)(.*)(\/)(.*)/.exec(url);
+    if (httpsWithTokenParts) {
+	project = httpsWithTokenParts[5]
+        repoName = httpsWithTokenParts[7]
+	if (httpsWithTokenParts[3]) {
+	  port = httpsWithTokenParts[3]
+	}
+	hostname = httpsWithTokenParts[1] + '//' + httpsWithTokenParts[2]
+	url = hostname + port + '/' + project + '/' + repoName
+    }
 
     // I'm sure there is a nicer React/jsx way to do this:
     return ExpandVars(pattern['base-url'], {
