@@ -501,12 +501,13 @@ var SearchBar = React.createClass({
           <input id="q"
               type="text"
               placeholder="Search by Regexp"
+              aria-label="Search by Regexp"
               ref="q"
               autocomplete="off"
               onKeyDown={this.queryGotKeydown}
               onFocus={this.queryGotFocus}/>
           <div className="button-add-on">
-            <button id="dodat" onClick={this.submitQuery}></button>
+            <button id="dodat" title="Search" onClick={this.submitQuery}></button>
           </div>
         </div>
 
