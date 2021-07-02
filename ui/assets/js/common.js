@@ -5,12 +5,13 @@ export function ExpandVars(template, values) {
     return template;
 };
 
-export function UrlToRepo(repo, path, line, rev) {
+export function UrlParts(repo, path, line, rev) {
     var url = repo.url.replace(/\.git$/, ''),
         pattern = repo['url-pattern'],
         hostname = '',
         project = '',
         repoName = '',
+        path = path || '',
         port = '',
         filename = path.substring(path.lastIndexOf('/') + 1),
         anchor = line ? ExpandVars(pattern.anchor, { line : line, filename : filename }) : '';
@@ -44,8 +45,7 @@ export function UrlToRepo(repo, path, line, rev) {
         url = hostname + port + '/' + project + '/' + repoName;
     }
 
-    // I'm sure there is a nicer React/jsx way to do this:
-    return ExpandVars(pattern['base-url'], {
+    return {
         url : url,
         hostname: hostname,
         port: port,
@@ -54,5 +54,13 @@ export function UrlToRepo(repo, path, line, rev) {
         path: path,
         rev: rev,
         anchor: anchor
-    });
+    };
+}
+
+export function UrlToRepo(repo, path, line, rev) {
+    var urlParts = UrlParts(repo, path, line, rev),
+        pattern = repo['url-pattern']
+
+    // I'm sure there is a nicer React/jsx way to do this:
+    return ExpandVars(pattern['base-url'], urlParts);
 }
