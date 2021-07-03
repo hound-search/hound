@@ -1,4 +1,4 @@
-import {EscapeRegExp, UrlToRepo} from './common';
+import {EscapeRegExp, UrlParts, UrlToRepo} from './common';
 
 var Signal = function() {
 };
@@ -298,6 +298,10 @@ var Model = {
 
   UrlToRepo: function(repo, path, line, rev) {
     return UrlToRepo(this.repos[repo], path, line, rev);
+  },
+
+  UrlToRoot: function(repo) {
+    return UrlParts(this.repos[repo]).url
   }
 
 };
@@ -509,12 +513,13 @@ var SearchBar = React.createClass({
           <input id="q"
               type="text"
               placeholder="Search by Regexp"
+              aria-label="Search by Regexp"
               ref="q"
               autocomplete="off"
               onKeyDown={this.queryGotKeydown}
               onFocus={this.queryGotFocus}/>
           <div className="button-add-on">
-            <button id="dodat" onClick={this.submitQuery}></button>
+            <button id="dodat" title="Search" onClick={this.submitQuery}></button>
           </div>
         </div>
 
@@ -788,7 +793,9 @@ var ResultView = React.createClass({
         <div className="repo">
           <div className="title">
             <span className="mega-octicon octicon-repo"></span>
-            <span className="name">{Model.NameForRepo(result.Repo)}</span>
+            <span className="name">
+              <a href={Model.UrlToRoot(result.Repo)}>{Model.NameForRepo(result.Repo)}</a>
+            </span>
           </div>
           <FilesView matches={result.Matches}
               rev={result.Rev}
