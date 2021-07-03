@@ -1,4 +1,4 @@
-import {UrlToRepo} from './common';
+import {EscapeRegExp, UrlToRepo} from './common';
 
 var Signal = function() {
 };
@@ -395,13 +395,10 @@ var SearchBar = React.createClass({
   submitQuery: function() {
     this.props.onSearchRequested(this.getParams());
   },
-  escapeRegExp: function(regexp) {
-    return regexp.replace(/[-[\]{}()*+!<=:?.\/\\^$|#\s,]/g, '\\$&');
-  },
   getRegExp : function() {
     var regexp = this.refs.q.getDOMNode().value.trim()
     if (this.refs.lsearch.getDOMNode().checked) {
-      regexp = this.escapeRegExp(regexp)
+      regexp = EscapeRegExp(regexp)
     }
     return new RegExp(
       regexp,
