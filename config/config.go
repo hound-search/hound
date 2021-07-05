@@ -26,6 +26,7 @@ type UrlPattern struct {
 
 type Repo struct {
 	Url               string         `json:"url"`
+	AuthenticatedUrl  SecretString   `json:"authenticated-url"`
 	MsBetweenPolls    int            `json:"ms-between-poll"`
 	Vcs               string         `json:"vcs"`
 	VcsConfigMessage  *SecretMessage `json:"vcs-config"`
@@ -82,6 +83,13 @@ func (s *SecretMessage) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// SecretString is much like SecretMessage but it is specialized for strings
+type SecretString string
+
+// This always marshals to an empty object.
+func (s* SecretString) MarshalJSON() ([]byte, error) {
+	return []byte{ '"', '"' }, nil
+}
 // Get the JSON encode vcs-config for this repo. This returns nil if
 // the repo doesn't declare a vcs-config.
 func (r *Repo) VcsConfig() []byte {
@@ -101,6 +109,9 @@ func initRepo(r *Repo) {
 		r.Vcs = defaultVcs
 	}
 
+	if r.AuthenticatedUrl == "" {
+		r.AuthenticatedUrl = SecretString(r.Url)
+	}
 	if r.UrlPattern == nil {
 		r.UrlPattern = &UrlPattern{
 			BaseUrl: defaultBaseUrl,

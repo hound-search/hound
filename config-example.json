@@ -1,92 +1,103 @@
 {
-    "max-concurrent-indexers" : 2,
-    "dbpath" : "data",
-    "title" : "Hound",
-    "health-check-uri" : "/healthz",
-    "vcs-config" : {
+    "max-concurrent-indexers": 2,
+    "dbpath": "data",
+    "title": "Hound",
+    "health-check-uri": "/healthz",
+    "vcs-config": {
         "git": {
-            "detect-ref" : true
+            "detect-ref": true
         }
     },
-    "repos" : {
-        "SomeGitRepo" : {
-            "url" : "https://www.github.com/YourOrganization/RepoOne.git"
+    "repos": {
+        "SomeGitRepo": {
+            "url": "https://www.github.com/YourOrganization/RepoOne.git"
         },
-        "AnotherGitRepo" : {
-            "url" : "https://www.github.com/YourOrganization/RepoOne.git",
+        "AnotherGitRepo": {
+            "url": "https://www.github.com/YourOrganization/RepoOne.git",
             "ms-between-poll": 10000,
             "exclude-dot-files": true
         },
-        "GitRepoWithDetectRefDisabled" : {
-            "url" : "https://www.github.com/YourOrganization/RepoOne.git",
-            "vcs-config" : {
-                "detect-ref" : false
+        "GitRepoWithDetectRefDisabled": {
+            "url": "https://www.github.com/YourOrganization/RepoOne.git",
+            "vcs-config": {
+                "detect-ref": false
             }
         },
-        "SomeMercurialRepo" : {
-            "url" : "https://www.example.com/foo/hg",
-            "vcs" : "hg"
+        "SomeMercurialRepo": {
+            "url": "https://www.example.com/foo/hg",
+            "vcs": "hg"
         },
-        "Subversion" : {
-            "url" : "http://my-svn.com/repo",
-            "url-pattern" : {
-                "base-url" : "{url}/{path}{anchor}"
+        "Subversion": {
+            "url": "http://my-svn.com/repo",
+            "url-pattern": {
+                "base-url": "{url}/{path}{anchor}"
             },
-            "vcs" : "svn"
+            "vcs": "svn"
         },
-        "SubversionWithCreds" : {
-            "url" : "http://my-private-svn.com/repo",
-            "url-pattern" : {
-                "base-url" : "{url}/{path}{anchor}"
+        "SubversionWithCreds": {
+            "url": "http://my-private-svn.com/repo",
+            "url-pattern": {
+                "base-url": "{url}/{path}{anchor}"
             },
-            "vcs" : "svn",
-            "vcs-config" : {
-                "username" : "username_for_ro_account",
-                "password" : "password_for_ro_account"
+            "vcs": "svn",
+            "vcs-config": {
+                "username": "username_for_ro_account",
+                "password": "password_for_ro_account"
             }
         },
-        "LocalFolder" : {
-            "url" : "file:///absolute/path/to/directory"
+        "LocalFolder": {
+            "url": "file:///absolute/path/to/directory"
         },
-        "RepoWithCustomUrls" : {
-            "url" : "https://github.com/username/Foo.git",
-            "url-pattern" : {
-                "base-url" : "{url}/files/{path}{anchor}",
-                "anchor" : "#line={line}"
+        "RepoWithCustomUrls": {
+            "url": "https://github.com/username/Foo.git",
+            "url-pattern": {
+                "base-url": "{url}/files/{path}{anchor}",
+                "anchor": "#line={line}"
             }
         },
-        "BitbucketCustomUrl" : {
-            "url" : "git@bitbucket.org:organization/project.git",
-            "url-pattern" : {
-                "base-url" : "https://{url}/src/master/{path}{anchor}",
-                "anchor" : "#{filename}-{line}"
+        "BitbucketCustomUrl": {
+            "url": "git@bitbucket.org:organization/project.git",
+            "url-pattern": {
+                "base-url": "https://{url}/src/master/{path}{anchor}",
+                "anchor": "#{filename}-{line}"
             },
-            "vcs-config" : {
-                "ref" : "main"
+            "vcs-config": {
+                "ref": "main"
             }
         },
-        "RepoWithPollingDisabled" : {
-            "url" : "https://www.github.com/YourOrganization/RepoOne.git",
-            "enable-poll-updates" : false
+        "RepoWithPollingDisabled": {
+            "url": "https://www.github.com/YourOrganization/RepoOne.git",
+            "enable-poll-updates": false
         },
-        "RepoWithPushingEnabled" : {
-            "url" : "https://www.github.com/YourOrganization/RepoOne.git",
-            "enable-push-updates" : true
+        "RepoWithPushingEnabled": {
+            "url": "https://www.github.com/YourOrganization/RepoOne.git",
+            "enable-push-updates": true
         },
-        "RepoIsGitHubWiki" : {
-          "url" : "https://github.com/YourOrganization/RepoWithWiki.wiki.git",
-          "url-pattern" : {
-              "base-url" : "{url}/{path}"
-          }
+        "RepoIsGitHubWiki": {
+            "url": "https://github.com/YourOrganization/RepoWithWiki.wiki.git",
+            "url-pattern": {
+                "base-url": "{url}/{path}"
+            }
         },
-        "BitbucketServerUrl" : {
-            "url" : "git@bitbucket.internal.org:7999:organization/project.git",
-            "url-pattern" : {
-                "base-url" : "https://{hostname}/projects/{project}/repos/{repo}/browse/{path}?at={rev}{anchor}",
-                "anchor" : "#{line}"
+        "GitLabPrivateRepoWithHttpsToken": {
+            "url": "https://gitlab.com/YourOrganization/YourRepo.git",
+            "authenticated-url": "https://AzureD-token:hunter222222@gitlab.com/YourOrganization/YourRepo.git",
+            "url-pattern": {
+                "anchor": "#L{line}",
+                "base-url": "{url}/blob/main/{path}{anchor}"
             },
-            "vcs-config" : {
-                "ref" : "main"
+            "vcs-config": {
+                "ref": "main"
+            }
+        },
+        "BitbucketServerUrl": {
+            "url": "git@bitbucket.internal.org:7999:organization/project.git",
+            "url-pattern": {
+                "base-url": "https://{hostname}/projects/{project}/repos/{repo}/browse/{path}?at={rev}{anchor}",
+                "anchor": "#{line}"
+            },
+            "vcs-config": {
+                "ref": "main"
             }
         }
     }
