@@ -42,6 +42,7 @@ type IndexOptions struct {
 
 type SearchOptions struct {
 	IgnoreCase        bool
+	LiteralSearch     bool
 	LinesOfContext    uint
 	FileRegexp        string
 	ExcludeFileRegexp string
@@ -146,7 +147,12 @@ func (n *Index) Search(pat string, opt *SearchOptions) (*SearchResponse, error) 
 	n.lck.RLock()
 	defer n.lck.RUnlock()
 
-	re, err := regexp.Compile(GetRegexpPattern(pat, opt.IgnoreCase))
+	patForRe := pat
+	if opt.LiteralSearch {
+		patForRe = regexp.QuoteMeta(pat)
+	}
+
+	re, err := regexp.Compile(GetRegexpPattern(patForRe, opt.IgnoreCase))
 	if err != nil {
 		return nil, err
 	}

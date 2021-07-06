@@ -1,4 +1,31 @@
-import { ExpandVars, UrlParts, UrlToRepo } from "./common";
+import { EscapeRegExp, ExpandVars, UrlToRepo } from "./common";
+
+describe("EscapeRegExp", () => {
+    const testRegs = [
+        ["Some test regexes", ["Some patterns that should not match"]],
+        ["ab+c", ["abc"]],
+        ["^\d+$", ["1", "123", "abc"]],
+        ["./...", ["a/abc"]],
+        ["\w+", []],
+        ["\r\n|\r|\n", []],
+        ["^[a-z]+\[[0-9]+\]$", []],
+        ["/[-[\]{}()*+!<=:?.\/\\^$|#\s,]", ["/[-[\]{}()*!<=:?.\/\\^$|#\s,]"]],
+        ["^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6})*$", []],
+        ["(H..).(o..)", []],
+        ["^[a-zA-Z0-9 ]*$", []]
+    ];
+
+    test.each(testRegs)(
+        "EscapeRegExp(%s) returns the RegExp matching the input",
+        (regexp, shouldFail) => {
+            const re = new RegExp(EscapeRegExp(regexp))
+            expect(re.test(regexp)).toBe(true);
+            shouldFail.forEach((failCase) => {
+                expect(re.test(failCase)).toBe(false);
+            });
+        },
+    );
+});
 
 describe("ExpandVars", () => {
     test("Replaces template variables with their values", () => {
