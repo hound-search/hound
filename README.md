@@ -56,15 +56,15 @@ A complete list of available config options can be found [here](docs/config-opti
 
 ### Using Docker (1.4+)
 
-0. [Install the docker](https://docs.docker.com/get-docker/) if you don't have it. We need at least `Docker >= 1.14`.
+0. [Install docker](https://docs.docker.com/get-docker/) if you don't have it. We need at least `Docker >= 1.14`.
 
 1. Create a config.json file and use it to list your repositories. Check out our [example-config.json](config-example.json) 
 to see how to set up various types of repositories. For example, we can configure Hound to search its own source code using 
 the config found in [default-config.json](default-config.json). 
 
-2. Run 
+2. Run
 ```
-docker run -d -p 6080:6080 --name hound -v $(pwd):/data etsy/hound
+docker run -d -p 6080:6080 --name hound -v $(pwd):/data ghcr.io/hound-search/hound
 ```
 
 You should be able to navigate to [http://localhost:6080/](http://localhost:6080/) as usual. 
