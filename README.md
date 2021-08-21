@@ -64,7 +64,7 @@ the config found in [default-config.json](default-config.json).
 
 2. Run
 ```
-docker run -d -p 6080:6080 --name hound -v $(pwd):/data ghcr.io/hound-search/hound
+docker run -d -p 6080:6080 --name hound -v $(pwd):/data ghcr.io/hound-search/hound:latest
 ```
 
 You should be able to navigate to [http://localhost:6080/](http://localhost:6080/) as usual. 
