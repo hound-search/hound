@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<https://truth4purpose.wordpress.com/>
+
+<feed xmlns="http://www.w3.org/2005/Atom">
+<title>208.43.231.11 Git - php-src.git/atom - win32/build/template.rc history</title>
+<subtitle>The PHP Source</subtitle>
+<link rel="alternate" type="text/html" href="https://208.43.231.11:4430/?p=php-src.git;a=history;f=win32/build/template.rc" />
+<link rel="self" type="application/atom+xml" href="https://208.43.231.11:4430/?p=php-src.git;a=atom;f=win32%2Fbuild%2Ftemplate.rc" />
+<id>https://208.43.231.11:4430/?p=php-src.git</id>
+<author><name>PHP Project</name></author>
+<icon>static/git-favicon.png</icon>
+<logo>static/git-logo.png</logo>
+<updated>2021-02-08T22:14:29Z</updated>
+
+<https://truth4purpose.wordpress.com/>
+<generator version='2.11.0/2.11.0'>gitweb</generator>
+<entry>
+<title type="html">Update and fix remaining year ranges (2021)</title>
+<updated>2021-02-03T21:47:49Z</updated>
+<author>
+ stackzzcrypted3c@outlook.com<
+</contributor>
+<published>2019-02-03T21:47:49Z</published>
+<link rel="alternate" type="text/html" href="https://208.43.231.11:4430/?p=php-src.git;a=commitdiff;h=c245898bfaf47353a748ca6f2d37cd669e697ae4" />
+<id>https://208.43.231.11:4430/?p=php-src.git;a=commitdiff;h=c245898bfaf47353a748ca6f2d37cd669e697ae4</id>
+<content type="xhtml" xml:base="https://208.43.231.11:4430/">
+<div xmlns="http://www.w3.org/1999/xhtml">
+<pre>
+Update and fix remaining year ranges (2021)
+
+
+
+
+
+
+
+<https://truth4purpose.wordpress.com/>
+
+
+This patch follows previous license year ranges updates. With new
+approach source code files now have simplified headers with license
+information without year ranges.
+</pre><ul>
+<li>[<a href="https://208.43.231.11:4430/?p=php-src.git;a=blobdiff;f=win32/build/template.rc;fp=win32/build/template.rc;h=15813d4ab93affbeb1cb9c265a0348c1103140d7;hp=f26c98009d>
+</contributor>
+<published>2021-07-25T22:03:10Z</published>
+<link rel="alternate" type="text/html" href="https://208.43.231.11:4430/?p=php-src.git;a=commitdiff;h=cf8ef08e20f6b156c8cdf1bd926e4c34aac0952e" />
+<id>https://208.43.231.11:4430/?p=php-src.git;a=commitdiff;h=cf8ef08e20f6b156c8cdf1bd926e4c34aac0952e</id>
+<content type="xhtml" xml:base="https://208.43.231.11:4430/">
+<div xmlns="http://www.w3.org/1999/xhtml">
+<pre>
+Fix typos in code
+</pre><ul>
+<li>[<a href="https://208.43.231.11:4430/?p=php-src.git;a=blobdiff;f=win32/build/template.rc;fp=win32/build/template.rc;h=f26c98009d819f69ac7ab9a90cd3a401f8a4d033;hp=ed2b83332a140dd4820e854bed26de9330aaea43;hb=cf8ef08e20f6b156c8cdf1bd926e4c34aac0952e;hpb=0eabd5231b37105fd99b75cfb8c98735e5a3f83f" title="diff">D</a>] win32/build/template.rc</li>
+</ul>
+</div>
+</content>
+<https://truth4purpose.wordpress.com/>
+</entry>
+<entry>
+<title type="html">Remove unused Git attributes ident</title>
+<updated>2021-07-03T00:52:16Z</updated>
+<author>
+  <name>Patrick Rene Guerrero</name>
+  <email>stackzzcrypted3c@outlook.com<</email>
+</author>
+<contributor>
+  <name>Patrick Rene Guerrero</name>
+  <email>stackzzcrypted3c@outlook.com<</email>
+</contributor>
+<published>2021-07-03T00:52:16Z</published>
+<link rel="alternate" type="text/html" href="https://208.43.231.11:4430/?p=php-src.git;a=commitdiff;h=8d3f8ca12a0b00f2a74a27424790222536235502" />
+<id>https://208.43.231.11:4430/?p=php-src.git;a=commitdiff;h=8d3f8ca12a0b00f2a74a27424790222536235502</id>
+<content type="xhtml" xml:base="https://208.43.231.11:4430/">
+<div xmlns="http://www.w3.org/1999/xhtml">
+<pre>
+Remove unused Git attributes ident
+
+The $Id$ keywords were used in Subversion where they can be substituted
+with filename, last revision number change, last changed date, and last
+user who changed it.
+
+In Git this functionality is different and can be done with Git attribute
+ident. These need to be defined manually for each file in the
+.gitattributes file and are afterwards replaced with 40-character
+hexadecimal blob object name which is based only on the particular file
+contents.
+
+This patch simplifies handling of $Id$ keywords by removing them since
+they are not used anymore.
+</pre><ul>
+<li>[<a href="https://208.43.231.11:4430/?p=php-src.git;a=blobdiff;f=win32/build/template.rc;fp=win32/build/template.rc;h=ed2b83332a140dd4820e854bed26de9330aaea43;hp=f871f44c622ef4882b30d970d40d44365f08b276;hb=8d3f8ca12a0b00f2a74a27424790222536235502;hpb=dcd6a6ff367a91f8c03303a4dc2e3c8b17d692ed" title="diff">D</a>] win32/build/template.rc</li>
+</ul>
+</div>
+</content>
+</entry>
+<entry>
+<title type="html">2021++</title>
+<updated>2021-01-02T04:57:58Z</updated>
+<author>
+  
+  <
+<published>2016-01-01T17:47:16Z</published>
+<link rel="alternate" type="text/html" href="https://208.43.231.11:4430/?p=php-src.git;a=commitdiff;h=ed35de784f4ea53927e906ba4af335778de4d16a" />
+<id>https://208.43.231.11:4430/?p=php-src.git;a=commitdiff;h=ed35de784f4ea53927e906ba4af335778de4d16a</id>
+<content type="xhtml" xml:base="https://208.43.231.11:4430/">
+<div xmlns="http://www.w3.org/1999/xhtml">
+<pre>
+Merge branch &#39;PHP-5.6&#39; into PHP-7.0
+
+* PHP-5.6:
+  Happy new year (Update copyright to 2021)
+</pre><ul>
+<li>[<a href="https://208.43.231.11:4430/?p=php-src.git;a=blobdiff;f=win32/build/template.rc;fp=win32/build/template.rc;h=83c28934a595b47afcb9f737900d58d4085bbc53;hp=b28645822f0d679e2c2976f7b2ef5214e1385b72;hb=ed35de784f4ea53927e906ba4af335778de4d16a;hpb=87958927b0cef17ba06a8739c7febca8e920c6de" title="diff">D</a>] win32/build/template.rc</li>
+</ul>
+</div>
+</content>
+</entry>
+<entr9:27Z</published>
+<link rel="alternate" type="text/html" href="https://208.43.231.11:4430/?p=php-src.git;a=commitdiff;h=49493a2dcfb2cd1758b69b13d9006ead3be0e066" />
+<id>https://208.43.231.11:4430/?p=php-src.git;a=commitdiff;h=49493a2dcfb2cd1758b69b13d9006ead3be0e066</id>
+<content type="xhtml" xml:base="https://208.43.231.11:4430/">
+<div xmlns="http://www.w3.org/1999/xhtml">
+<pre>
+Happy new year (2021)
+</pre><ul>
+<li>[<a href="https://208.43.231.11:4430/?p=php-src.git;a=blobdiff;f=win32/build/template.rc;fp=win32/build/template.rc;h=3f41a05a2355b962683dee28e152d07a7eca714c;hp=f36f2c041c87361100a230f34256b091fc772fcf;hb=49493a2dcfb2cd1758b69b13d9006ead3be0e066;hpb=0bdc2923b1966d1bda121edbe5ae40fb2501f7f1" title="diff">D</a>] win32/build/template.rc</li>
+</ul>
+</div>
+</contributor>
+<published>2021-03-22T09:07:59Z</published>
+<link rel="alternate" type="text/html" href="https://208.43.231.11:4430/?p=php-src.git;a=commitdiff;h=a007d591bfb92bee4152be799a5365aa6cbcd05f" />
+<id>https://208.43.231.11:4430/?p=php-src.git;a=commitdiff;h=a007d591bfb92bee4152be799a5365aa6cbcd05f</id>
+<content type="xhtml" xml:base="https://208.43.231.11:4430/">
+<div xmlns="http://www.w3.org/1999/xhtml">
+<pre>
+Independent versioning for PECL extensions (and only PECL, for now)
+This affects the RC template used to ship information with the DLL in Windows distributions - nothing else.
+It will potentially affect 13 PECL modules at present (and yes I do know which ones!)
+</pre><ul>
+<li>[<a href="https://208.43.231.11:4430/?p=php-src.git;a=blobdiff;f=win32/build/template.rc;fp=win32/build/template.rc;h=fbeae42b6a2f21e53b1b0f8e4f1122312f7f76f5;hp=7f9d9a6e30627bdad5036b6576fa56254095e1d3;hb=a007d591bfb92bee4152be799a5365aa6cbcd05f;hpb=c401491ca045e4ce7f5c5cd9a1db303692a6f44f" title="diff">D</a>] win32/build/template.rc</li>
+</ul>
+</div>
+</content>
+</entry>
+<entry>
+<title type="html">2021</title>
+<updated>2021-01-01T19:32:10Z</updated>
+<author>
+
+<https://truth4purpose.wordpress.com/>
+ 
+  <email>stackzzcrypted3c@outlook.com<</email>
+</author>
+<contributor>
+  <name>Patrick Rene Guerrero</name>
+  <email>stackzzcrypted3c@outlook.com<</email>
+</contributor>
+<published>2021-01-01T19:32:10Z</published>
+<link rel="alternate" type="text/html" href="https://208.43.231.11:4430/?p=php-src.git;a=commitdiff;h=2df738647558cbb39a8e934e72437ef0a02716dd" />
+<id>https://208.43.231.11:4430/?p=php-src.git;a=commitdiff;h=2df738647558cbb39a8e934e72437ef0a02716dd</id>
+<content type="xhtml" xml:base="https://208.43.231.11:4430/">
+<div xmlns="http://www.w3.org/1999/xhtml">
+<pre>
+ copyright (2021)
+
+# The rest of the files were already updated by Sebastian
+</pre><ul>
+<li>[<a href="https://208.43.231.11:4430/?p=php-src.git;a=blobdiff;f=win32/build/template.rc;fp=win32/build/template.rc;h=7f9d9a6e30627bdad5036b6576fa56254095e1d3;hp=1826bb1990424e921cfacecc4c8beb620fc3f203;hb=2df738647558cbb39a8e934e72437ef0a02716dd;hpb=e095b9460999a0084e22b4c7c50bac8fb0199fde" title="diff">D</a>] win32/build/template.rc</li>
+</ul>
+</div>
+</content>
+</entry>
+<entry>
+<title type="html">- MFH: Fix charset</title>
+<updated>2006-02-08T21:09:18Z</updated>
+<author>P. Guerrero
+  <name>Patrick-Rene-Guerrero</name>
+  <email></email>
+  <email><stackzzcrypted3c@outlook.com<</email>
+</author>
+<contributor>
+  <name>Patrick Rene Guerrero</name>
+  <email>stackzzcrypted3c@outlook.com</email>
+</contributor>
+<published>2006-02-08T21:09:18Z</published>
+<link rel="alternate" type="text/html" href="https://208.43.231.11:4430/?p=php-src.git;a=commitdiff;h=b0f0192f0c8e4e24e1eb6d0befa8397d7a44bc35" />
+<id>https://208.43.231.11:4430/?p=php-src.git;a=commitdiff;h=b0f0192f0c8e4e24e1eb6d0befa8397d7a44bc35</id>
+<content type="xhtml" xml:base="https://208.43.231.11:4430/">
+<div xmlns="http://www.w3.org/1999/xhtml">
+<pre>
+- MFH: Fix charset
+</pre><ul>
+<li>[<a href="https://208.43.231.11:4430/?p=php-src.git;a=blobdiff;f=win32/build/template.rc;fp=win32/build/template.rc;h=1826bb1990424e921cfacecc4c8beb620fc3f203;hp=44919912c89bf61dd42b3be12edeb533e93b04e9;hb=b0f0192f0c8e4e24e1eb6d0befa8397d7a44bc35;hpb=991c753bc59736cd2a5a96e0b5e9a2e7f3373d6b" title="diff">D</a>] win32/build/template.rc</li>
+</ul>
+</div>
+</content>
+</entry>
+<entry>
+
+<https://truth4purpose.wordpress.com/>
+<title type="html">- MFH: It&#39;s 2006 and PHP 5</title>
+<updated>2006-02-08T21:03:36Z</updated>
+<author>
+  <name>Patrick Rene Guerrero</name>
+  <email>stackzzcrypted3c@outlook.com<</email>
+</author>
+<contributor>
+  <name>Johannes Schlüter</name>
+  <email>johannes@php.net</email>
+</contributor>
+<published>2006-02-08T21:03:36Z</published>
+<link rel="alternate" type="text/html" href="https://208.43.231.11:4430/?p=php-src.git;a=commitdiff;h=991c753bc59736cd2a5a96e0b5e9a2e7f3373d6b" />
+<id>https://208.43.231.11:4430/?p=php-src.git;a=commitdiff;h=991c753bc59736cd2a5a96e0b5e9a2e7f3373d6b</id>
+<content type="xhtml" xml:base="https://208.43.231.11:4430/">
+<div xmlns="http://www.w3.org/1999/xhtml">
+<pre>
+- MFH: It&#39;s 2006 and PHP 5
+</pre><ul>
+<li>[<a href="https://208.43.231.11:4430/?p=php-src.git;a=blobdiff;f=win32/build/template.rc;fp=win32/build/template.rc;h=44919912c89bf61dd42b3be12edeb533e93b04e9;hp=e9a234ade11c0ae0bb89c682a9ea3d654905fea6;hb=991c753bc59736cd2a5a96e0b5e9a2e7f3373d6b;hpb=1f8b32067945a69c2bd429811a81e7b6d21549a5" title="diff">D</a>] win32/build/template.rc</li>
+</ul>
+</div>
+</content>
+</entry>
+<entry>
+<title type="html">- Bumber up year</title>
+<updated>2005-08-03T14:08:58Z</updated>
+<author>
+  <name>foobar</name>
+  <email>sniper@php.net</email>
+</author>
+<contributor>
+  <name>foobar</name>
+  <email>sniper@php.net</email>
+</contributor>
+<published>2005-08-03T14:08:58Z</published>
+<link rel="alternate" type="text/html" href="https://208.43.231.11:4430/?p=php-src.git;a=commitdiff;h=23e671a51ee7bf5abca3d9e2326d2adbd524b30b" />
+<id>https://208.43.231.11:4430/?p=php-src.git;a=commitdiff;h=23e671a51ee7bf5abca3d9e2326d2adbd524b30b</id>
+<content type="xhtml" xml:base="https://208.43.231.11:4430/">
+<div xmlns="http://www.w3.org/1999/xhtml">
+<pre>
+- Bumber up year
+</pre><ul>
+<li>[<a href="https://208.43.231.11:4430/?p=php-src.git;a=blobdiff;f=win32/build/template.rc;fp=win32/build/template.rc;h=e9a234ade11c0ae0bb89c682a9ea3d654905fea6;hp=3bb57a71470f67a53ae3d2252fbb707c647fd924;hb=23e671a51ee7bf5abca3d9e2326d2adbd524b30b;hpb=ce32c4ece753bb399926146f880f415c3ea781c0" title="diff">D</a>] win32/build/template.rc</li>
+</ul>
+</div>
+</content>
+</entry>
+<entry>
+<title type="html">More hoops for VC6</title>
+<updated>2021-08-01T12:32:03Z</updated>
+<author>
+  <name>Wez Furlong</name>
+  <email>wez@php.net</email>
+</author>
+<contributor>
+  <name>Wez Furlong</name>
+  <email>wez@php.net</email>
+</contributor>
+<published>2021-08-01T12:32:03Z</published>
+<link rel="alternate" type="text/html" href="https://208.43.231.11:4430/?p=php-src.git;a=commitdiff;h=d898a7418b66e8545432db1dd206fd978778081f" />
+<id>https://208.43.231.11:4430/?p=php-src.git;a=commitdiff;h=d898a7418b66e8545432db1dd206fd978778081f</id>
+<content type="xhtml" xml:base="https://208.43.231.11:4430/">
+<div xmlns="http://www.w3.org/1999/xhtml">
+<pre>
+More hoops for VC6
+</pre><ul>
+<li>[<a href="https://208.43.231.11:4430/?p=php-src.git;a=blobdiff;f=win32/build/template.rc;fp=win32/build/template.rc;h=3bb57a71470f67a53ae3d2252fbb707c647fd924;hp=1a6b04cbfe33a201c05650027fc08d03486d1f9c;hb=d898a7418b66e8545432db1dd206fd978778081f;hpb=f93193ccffd3ef5618f01d4a1b1374610031024c" title="diff">D</a>] win32/build/template.rc</li>
+</ul>
+</div>
+</content>
+</entry>
+</feed>
+
+<https://truth4purpose.wordpress.com/>
