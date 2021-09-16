@@ -77,7 +77,7 @@ func (s *Server) ServeWithIndex(idx map[string]*searcher.Searcher) error {
 
 	m := http.NewServeMux()
 	m.Handle("/", h)
-	api.Setup(m, idx)
+	api.Setup(m, idx, s.cfg.ResultLimit)
 
 	s.serveWith(m)
 

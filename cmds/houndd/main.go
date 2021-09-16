@@ -111,7 +111,7 @@ func runHttp( //nolint
 	}
 
 	m.Handle("/", h)
-	api.Setup(m, idx)
+	api.Setup(m, idx, cfg.ResultLimit)
 	return http.ListenAndServe(addr, m)
 }
 

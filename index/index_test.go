@@ -1,6 +1,8 @@
 package index
 
 import (
+	"bytes"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -56,6 +58,41 @@ func TestSearch(t *testing.T) {
 	// Make sure we can carry out a search
 	if _, err := idx.Search("5a1c0dac2d9b3ea4085b30dd14375c18eab993d5", &SearchOptions{}); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestSearchWithLimits(t *testing.T) {
+	// Build an index
+	ref, err := buildIndex(url, rev)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ref.Remove()  //nolint
+
+	// Make sure the ref can be opened.
+	idx, err := ref.Open()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer idx.Close()
+
+	// Make sure we can carry out a search within result limits
+	expectedMatches := 100
+	var debugBuf bytes.Buffer
+	if results, err := idx.Search("8365a", &SearchOptions{MaxResults: 100}); err != nil {
+		t.Fatal(err)
+	} else {
+		totalMatches := 0
+		for _, fileWithMatch := range results.Matches {
+			totalMatches += len(fileWithMatch.Matches)
+			for _, match := range fileWithMatch.Matches {
+				fmt.Fprintf(&debugBuf, "file: %v, line no: %d\n", fileWithMatch.Filename, match.LineNumber)
+			}
+		}
+		if totalMatches != expectedMatches {
+			t.Error(debugBuf.String())
+			t.Fatalf("expected %d matches, got %d matches", expectedMatches, totalMatches)
+		}
 	}
 }
 
