@@ -1,4 +1,4 @@
-import { EscapeRegExp, ExpandVars, UrlToRepo } from "./common";
+import { EscapeRegExp, ExpandVars, UrlToRepo, UrlParts } from "./common";
 
 describe("EscapeRegExp", () => {
     const testRegs = [
