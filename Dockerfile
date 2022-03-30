@@ -5,11 +5,11 @@ ENV GOPATH /go
 COPY . /go/src/github.com/hound-search/hound
 
 RUN apk update \
-	&& apk add go git subversion libc-dev mercurial bzr openssh tini \
+	&& apk add go git subversion libc-dev mercurial bzr openssh tini build-base\
 	&& cd /go/src/github.com/hound-search/hound \
 	&& go mod download \
 	&& go install github.com/hound-search/hound/cmds/houndd \
-	&& apk del go \
+	&& apk del go build-base \
 	&& rm -f /var/cache/apk/* \
 	&& rm -rf /go/src /go/pkg
 
