@@ -242,7 +242,7 @@ func (n *Index) Search(pat string, opt *SearchOptions) (*SearchResponse, error) 
 		Matches:        results,
 		FilesWithMatch: filesFound,
 		FilesOpened:    filesOpened,
-		Duration:       time.Now().Sub(startedAt),  //nolint
+		Duration:       time.Now().Sub(startedAt), //nolint
 		Revision:       n.Ref.Rev,
 	}, nil
 }
@@ -370,9 +370,9 @@ func indexAllFiles(opt *IndexOptions, dst, src string) error {
 	}
 	defer fileHandle.Close()
 
-	if err := filepath.Walk(src, func(path string, info os.FileInfo, err error) error {  //nolint
+	if err := filepath.Walk(src, func(path string, info os.FileInfo, err error) error { //nolint
 		name := info.Name()
-		rel, err := filepath.Rel(src, path)
+		rel, err := filepath.Rel(src, path) //nolint
 		if err != nil {
 			return err
 		}

@@ -4,7 +4,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: ["1.14", "1.13", "1.12"]
+        go: ["1.18", "1.17", "1.14"]
     steps:
       - uses: actions/checkout@v2.3.4
       - uses: actions/setup-go@v2
@@ -56,20 +56,23 @@ jobs:
     name: lint
     strategy:
       matrix:
-        go: ["1.14"]
+        go: ["1.18"]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2.3.4
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2.3.0
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
         with:
-          # the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
-          version: v1.35.2
+          go-version: ${{ matrix.go }}
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.46.2
+
   go-test:
     strategy:
       matrix:
-        go: ["1.14", "1.13", "1.12"]
+        go: ["1.18", "1.17", "1.14"]
         os: [windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
