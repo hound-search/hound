@@ -41,7 +41,7 @@ func repoNameFromUrl(uri string) string {
 	}
 
 	name := uri[ax+1:]
-	if strings.HasSuffix(name, ".git") {
+	if strings.HasSuffix(name, ".git") { //nolint
 		name = name[:len(name)-4]
 	}
 
