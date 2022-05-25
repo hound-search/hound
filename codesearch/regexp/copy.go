@@ -18,7 +18,7 @@ import (
 
 // cleanClass sorts the ranges (pairs of elements of r),
 // merges them, and eliminates duplicates.
-func cleanClass(rp *[]rune) []rune {  //nolint
+func cleanClass(rp *[]rune) []rune { //nolint
 
 	// Sort by lo increasing, hi decreasing to break ties.
 	sort.Sort(ranges{rp})
@@ -119,47 +119,47 @@ func appendFoldedRange(r []rune, lo, hi rune) []rune {
 // The choice of receiver type definition is strange
 // but avoids an allocation since we already have
 // a *[]rune.
-type ranges struct {  //nolint
+type ranges struct { //nolint
 	p *[]rune
 }
 
-func (ra ranges) Less(i, j int) bool {
+func (ra ranges) Less(i, j int) bool { //nolint
 	p := *ra.p
 	i *= 2
 	j *= 2
 	return p[i] < p[j] || p[i] == p[j] && p[i+1] > p[j+1]
 }
 
-func (ra ranges) Len() int {
+func (ra ranges) Len() int { //nolint
 	return len(*ra.p) / 2
 }
 
-func (ra ranges) Swap(i, j int) {
+func (ra ranges) Swap(i, j int) { //nolint
 	p := *ra.p
 	i *= 2
 	j *= 2
 	p[i], p[i+1], p[j], p[j+1] = p[j], p[j+1], p[i], p[i+1]
 }
 
-func progString(p *syntax.Prog) string {  //nolint
+func progString(p *syntax.Prog) string { //nolint
 	var b bytes.Buffer
 	dumpProg(&b, p)
 	return b.String()
 }
 
-func instString(i *syntax.Inst) string {  //nolint
+func instString(i *syntax.Inst) string { //nolint
 	var b bytes.Buffer
 	dumpInst(&b, i)
 	return b.String()
 }
 
-func bw(b *bytes.Buffer, args ...string) {  //nolint
+func bw(b *bytes.Buffer, args ...string) { //nolint
 	for _, s := range args {
 		b.WriteString(s)
 	}
 }
 
-func dumpProg(b *bytes.Buffer, p *syntax.Prog) {  //nolint
+func dumpProg(b *bytes.Buffer, p *syntax.Prog) { //nolint
 	for j := range p.Inst {
 		i := &p.Inst[j]
 		pc := strconv.Itoa(j)
@@ -175,11 +175,11 @@ func dumpProg(b *bytes.Buffer, p *syntax.Prog) {  //nolint
 	}
 }
 
-func u32(i uint32) string {  //nolint
+func u32(i uint32) string { //nolint
 	return strconv.FormatUint(uint64(i), 10)
 }
 
-func dumpInst(b *bytes.Buffer, i *syntax.Inst) {  //nolint
+func dumpInst(b *bytes.Buffer, i *syntax.Inst) { //nolint
 	switch i.Op {
 	case syntax.InstAlt:
 		bw(b, "alt -> ", u32(i.Out), ", ", u32(i.Arg))
