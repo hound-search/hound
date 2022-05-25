@@ -56,7 +56,7 @@ jobs:
     name: lint
     strategy:
       matrix:
-        go: ["1.18", "1.17", "1.14"]
+        go: ["1.17"]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
