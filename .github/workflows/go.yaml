@@ -67,7 +67,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
-          version: v1.35.2
+          version: v1.46.2
 
   go-test:
     strategy:
