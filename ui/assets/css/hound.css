@@ -384,3 +384,18 @@ button:focus {
   margin-bottom: 40px;
 }
 
+.file-badge {
+  background-color: gray;
+  border-radius: 0.25rem;
+  color: #fff;
+  display: inline-block;
+  float: right;
+  font-size: 75%;
+  font-weight: 700;
+  margin-top: 5px;
+  line-height: 1;
+  padding: 0.25em 0.4em;
+  text-align: center;
+  vertical-align: baseline;
+  white-space: nowrap;
+}
