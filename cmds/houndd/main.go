@@ -115,11 +115,12 @@ func runHttp( //nolint
 	return http.ListenAndServe(addr, m)
 }
 
+// TODO: Automatically increment this when building a release
 func getVersion() semver.Version {
 	return semver.Version{
 		Major: 0,
-		Minor: 4,
-		Patch: 0,
+		Minor: 5,
+		Patch: 1,
 	}
 }
 
