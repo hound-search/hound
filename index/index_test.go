@@ -6,6 +6,9 @@ import (
 	"path/filepath"
 	"runtime"
 	"testing"
+
+	"github.com/hound-search/hound/codesearch/index"
+	"golang.org/x/text/encoding/charmap"
 )
 
 const (
@@ -35,7 +38,7 @@ func TestSearch(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer ref.Remove()  //nolint
+	defer ref.Remove() //nolint
 
 	// Make sure the metadata in the ref is good.
 	if ref.Rev != rev {
@@ -79,7 +82,7 @@ func TestRead(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer ref.Remove()  //nolint
+	defer ref.Remove() //nolint
 
 	r, err := Read(ref.Dir())
 	if err != nil {
@@ -99,4 +102,34 @@ func TestRead(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer idx.Close()
+}
+
+func TestFallbackEnc(t *testing.T) {
+	dst, err := ioutil.TempDir(os.TempDir(), "hound")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(dst)
+	os.MkdirAll(filepath.Join(dst, "raw"), 0701)
+
+	ix := index.Create(filepath.Join(dst, "tri"))
+	defer ix.Close()
+
+	// { for i in $(seq 0 $(( 2048 / 43 ))); do echo '2048 byte of ASCII to fill the peek buffer'; done; echo ''; echo 'árvíztűrő tükörfúrógép' |iconv -f UTF8 -t ISO8859-2; } > testdata/iso8859_2.txt'))
+	const src = "testdata"
+	const path = "iso8859_2.txt"
+	skipReason, err := addFileToIndex(ix, dst, src, filepath.Join(src, path), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if skipReason == "" {
+		t.Error("wanted skip, got success without fallback encoding")
+	}
+	skipReason, err = addFileToIndex(ix, dst, src, filepath.Join(src, path), charmap.ISO8859_2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if skipReason != "" {
+		t.Errorf("wanted success, got skip %q", skipReason)
+	}
 }

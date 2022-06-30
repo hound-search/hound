@@ -5,6 +5,7 @@
 package index
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -14,6 +15,7 @@ import (
 	"unsafe"
 
 	"github.com/hound-search/hound/codesearch/sparse"
+	"golang.org/x/text/encoding"
 )
 
 // Index writing.  See read.go for details of on-disk format.
@@ -123,7 +125,7 @@ func (ix *IndexWriter) AddFile(name string) {
 func (ix *IndexWriter) Add(name string, f io.Reader) string {
 	ix.trigram.Reset()
 	var (
-		c          = byte(0)  //nolint
+		c          = byte(0) //nolint
 		i          = 0
 		buf        = ix.inbuf[:0]
 		tv         = uint32(0)
@@ -131,9 +133,9 @@ func (ix *IndexWriter) Add(name string, f io.Reader) string {
 		linelen    = 0
 		numLines   = 0
 		longLines  = 0
-		skipReason = ""  //nolint
+		skipReason = "" //nolint
 	)
-
+	const invalidUTF8 = "Invalid UTF-8"
 	for {
 		tv = (tv << 8) & (1<<24 - 1)
 		if i >= len(buf) {
@@ -144,6 +146,9 @@ func (ix *IndexWriter) Add(name string, f io.Reader) string {
 						break
 					}
 					log.Printf("%s: %v\n", name, err)
+					if errors.Is(err, encoding.ErrInvalidUTF8) {
+						return invalidUTF8
+					}
 					return ""
 				}
 				log.Printf("%s: 0-length read\n", name)
@@ -159,7 +164,7 @@ func (ix *IndexWriter) Add(name string, f io.Reader) string {
 			ix.trigram.Add(tv)
 		}
 		if !validUTF8((tv>>8)&0xFF, tv&0xFF) {
-			skipReason = "Invalid UTF-8"
+			skipReason = invalidUTF8
 			if ix.LogSkip {
 				log.Printf("%s: %s\n", name, skipReason)
 			}
@@ -246,7 +251,7 @@ func (ix *IndexWriter) Flush() {
 
 	os.Remove(ix.nameData.name)
 	for _, d := range ix.postData {
-		unmmap(d)  //nolint
+		unmmap(d) //nolint
 	}
 	for _, f := range ix.postFile {
 		f.Close()
@@ -310,7 +315,7 @@ func (ix *IndexWriter) flushPost() {
 	}
 
 	ix.post = ix.post[:0]
-	w.Seek(0, 0)  //nolint
+	w.Seek(0, 0) //nolint
 	ix.postFile = append(ix.postFile, w)
 }
 
@@ -368,7 +373,7 @@ type postChunk struct {
 	m []postEntry // remaining entries after e
 }
 
-const postBuf = 4096  //nolint
+const postBuf = 4096 //nolint
 
 // A postHeap is a heap (priority queue) of postChunks.
 type postHeap struct {
@@ -388,7 +393,7 @@ func (h *postHeap) addMem(x []postEntry) {
 
 // step reads the next entry from ch and saves it in ch.e.
 // It returns false if ch is over.
-func (h *postHeap) step(ch *postChunk) bool {  //nolint
+func (h *postHeap) step(ch *postChunk) bool { //nolint
 	old := ch.e
 	m := ch.m
 	if len(m) == 0 {
@@ -414,7 +419,7 @@ func (h *postHeap) add(ch *postChunk) {
 }
 
 // empty reports whether the postHeap is empty.
-func (h *postHeap) empty() bool {  //nolint
+func (h *postHeap) empty() bool { //nolint
 	return len(h.ch) == 0
 }
 
@@ -492,7 +497,7 @@ type bufWriter struct {
 	name string
 	file *os.File
 	buf  []byte
-	tmp  [8]byte  //nolint
+	tmp  [8]byte //nolint
 }
 
 // bufCreate creates a new file with the given name and returns a
@@ -578,7 +583,7 @@ func (b *bufWriter) flush() {
 func (b *bufWriter) finish() *os.File {
 	b.flush()
 	f := b.file
-	f.Seek(0, 0)  //nolint
+	f.Seek(0, 0) //nolint
 	return f
 }
 

@@ -33,6 +33,7 @@ type Repo struct {
 	ExcludeDotFiles   bool           `json:"exclude-dot-files"`
 	EnablePollUpdates *bool          `json:"enable-poll-updates"`
 	EnablePushUpdates *bool          `json:"enable-push-updates"`
+	FallbackEncoding  string         `json:"fallback-encoding"`
 }
 
 // Used for interpreting the config value for fields that use *bool. If a value

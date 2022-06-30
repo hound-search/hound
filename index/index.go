@@ -14,6 +14,8 @@ import (
 
 	"github.com/hound-search/hound/codesearch/index"
 	"github.com/hound-search/hound/codesearch/regexp"
+	"golang.org/x/text/encoding"
+	"golang.org/x/text/transform"
 )
 
 const (
@@ -38,6 +40,7 @@ type Index struct {
 type IndexOptions struct {
 	ExcludeDotFiles bool
 	SpecialFiles    []string
+	FallbackEnc     encoding.Encoding
 }
 
 type SearchOptions struct {
@@ -247,7 +250,7 @@ func (n *Index) Search(pat string, opt *SearchOptions) (*SearchResponse, error) 
 	}, nil
 }
 
-func isTextFile(filename string) (bool, error) {
+func isTextFile(filename string) (isText bool, err error) {
 	buf := make([]byte, filePeekSize)
 	r, err := os.Open(filename)
 	if err != nil {
@@ -262,14 +265,14 @@ func isTextFile(filename string) (bool, error) {
 
 	buf = buf[:n]
 
-	if n < filePeekSize {
-		// read the whole file, must be valid.
-		return utf8.Valid(buf), nil
+	if n < filePeekSize && utf8.Valid(buf) || // read the whole file, must be valid.
+		n >= filePeekSize && validUTF8IgnoringPartialTrailingRune(buf) { // read a prefix, allow trailing partial runes.
+		return true, nil
 	}
-
-	// read a prefix, allow trailing partial runes.
-	return validUTF8IgnoringPartialTrailingRune(buf), nil
-
+	if isBinary(buf) {
+		return false, nil
+	}
+	return true, nil
 }
 
 // Determines if the buffer contains valid UTF8 encoded string data. The buffer is assumed
@@ -298,17 +301,26 @@ func validUTF8IgnoringPartialTrailingRune(p []byte) bool {
 	return true
 }
 
-func addFileToIndex(ix *index.IndexWriter, dst, src, path string) (string, error) {
+func isBinary(p []byte) bool {
+	for _, c := range p {
+		if c < 10 {
+			return true
+		}
+	}
+	return false
+}
+
+func addFileToIndex(ix *index.IndexWriter, dst, src, path string, fallbackEnc encoding.Encoding) (string, error) {
 	rel, err := filepath.Rel(src, path)
 	if err != nil {
 		return "", err
 	}
 
-	r, err := os.Open(path)
+	fh, err := os.Open(path)
 	if err != nil {
 		return "", err
 	}
-	defer r.Close()
+	defer fh.Close()
 
 	dup := filepath.Join(dst, "raw", rel)
 	w, err := os.Create(dup)
@@ -316,10 +328,32 @@ func addFileToIndex(ix *index.IndexWriter, dst, src, path string) (string, error
 		return "", err
 	}
 	defer w.Close()
-
 	g := gzip.NewWriter(w)
 	defer g.Close()
+	r := io.Reader(fh)
 
+	// Without fallback encoding, assume UTF-8.
+	maybeValidated := r
+	if fallbackEnc != nil {
+		maybeValidated = transform.NewReader(r, encoding.UTF8Validator)
+	}
+	skipReason := ix.Add(rel, io.TeeReader(maybeValidated, g))
+	if fallbackEnc == nil || skipReason == "" || skipReason != "Invalid UTF-8" {
+		return skipReason, nil
+	}
+
+	// Reset, then try the fallback encoding.
+	if _, err = fh.Seek(0, 0); err != nil {
+		return skipReason, err
+	}
+	if _, err = w.Seek(0, 0); err != nil {
+		return skipReason, err
+	}
+	if err = w.Truncate(0); err != nil {
+		return skipReason, err
+	}
+	g.Reset(w)
+	r = fallbackEnc.NewDecoder().Reader(r)
 	return ix.Add(rel, io.TeeReader(r, g)), nil
 }
 
@@ -410,12 +444,12 @@ func indexAllFiles(opt *IndexOptions, dst, src string) error {
 			return nil
 		}
 
-		txt, err := isTextFile(path)
+		isText, err := isTextFile(path)
 		if err != nil {
 			return err
 		}
 
-		if !txt {
+		if !isText {
 			excluded = append(excluded, &ExcludedFile{
 				rel,
 				reasonNotText,
@@ -423,7 +457,7 @@ func indexAllFiles(opt *IndexOptions, dst, src string) error {
 			return nil
 		}
 
-		reasonForExclusion, err := addFileToIndex(ix, dst, src, path)
+		reasonForExclusion, err := addFileToIndex(ix, dst, src, path, opt.FallbackEnc)
 		if err != nil {
 			return err
 		}
