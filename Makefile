@@ -2,7 +2,7 @@ CMDS := $(GOPATH)/bin/houndd $(GOPATH)/bin/hound
 
 SRCS := $(shell find . -type f -name '*.go')
 
-WEBPACK_ARGS := -p
+WEBPACK_ARGS := --mode production
 ifdef DEBUG
 	WEBPACK_ARGS := -d
 endif
