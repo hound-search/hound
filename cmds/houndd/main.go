@@ -14,7 +14,7 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/blang/semver"
+	"github.com/blang/semver/v4"
 	"github.com/hound-search/hound/api"
 	"github.com/hound-search/hound/config"
 	"github.com/hound-search/hound/searcher"
