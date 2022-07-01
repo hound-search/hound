@@ -28,7 +28,7 @@
     "pretty-quick": "^2.0.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
-    "webpack": "^4.41.6",
+    "webpack": "^5.73.0",
     "webpack-cli": "^4.10.0"
   }
 }
