@@ -13,6 +13,11 @@ RUN apk update \
 	&& rm -f /var/cache/apk/* \
 	&& rm -rf /go/src /go/pkg
 
+# Hardcode gid and uid so that it never changes. This changing will break
+# users running this as nonroot in production as you run it with the uid directly,
+# not the user name.
+RUN addgroup -g 1000 hound && adduser -u 1000 -G hound -D hound
+
 VOLUME ["/data"]
 
 EXPOSE 6080

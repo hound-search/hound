@@ -71,6 +71,12 @@ You should be able to navigate to [http://localhost:6080/](http://localhost:6080
 There are no special flags to run Hound in production. You can use the `--addr=:6880` flag to control the port to which the server binds. 
 Currently, Hound does not support TLS as most users simply run Hound behind either Apache or nginx. However, we are open to contributions to add TLS support.
 
+If you are running the container, it is best security practice to run containers as non-root users in production. There is a hound user and group in the container with the uid/guid of 1000/1000. For example, utilizing this user with docker would look like:
+
+```
+docker run -d -u 1000 -p 6080:6080 --name hound -v $(pwd):/data ghcr.io/hound-search/hound:latest
+```
+
 ## Why Another Code Search Tool?
 
 We've used many similar tools in the past, and most of them are either too slow, too hard to configure, or require too much software to be installed.
