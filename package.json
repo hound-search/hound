@@ -23,7 +23,7 @@
     "@babel/preset-env": "^7.8.4",
     "@babel/preset-react": "^7.8.3",
     "babel-loader": "^8.0.6",
-    "jest": "^25.3.0",
+    "jest": "^28.1.2",
     "prettier": "^2.0.4",
     "pretty-quick": "^2.0.1",
     "react": "^16.12.0",
