@@ -15,6 +15,7 @@ ConfigOption | Description | Default Values
 :------ | :----- | :-----
 max-concurrent-indexers | defines the total number of indexers required to be used for indexing code | 2
 health-check-uri |  health check url for hound | `/healthz`
+metrics-uri |  Prometheus metrics URI | `/metrics`
 dbpath | absolute file path where the `config.json` file exists| `data`
 title | Title used for the application | Hound
 url-pattern | composed of base url and anchor values in form of key value pairs | n/a

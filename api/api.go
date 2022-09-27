@@ -16,7 +16,6 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var (
@@ -327,6 +326,4 @@ func Setup(m *http.ServeMux, idx map[string]*searcher.Searcher) {
 
 		writeResp(w, "ok")
 	})
-
-	m.Handle("/metrics", promhttp.Handler())
 }

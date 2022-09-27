@@ -17,6 +17,7 @@ const (
 	defaultBaseUrl               = "{url}/blob/{rev}/{path}{anchor}"
 	defaultAnchor                = "#L{line}"
 	defaultHealthCheckURI        = "/healthz"
+	defaultMetricsURI            = "/metrics"
 )
 
 type UrlPattern struct {
@@ -61,6 +62,7 @@ type Config struct {
 	Repos                 map[string]*Repo          `json:"repos"`
 	MaxConcurrentIndexers int                       `json:"max-concurrent-indexers"`
 	HealthCheckURI        string                    `json:"health-check-uri"`
+	MetricsURI            string                    `json:"metrics-uri"`
 	VCSConfigMessages     map[string]*SecretMessage `json:"vcs-config"`
 }
 
@@ -127,6 +129,9 @@ func initConfig(c *Config) error {
 
 	if c.HealthCheckURI == "" {
 		c.HealthCheckURI = defaultHealthCheckURI
+	}
+	if c.MetricsURI == "" {
+		c.MetricsURI = defaultMetricsURI
 	}
 
 	return mergeVCSConfigs(c)

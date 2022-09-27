@@ -9,6 +9,8 @@ import (
 	"github.com/hound-search/hound/config"
 	"github.com/hound-search/hound/searcher"
 	"github.com/hound-search/hound/ui"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 // Server is an HTTP server that handles all
@@ -27,6 +29,11 @@ type Server struct {
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == s.cfg.HealthCheckURI {
 		fmt.Fprintln(w, "👍")
+		return
+	}
+
+	if r.URL.Path == s.cfg.MetricsURI {
+		promhttp.Handler().ServeHTTP(w, r)
 		return
 	}
 
