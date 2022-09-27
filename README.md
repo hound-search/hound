@@ -125,21 +125,15 @@ Currently the following editors have plugins that support Hound:
  * make
  * Node.js ([Installation Instructions](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager))
 
-Hound includes a `Makefile` to aid in building locally, but it depends on the source being added to a proper Go workspace so that
-Go tools work accordingly. See [Setting GOPATH](https://github.com/golang/go/wiki/SettingGOPATH) for further details about setting
-up your Go workspace. With a `GOPATH` set, the following commands will build hound locally.
+While Hound is a proper go module that can be installed with `go install`, there is also a `Makefile` to aid in building locally.
 
 ```
-git clone https://github.com/hound-search/hound.git ${GOPATH}/src/github.com/hound-search/hound
-cd ${GOPATH}/src/github.com/hound-search/hound
+git clone https://github.com/hound-search/hound.git
+cd hound
 make
 ```
 
-If this is your only Go project, you can set your GOPATH just for Hound:
-```
-git clone https://github.com/hound-search/hound.git src/github.com/hound-search/hound
-GOPATH=$(pwd) make -C src/github.com/hound-search/hound
-```
+The hound executables will be available in `.build/bin`.
 
 ### Testing
 
@@ -182,7 +176,7 @@ make dev
 Then run the hound server with the --dev option:
 
 ```
-bin/houndd --dev
+.build/bin/houndd --dev
 ```
 
 ## Get in Touch
