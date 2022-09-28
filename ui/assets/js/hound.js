@@ -397,6 +397,7 @@ var SearchBar = React.createClass({
     this.showAdvanced();
   },
   submitQuery: function() {
+    this.hideAdvanced();
     this.props.onSearchRequested(this.getParams());
   },
   getRegExp : function() {
