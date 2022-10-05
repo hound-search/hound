@@ -2,9 +2,9 @@ CMDS := .build/bin/houndd .build/bin/hound
 
 SRCS := $(shell find . -type f -name '*.go')
 
-WEBPACK_ARGS := -p
+WEBPACK_ARGS := --mode production
 ifdef DEBUG
-	WEBPACK_ARGS := -d
+	WEBPACK_ARGS := --mode development
 endif
 
 ALL: $(CMDS)
