@@ -19,7 +19,7 @@ You might also want to define a [`GOPATH`](https://github.com/golang/go/wiki/GOP
 (it defaults to $HOME/go if you don't explicitly have one set). If everything is installed properly, `go version` should 
 print out the installed version of go. 
 
-1. Use the Go tools to install Hound. The binaries `houndd` (server) and `hound` (cli) will be installed in your $GOPATH/bin directory. Your $GOPATH should be in your $PATH (`echo $PATH` to check).
+1. Use the Go tools to install Hound. The binaries `hound` (server) and `hound` (cli) will be installed in your $GOPATH/bin directory. Your $GOPATH should be in your $PATH (`echo $PATH` to check).
 
 
 ```
