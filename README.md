@@ -38,7 +38,7 @@ print out the installed version of go.
 
   You might have to change the path of the last command if you installed Go somewhere else on your system.
 
-2. Create a config.json file and use it to list your repositories. Check out our [example-config.json](config-example.json) 
+2. Create a config.json file in your `$GOPATH/bin` and use it to list your repositories. Check out our [example-config.json](config-example.json)
 to see how to set up various types of repositories. For example, we can configure Hound to search its own source code using 
 the config found in [default-config.json](default-config.json):
 
@@ -52,8 +52,9 @@ the config found in [default-config.json](default-config.json):
 ```
 
 
-A complete list of available config options can be found [here](docs/config-options.md).  
-3. Run the Hound server with `houndd` in the same directory as your `config.json`. You should see output similar to:
+A complete list of available config options can be found [here](docs/config-options.md).
+
+3. Run the Hound server with `houndd` in the same directory as your `config.json`, which is most likely your `$GOPATH/bin` directory. You should see output similar to:
 ```
 2015/03/13 09:07:42 Searcher started for statsd
 2015/03/13 09:07:42 Searcher started for Hound
