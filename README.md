@@ -26,6 +26,18 @@ print out the installed version of go.
 go get github.com/hound-search/hound/cmds/...
 ```
 
+If the above doesn't work for you, try to install hound manually with the following:
+
+```
+git clone https://github.com/hound-search/hound.git
+cd hound
+go build ./cmds/hound
+go build ./cmds/houndd
+sudo mv hound houndd ~/go/bin/
+```
+
+You might have to change the path of the last command if you installed Go somewhere else on your system.
+
 2. Create a config.json file and use it to list your repositories. Check out our [example-config.json](config-example.json) 
 to see how to set up various types of repositories. For example, we can configure Hound to search its own source code using 
 the config found in [default-config.json](default-config.json):
