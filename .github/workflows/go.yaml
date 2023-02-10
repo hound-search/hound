@@ -1,4 +1,11 @@
-on: [push]
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+on:
+  # Run CI when pushing to main
+  push:
+    branches: [ main ]
+  # Run CI for PRs to main and staging
+  pull_request:
+    branches: [ main ]
 jobs:
   go-build:
     runs-on: ubuntu-latest
