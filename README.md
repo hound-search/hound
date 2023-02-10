@@ -21,7 +21,6 @@ print out the installed version of go.
 
 1. Use the Go tools to install Hound. The binaries `houndd` (server) and `hound` (cli) will be installed in your $GOPATH/bin directory. Your $GOPATH should be in your $PATH (`echo $PATH` to check).
 
-
   ```
   go get github.com/hound-search/hound/cmds/...
   ```
@@ -42,25 +41,24 @@ print out the installed version of go.
 to see how to set up various types of repositories. For example, we can configure Hound to search its own source code using 
 the config found in [default-config.json](default-config.json):
 
-```json
-{
-  "dbpath" : "db",
-  "repos" : {
-    "Hound" : { "url" : "https://github.com/etsy/hound.git" }
+  ```json
+  {
+    "dbpath" : "db",
+    "repos" : {
+      "Hound" : { "url" : "https://github.com/etsy/hound.git" }
+    }
   }
-}
-```
+  ```
 
-
-A complete list of available config options can be found [here](docs/config-options.md).
+  A complete list of available config options can be found [here](docs/config-options.md).
 
 3. Run the Hound server with `houndd` in the same directory as your `config.json`, which is most likely your `$GOPATH/bin` directory. You should see output similar to:
-```
-2015/03/13 09:07:42 Searcher started for statsd
-2015/03/13 09:07:42 Searcher started for Hound
-2015/03/13 09:07:42 All indexes built!
-2015/03/13 09:07:42 running server at http://localhost:6080
-```
+  ```
+  2015/03/13 09:07:42 Searcher started for statsd
+  2015/03/13 09:07:42 Searcher started for Hound
+  2015/03/13 09:07:42 All indexes built!
+  2015/03/13 09:07:42 running server at http://localhost:6080
+  ```
 
 4. By default, hound hosts a web ui at http://localhost:6080 . Open it in your browser, and start searching.
 
