@@ -203,3 +203,5 @@ Hound is maintained by:
 * [Jacob Rose](https://github.com/jacobrose)
 * [Nick Sawyer](https://github.com/nickmoorman)
 * [Salem Hilal](https://github.com/salemhilal)
+* [Brad Greenlee](https://github.com/bgreenlee)
+
