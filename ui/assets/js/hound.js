@@ -518,7 +518,7 @@ var SearchBar = React.createClass({
                 </div>
 
                 <div id="inb">
-                    <div id="adv" ref="adv">
+                    <div id="advanced" ref="adv">
                         <span
                             className="octicon octicon-chevron-up hide-adv"
                             onClick={this.hideAdvanced}
