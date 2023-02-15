@@ -204,4 +204,9 @@ Hound is maintained by:
 * [Nick Sawyer](https://github.com/nickmoorman)
 * [Salem Hilal](https://github.com/salemhilal)
 * [Brad Greenlee](https://github.com/bgreenlee)
+* [Jeffery Swensen](https://github.com/jeffswensen)
+* [Ifeanyi Agu](https://github.com/twizzyyanki)
+* [Joe Torraca](https://github.com/jvt)
+* [Gabe Aguilar](https://github.com/gmcaguilar)
+* [Greg Petroski](https://github.com/gpetroski)
 
