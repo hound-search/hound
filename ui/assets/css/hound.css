@@ -105,7 +105,7 @@ button:focus {
   background-color: #fff;
 }
 
-#adv {
+#advanced {
   box-sizing: border-box;
   overflow: hidden;
   height: 0;
@@ -118,23 +118,23 @@ button:focus {
 }
 
 /* Media object clearfix */
-#adv > .field {
+#advanced > .field {
   overflow: hidden;
 }
 
-#adv > .field > label {
+#advanced > .field > label {
   /* Media object left */
   float: left;
   width: 100px;
   color: #767676;
 }
 
-#adv > .field > .field-input {
+#advanced > .field > .field-input {
   /* New block formatting context for media object */
   overflow: hidden;
 }
 
-#adv > .field input[type=text] {
+#advanced > .field input[type=text] {
   line-height: 24px;
   box-sizing: border-box;
   width: 100%;
