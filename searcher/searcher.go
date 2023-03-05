@@ -395,7 +395,7 @@ func updateAndReindex(
 
 var (
 	searchersStarted = promauto.NewCounter(prometheus.CounterOpts{
-		Name: "hound_searcher_started_total",
+		Name: "searcher_started_total",
 		Help: "The total number of Searchers started",
 	})
 )
