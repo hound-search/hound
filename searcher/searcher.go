@@ -16,6 +16,9 @@ import (
 	"github.com/hound-search/hound/config"
 	"github.com/hound-search/hound/index"
 	"github.com/hound-search/hound/vcs"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
 type Searcher struct {
@@ -264,7 +267,7 @@ func reportOnMemory() {
 // Utility function for producing a hex encoded sha1 hash for a string.
 func hashFor(name string) string {
 	h := sha1.New()
-	h.Write([]byte(name))  //nolint
+	h.Write([]byte(name)) //nolint
 	return hex.EncodeToString(h.Sum(nil))
 }
 
@@ -390,6 +393,13 @@ func updateAndReindex(
 	return newRev, true
 }
 
+var (
+	searchersStarted = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "hound_searcher_started_total",
+		Help: "The total number of Searchers started",
+	})
+)
+
 // Creates a new Searcher that is capable of re-claiming an existing index directory
 // from a set of existing manifests.
 func newSearcher(
@@ -401,12 +411,12 @@ func newSearcher(
 	vcsDir := filepath.Join(dbpath, vcsDirFor(repo))
 
 	log.Printf("Searcher started for %s", name)
+	searchersStarted.Inc()
 
 	wd, err := vcs.New(repo.Vcs, repo.VcsConfig())
 	if err != nil {
 		return nil, err
 	}
-
 
 	rev, err := wd.PullOrClone(vcsDir, repo.Url)
 	if err != nil {
