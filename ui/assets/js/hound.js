@@ -255,6 +255,10 @@ var Model = {
             return repo;
         }
 
+        if (info['display-name']) {
+          return info['display-name'];
+        }
+
         var url = info.url,
             ax = url.lastIndexOf("/");
         if (ax < 0) {

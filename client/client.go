@@ -61,6 +61,10 @@ func repoNameFor(repos map[string]*config.Repo, repo string) string {
 		return repo
 	}
 
+	if data.DisplayName != "" {
+		return data.DisplayName
+	}
+
 	name := repoNameFromUrl(data.Url)
 	if name == "" {
 		return repo
