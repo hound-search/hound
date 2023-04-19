@@ -45,6 +45,7 @@ Options for url used for repo link under repos
 
 URLOptions | Description | Default Values
 :------ | :--- | :-----
+display-name | alternative display name for repo | ""
 url-pattern | when provided used by Hound for config|`{url}/blob/{rev}/{path}{anchor}`
 anchor | when provided used for vcs config| `#L{line}`
 

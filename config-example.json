@@ -16,6 +16,7 @@
             "url" : "https://www.github.com/YourOrganization/RepoOne.git",
             "ms-between-poll": 10000,
             "exclude-dot-files": true,
+            "display-name": "RepoOne (dot files not indexed)",
             "auto-generated-files": ["example/path"]
         },
         "GitRepoWithDetectRefDisabled" : {
