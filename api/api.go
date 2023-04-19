@@ -13,6 +13,8 @@ import (
 	"github.com/hound-search/hound/config"
 	"github.com/hound-search/hound/index"
 	"github.com/hound-search/hound/searcher"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
 const (
@@ -89,7 +91,7 @@ func searchAll(
 		*filesOpened += r.res.FilesOpened
 	}
 
-	*duration = int(time.Now().Sub(startedAt).Seconds() * 1000)  //nolint
+	*duration = int(time.Now().Sub(startedAt).Seconds() * 1000) //nolint
 
 	return res, nil
 }
@@ -159,6 +161,13 @@ func parseRangeValue(rv string) (int, int) {
 	return b, e
 }
 
+var (
+	searchDuration = promauto.NewHistogram(prometheus.HistogramOpts{
+		Name: "search_duration_seconds",
+		Help: "Histogram for the runtime of the search endpoint",
+	})
+)
+
 func Setup(m *http.ServeMux, idx map[string]*searcher.Searcher) {
 
 	m.HandleFunc("/api/v1/repos", func(w http.ResponseWriter, r *http.Request) {
@@ -171,6 +180,9 @@ func Setup(m *http.ServeMux, idx map[string]*searcher.Searcher) {
 	})
 
 	m.HandleFunc("/api/v1/search", func(w http.ResponseWriter, r *http.Request) {
+		timer := prometheus.NewTimer(searchDuration)
+		defer timer.ObserveDuration()
+
 		var opt index.SearchOptions
 
 		stats := parseAsBool(r.FormValue("stats"))
@@ -262,7 +274,7 @@ func Setup(m *http.ServeMux, idx map[string]*searcher.Searcher) {
 
 		type Webhook struct {
 			Repository struct {
-				Name string
+				Name      string
 				Full_name string
 			}
 		}
@@ -272,7 +284,7 @@ func Setup(m *http.ServeMux, idx map[string]*searcher.Searcher) {
 		err := json.NewDecoder(r.Body).Decode(&h)
 
 		if err != nil {
-		   writeError(w,
+			writeError(w,
 				errors.New(http.StatusText(http.StatusBadRequest)),
 				http.StatusBadRequest)
 			return

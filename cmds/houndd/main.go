@@ -20,6 +20,7 @@ import (
 	"github.com/hound-search/hound/searcher"
 	"github.com/hound-search/hound/ui"
 	"github.com/hound-search/hound/web"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 const gracefulShutdownSignal = syscall.SIGTERM
@@ -128,6 +129,12 @@ func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	info_log = log.New(os.Stdout, "", log.LstdFlags)
 	error_log = log.New(os.Stderr, "", log.LstdFlags)
+
+	// prometheus metrics endpoint
+	http.Handle("/metrics", promhttp.Handler())
+	go func() {
+		http.ListenAndServe(":2112", nil)
+	}()
 
 	flagConf := flag.String("conf", "config.json", "")
 	flagAddr := flag.String("addr", ":6080", "")
