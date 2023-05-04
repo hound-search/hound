@@ -21,33 +21,44 @@ print out the installed version of go.
 
 1. Use the Go tools to install Hound. The binaries `houndd` (server) and `hound` (cli) will be installed in your $GOPATH/bin directory. Your $GOPATH should be in your $PATH (`echo $PATH` to check).
 
+  ```
+  go get github.com/hound-search/hound/cmds/...
+  ```
 
-```
-go get github.com/hound-search/hound/cmds/...
-```
+  If the above doesn't work for you, try to install hound manually with the following:
 
-2. Create a config.json file and use it to list your repositories. Check out our [example-config.json](config-example.json) 
+  ```
+  git clone https://github.com/hound-search/hound.git
+  cd hound
+  go build ./cmds/hound
+  go build ./cmds/houndd
+  sudo mv hound houndd ~/go/bin/
+  ```
+
+  You might have to change the path of the last command if you installed Go somewhere else on your system.
+
+2. Create a config.json file in your `$GOPATH/bin` and use it to list your repositories. Check out our [example-config.json](config-example.json)
 to see how to set up various types of repositories. For example, we can configure Hound to search its own source code using 
 the config found in [default-config.json](default-config.json):
 
-```json
-{
-  "dbpath" : "db",
-  "repos" : {
-    "Hound" : { "url" : "https://github.com/etsy/hound.git" }
+  ```json
+  {
+    "dbpath" : "db",
+    "repos" : {
+      "Hound" : { "url" : "https://github.com/etsy/hound.git" }
+    }
   }
-}
-```
+  ```
 
+  A complete list of available config options can be found [here](docs/config-options.md).
 
-A complete list of available config options can be found [here](docs/config-options.md).  
-3. Run the Hound server with `houndd` in the same directory as your `config.json`. You should see output similar to:
-```
-2015/03/13 09:07:42 Searcher started for statsd
-2015/03/13 09:07:42 Searcher started for Hound
-2015/03/13 09:07:42 All indexes built!
-2015/03/13 09:07:42 running server at http://localhost:6080
-```
+3. Run the Hound server with `houndd` in the same directory as your `config.json`, which is most likely your `$GOPATH/bin` directory. You should see output similar to:
+  ```
+  2015/03/13 09:07:42 Searcher started for statsd
+  2015/03/13 09:07:42 Searcher started for Hound
+  2015/03/13 09:07:42 All indexes built!
+  2015/03/13 09:07:42 running server at http://localhost:6080
+  ```
 
 4. By default, hound hosts a web ui at http://localhost:6080 . Open it in your browser, and start searching.
 
@@ -84,7 +95,7 @@ Yup, that's it. You can proxy requests to the Go service through Apache/nginx/et
 
 ## Support
 
-Currently Hound is only tested on MacOS and CentOS, but it should work on any *nix system. Hound on Windows is not supported but we've heard it compiles and runs just fine (although it helps to to exclude your data folder from Windows Search Indexer).
+Currently Hound is only tested on MacOS and CentOS, but it should work on any *nix system. Hound on Windows is not supported but we've heard it compiles and runs just fine (although it helps to exclude your data folder from Windows Search Indexer).
 
 Hound supports the following version control systems: 
 
@@ -125,21 +136,15 @@ Currently the following editors have plugins that support Hound:
  * make
  * Node.js ([Installation Instructions](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager))
 
-Hound includes a `Makefile` to aid in building locally, but it depends on the source being added to a proper Go workspace so that
-Go tools work accordingly. See [Setting GOPATH](https://github.com/golang/go/wiki/SettingGOPATH) for further details about setting
-up your Go workspace. With a `GOPATH` set, the following commands will build hound locally.
+While Hound is a proper go module that can be installed with `go install`, there is also a `Makefile` to aid in building locally.
 
 ```
-git clone https://github.com/hound-search/hound.git ${GOPATH}/src/github.com/hound-search/hound
-cd ${GOPATH}/src/github.com/hound-search/hound
+git clone https://github.com/hound-search/hound.git
+cd hound
 make
 ```
 
-If this is your only Go project, you can set your GOPATH just for Hound:
-```
-git clone https://github.com/hound-search/hound.git src/github.com/hound-search/hound
-GOPATH=$(pwd) make -C src/github.com/hound-search/hound
-```
+The hound executables will be available in `.build/bin`.
 
 ### Testing
 
@@ -182,7 +187,7 @@ make dev
 Then run the hound server with the --dev option:
 
 ```
-bin/houndd --dev
+.build/bin/houndd --dev
 ```
 
 ## Get in Touch
@@ -198,3 +203,10 @@ Hound is maintained by:
 * [Jacob Rose](https://github.com/jacobrose)
 * [Nick Sawyer](https://github.com/nickmoorman)
 * [Salem Hilal](https://github.com/salemhilal)
+* [Brad Greenlee](https://github.com/bgreenlee)
+* [Jeffery Swensen](https://github.com/jeffswensen)
+* [Ifeanyi Agu](https://github.com/twizzyyanki)
+* [Joe Torraca](https://github.com/jvt)
+* [Gabe Aguilar](https://github.com/gmcaguilar)
+* [Greg Petroski](https://github.com/gpetroski)
+
