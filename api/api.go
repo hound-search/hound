@@ -13,6 +13,28 @@ import (
 	"github.com/hound-search/hound/config"
 	"github.com/hound-search/hound/index"
 	"github.com/hound-search/hound/searcher"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+)
+
+var (
+	// Overall timer to assess the overall latency the user sees (as we run many queries in parallel)
+	searchRequestDuration = promauto.NewHistogram(prometheus.HistogramOpts{
+		Name: "hound_api_search_all_duration_seconds",
+		Help: "API searchAll latency in seconds",
+	})
+
+	// Metrics to assess how often/fast/efficiently each index is accessed
+	searchIndexDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
+		Name: "hound_api_search_idx_duration_seconds",
+		Help: "Seach single index latency in seconds",
+	}, []string{"index"})
+	searchIndexFilesOpened = promauto.NewHistogramVec(prometheus.HistogramOpts{
+		Name:    "hound_api_search_idx_files_opened",
+		Help:    "Seach single index files opened",
+		Buckets: prometheus.ExponentialBuckets(1, 2, 10),
+	}, []string{"index"})
 )
 
 const (
@@ -63,13 +85,20 @@ func searchAll(
 
 	startedAt := time.Now()
 
+	timer := prometheus.NewTimer(searchRequestDuration)
+	defer timer.ObserveDuration()
+
 	n := len(repos)
 
 	// use a buffered channel to avoid routine leaks on errs.
 	ch := make(chan *searchResponse, n)
 	for _, repo := range repos {
 		go func(repo string) {
+			// We do Prometheus metrics here, as the Searcher doesn't know it's own name
+			t := prometheus.NewTimer(searchIndexDuration.WithLabelValues(repo))
+			defer t.ObserveDuration()
 			fms, err := idx[repo].Search(query, opts)
+			searchIndexFilesOpened.WithLabelValues(repo).Observe(float64(fms.FilesOpened))
 			ch <- &searchResponse{repo, fms, err}
 		}(repo)
 	}
@@ -89,7 +118,7 @@ func searchAll(
 		*filesOpened += r.res.FilesOpened
 	}
 
-	*duration = int(time.Now().Sub(startedAt).Seconds() * 1000)  //nolint
+	*duration = int(time.Now().Sub(startedAt).Seconds() * 1000) //nolint
 
 	return res, nil
 }
@@ -245,7 +274,6 @@ func Setup(m *http.ServeMux, idx map[string]*searcher.Searcher) {
 					fmt.Errorf("Push updates are not enabled for repository %s", repo),
 					http.StatusForbidden)
 				return
-
 			}
 		}
 
@@ -262,7 +290,7 @@ func Setup(m *http.ServeMux, idx map[string]*searcher.Searcher) {
 
 		type Webhook struct {
 			Repository struct {
-				Name string
+				Name      string
 				Full_name string
 			}
 		}
@@ -272,7 +300,7 @@ func Setup(m *http.ServeMux, idx map[string]*searcher.Searcher) {
 		err := json.NewDecoder(r.Body).Decode(&h)
 
 		if err != nil {
-		   writeError(w,
+			writeError(w,
 				errors.New(http.StatusText(http.StatusBadRequest)),
 				http.StatusBadRequest)
 			return
