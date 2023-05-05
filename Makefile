@@ -9,7 +9,7 @@ endif
 
 ALL: $(CMDS)
 
-ui: ui/bindata.go
+ui: ui/.build/ui
 
 # the mtime is updated on a directory when its files change so it's better
 # to rely on a single file to represent the presence of node_modules.
@@ -17,19 +17,16 @@ node_modules/build:
 	npm install
 	date -u >> $@
 
-.build/bin/houndd: ui/bindata.go $(SRCS)
+.build/bin/houndd: ui/.build/ui $(SRCS)
 	go build -o $@ github.com/hound-search/hound/cmds/houndd
 
 .build/bin/hound: ui/bindata.go $(SRCS)
 	go build -o $@ github.com/hound-search/hound/cmds/hound
 
-.build/bin/go-bindata:
-	go build -o $@ github.com/go-bindata/go-bindata/go-bindata
-
-ui/bindata.go: .build/bin/go-bindata node_modules/build $(wildcard ui/assets/**/*)
-	rsync -r ui/assets/* .build/ui
+ui/.build/ui: node_modules/build $(wildcard ui/assets/**/*)
+	mkdir -p ui/.build
+	rsync -r ui/assets/* ui/.build/ui
 	npx webpack $(WEBPACK_ARGS)
-	$< -o $@ -pkg ui -prefix .build/ui -nomemcopy .build/ui/...
 
 dev: node_modules/build
 
@@ -46,3 +43,4 @@ lint:
 
 clean:
 	rm -rf .build node_modules
+	rm -rf ui/.build node_modules

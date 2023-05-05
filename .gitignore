@@ -1,5 +1,6 @@
 /.vagrant
-/.build
+.build
+/ui/.build
 /node_modules
 .DS_Store
 *.exe
