@@ -81,17 +81,6 @@
               "base-url" : "{url}/{path}"
           }
         },
-        "FakeRepo": {
-          "url": "file:///absolute/path/to/directory",
-          "vcs": "fake",
-          "url-pattern" : {
-              "base-url" : "{url}/{path}"
-          },
-          "vcs-config": {
-              "detect-changes": false,
-              "ignored-files": []
-          }
-        },
         "BitbucketServerUrl" : {
             "url" : "git@bitbucket.internal.org:7999:organization/project.git",
             "url-pattern" : {
@@ -101,6 +90,17 @@
             "vcs-config" : {
                 "ref" : "main"
             }
-		}
+		},
+        "LocalRepo": {
+            "url": "file:///absolute/path/to/directory",
+            "vcs": "local",
+            "url-pattern" : {
+                "base-url" : "{url}/{path}"
+            },
+            "vcs-config": {
+                "detect-changes": false,
+                "ignored-files": []
+            }
+        }
     }
 }
