@@ -19,8 +19,8 @@ func init() {
 }
 
 type LocalDriver struct {
-	DetectChanges bool     `json:"detect-changes"`
-	IgnoredFiles  []string `json:"ignored-files"`
+	WatchChanges bool     `json:"watch-changes"`
+	IgnoredFiles []string `json:"ignored-files"`
 }
 
 func newLocal(b []byte) (Driver, error) {
@@ -60,7 +60,7 @@ func myHash(files []string, open func(string) (io.ReadCloser, error)) (string, e
 }
 
 func (g *LocalDriver) HeadRev(dir string) (string, error) {
-	if !g.DetectChanges {
+	if !g.WatchChanges {
 		idx := strings.LastIndex(dir, "vcs-")
 		if idx == -1 {
 			return "", fmt.Errorf("could not find 'vcs-' in path: %s", dir)
