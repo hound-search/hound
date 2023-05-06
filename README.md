@@ -33,7 +33,12 @@ the config found in [default-config.json](default-config.json):
   {
     "dbpath" : "db",
     "repos" : {
-      "Hound" : { "url" : "https://github.com/etsy/hound.git" }
+      "Hound" : {
+        "url" : "https://github.com/hound-search/hound.git",
+        "vcs-config" : {
+          "ref" : "main"
+        }
+      }
     }
   }
   ```
@@ -117,6 +122,7 @@ Hound supports the following version control systems:
 * Mercurial - use `"vcs" : "hg"` in the config
 * SVN - use `"vcs" : "svn"` in the config
 * Bazaar - use `"vcs" : "bzr"` in the config
+* Local - use `"vcs" : "local"` in the config
 
 See [config-example.json](config-example.json) for examples of how to use each VCS.
 
@@ -124,6 +130,7 @@ See [config-example.json](config-example.json) for examples of how to use each V
 
 There are a couple of ways to get Hound to index private repositories:
 
+* Use the `local` pseudo-vcs driver. This allows you to index a local directory. You can set `"watch-changes" : true` to calculate a recursive hash of all the files in the directory and automatically re-index.
 * Use the `file://` protocol. This allows you to index a local clone of a repository. The downside here is that the polling to keep the repo up to date will
 not work. (This also doesn't work on local folders that are not of a supported repository type.) If you're using Docker, you must mount a volume to your repository (e.g., `-v $(pwd)/src:/src`) and use the relative path to the repo in your configuration.
 * Use SSH style URLs in the config: `"url" : "git@github.com:foo/bar.git"`. As long as you have your 
