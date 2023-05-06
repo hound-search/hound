@@ -8,3 +8,4 @@
 /.idea
 dist/
 config.json
+/ui/.build
