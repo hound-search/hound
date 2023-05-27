@@ -17,6 +17,7 @@ const (
 	defaultBaseUrl               = "{url}/blob/{rev}/{path}{anchor}"
 	defaultAnchor                = "#L{line}"
 	defaultHealthCheckURI        = "/healthz"
+	defaultResultLimit           = 5000
 )
 
 type UrlPattern struct {
@@ -63,6 +64,7 @@ type Config struct {
 	MaxConcurrentIndexers int                       `json:"max-concurrent-indexers"`
 	HealthCheckURI        string                    `json:"health-check-uri"`
 	VCSConfigMessages     map[string]*SecretMessage `json:"vcs-config"`
+	ResultLimit           int                       `json:"result-limit"`
 }
 
 // SecretMessage is just like json.RawMessage but it will not
@@ -128,6 +130,10 @@ func initConfig(c *Config) error {
 
 	if c.HealthCheckURI == "" {
 		c.HealthCheckURI = defaultHealthCheckURI
+	}
+
+	if c.ResultLimit == 0 {
+		c.ResultLimit = defaultResultLimit
 	}
 
 	return mergeVCSConfigs(c)

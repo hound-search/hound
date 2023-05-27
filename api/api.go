@@ -18,6 +18,7 @@ import (
 const (
 	defaultLinesOfContext uint = 2
 	maxLinesOfContext     uint = 20
+	maxLimit              int  = 100000
 )
 
 type Stats struct {
@@ -128,9 +129,23 @@ func parseAsUintValue(sv string, min, max, def uint) uint {
 		return max
 	}
 	if min != 0 && uint(iv) < min {
-		return max
+		return min
 	}
 	return uint(iv)
+}
+
+func parseAsIntValue(sv string, min, max, def int) int {
+	iv, err := strconv.ParseInt(sv, 10, 64)
+	if err != nil {
+		return def
+	}
+	if max != 0 && int(iv) > max {
+		return max
+	}
+	if min != 0 && int(iv) < min {
+		return min
+	}
+	return int(iv)
 }
 
 func parseRangeInt(v string, i *int) {
@@ -159,8 +174,7 @@ func parseRangeValue(rv string) (int, int) {
 	return b, e
 }
 
-func Setup(m *http.ServeMux, idx map[string]*searcher.Searcher) {
-
+func Setup(m *http.ServeMux, idx map[string]*searcher.Searcher, defaultMaxResults int) {
 	m.HandleFunc("/api/v1/repos", func(w http.ResponseWriter, r *http.Request) {
 		res := map[string]*config.Repo{}
 		for name, srch := range idx {
@@ -181,6 +195,11 @@ func Setup(m *http.ServeMux, idx map[string]*searcher.Searcher) {
 		opt.ExcludeFileRegexp = r.FormValue("excludeFiles")
 		opt.IgnoreCase = parseAsBool(r.FormValue("i"))
 		opt.LiteralSearch = parseAsBool(r.FormValue("literal"))
+		opt.MaxResults = parseAsIntValue(
+			r.FormValue("limit"),
+			-1,
+			maxLimit,
+			defaultMaxResults)
 		opt.LinesOfContext = parseAsUintValue(
 			r.FormValue("ctx"),
 			0,
