@@ -95,12 +95,11 @@ func renderForDev(w io.Writer, root string, c *content, cfg *config.Config, r *h
 	}
 
 	return c.tpl.Execute(w, map[string]interface{}{
-		"ReactVersion":  ReactVersion,
-		"jQueryVersion": JQueryVersion,
-		"ReposAsJson":   json,
-		"Title":         cfg.Title,
-		"Source":        html_template.HTML(buf.String()),
-		"Host":          r.Host,
+		"ReactVersion": ReactVersion,
+		"ReposAsJson":  json,
+		"Title":        cfg.Title,
+		"Source":       html_template.HTML(buf.String()),
+		"Host":         r.Host,
 	})
 }
 
@@ -156,12 +155,11 @@ func renderForPrd(w io.Writer, c *content, cfg *config.Config, cfgJson string, r
 	buf.WriteString("</script>")
 
 	return c.tpl.Execute(w, map[string]interface{}{
-		"ReactVersion":  ReactVersion,
-		"jQueryVersion": JQueryVersion,
-		"ReposAsJson":   cfgJson,
-		"Title":         cfg.Title,
-		"Source":        html_template.HTML(buf.String()),
-		"Host":          r.Host,
+		"ReactVersion": ReactVersion,
+		"ReposAsJson":  cfgJson,
+		"Title":        cfg.Title,
+		"Source":       html_template.HTML(buf.String()),
+		"Host":         r.Host,
 	})
 }
 
