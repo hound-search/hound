@@ -36,6 +36,8 @@ func newLocal(b []byte) (Driver, error) {
 }
 
 // Adapted from: https://github.com/golang/mod/blob/ad6fd61f94f8fdf6926f5dee6e45bdd13add2f9f/sumdb/dirhash/hash.go#L44
+// The original function returns a base64 encoded string and uses the (slower) SHA256 algorithm. For our purposes
+// SHA1 is good enough, since all we really need is a checksum to signal something changed
 func myHash(files []string, open func(string) (io.ReadCloser, error)) (string, error) {
 	h := sha1.New()
 	files = append([]string(nil), files...)
