@@ -11,33 +11,21 @@ Hound is an extremely fast source code search engine. The core is based on this 
 
 ## Quick Start Guide
 
-### Using Go Tools
+### Building hound
 
+0. Install [go](https://go.dev/) (minimum version required: 1.16) and [npm](https://github.com/npm/cli/#installation)
 
-0. [Install Go](https://golang.org/doc/install) if you don't have it already. Hound requires version 1.4 or later. 
-You might also want to define a [`GOPATH`](https://github.com/golang/go/wiki/GOPATH) environment variable) 
-(it defaults to $HOME/go if you don't explicitly have one set). If everything is installed properly, `go version` should 
-print out the installed version of go. 
-
-1. Use the Go tools to install Hound. The binaries `houndd` (server) and `hound` (cli) will be installed in your $GOPATH/bin directory. Your $GOPATH should be in your $PATH (`echo $PATH` to check).
-
-  ```
-  go get github.com/hound-search/hound/cmds/...
-  ```
-
-  If the above doesn't work for you, try to install hound manually with the following:
+1. Clone the repository and run make.
 
   ```
   git clone https://github.com/hound-search/hound.git
   cd hound
-  go build ./cmds/hound
-  go build ./cmds/houndd
-  sudo mv hound houndd ~/go/bin/
+  make
   ```
 
-  You might have to change the path of the last command if you installed Go somewhere else on your system.
+  The resulting binaries (`hound`, `houndd`) can be found in the .build/bin/ directory.
 
-2. Create a config.json file in your `$GOPATH/bin` and use it to list your repositories. Check out our [example-config.json](config-example.json)
+2. Create a config.json file and use it to list your repositories. Check out our [example-config.json](config-example.json)
 to see how to set up various types of repositories. For example, we can configure Hound to search its own source code using 
 the config found in [default-config.json](default-config.json):
 
@@ -52,7 +40,7 @@ the config found in [default-config.json](default-config.json):
 
   A complete list of available config options can be found [here](docs/config-options.md).
 
-3. Run the Hound server with `houndd` in the same directory as your `config.json`, which is most likely your `$GOPATH/bin` directory. You should see output similar to:
+3. Run the Hound server with `houndd` in the same directory as your `config.json`. You should see output similar to:
   ```
   2015/03/13 09:07:42 Searcher started for statsd
   2015/03/13 09:07:42 Searcher started for Hound
@@ -62,7 +50,7 @@ the config found in [default-config.json](default-config.json):
 
 4. By default, hound hosts a web ui at http://localhost:6080 . Open it in your browser, and start searching.
 
-### Using Docker (1.4+)
+### Using Docker (1.14+)
 
 0. [Install docker](https://docs.docker.com/get-docker/) if you don't have it. We need at least `Docker >= 1.14`.
 
@@ -70,12 +58,38 @@ the config found in [default-config.json](default-config.json):
 to see how to set up various types of repositories. For example, we can configure Hound to search its own source code using 
 the config found in [default-config.json](default-config.json). 
 
-2. Run
-```
-docker run -d -p 6080:6080 --name hound -v $(pwd):/data ghcr.io/hound-search/hound:latest
-```
+
+#### Run with image from github
+
+  ```
+  docker run -d -p 6080:6080 --name hound -v $(pwd):/data ghcr.io/hound-search/hound:latest
+  ```
 
 You should be able to navigate to [http://localhost:6080/](http://localhost:6080/) as usual. 
+
+#### Build image and container yourself
+
+0. Clone repository
+  ```
+  git clone https://github.com/hound-search/hound.git
+  cd hound
+  ```
+
+1. Build the image
+  ```
+  docker build . --tag=hound
+  ```
+
+2. Create the container
+  ```
+  docker create -p 6080:6080 --name hound -v $(pwd):/data hound
+  ```
+
+3. Starting and stopping the container
+  ```
+  docker start hound
+  docker stop hound
+  ```
 
 ## Running in Production
 
@@ -88,7 +102,7 @@ We've used many similar tools in the past, and most of them are either too slow,
 Which brings us to...
 
 ## Requirements
-* Go 1.13+
+* Go 1.16+
 
 Yup, that's it. You can proxy requests to the Go service through Apache/nginx/etc., but that's not required.
 
@@ -134,9 +148,8 @@ Currently the following editors have plugins that support Hound:
 
 #### Requirements:
  * make
- * Node.js ([Installation Instructions](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager))
-
-While Hound is a proper go module that can be installed with `go install`, there is also a `Makefile` to aid in building locally.
+ * [npm](https://github.com/npm/cli/#installation)
+ (Usuall npm comes bundled with Node.js. If that's not the case on the system you're using, you can get it [here](https://nodejs.org/en/download))
 
 ```
 git clone https://github.com/hound-search/hound.git
@@ -168,9 +181,8 @@ You need to install `Node.js >= 12` and install `jest` by `npm install jest` to 
 
 ### Working on the web UI
 
-Hound includes a web UI that is composed of several files (html, css, javascript, etc.). To make sure hound works seamlessly with the standard Go tools, these resources are all bundled inside of the `houndd` binary. Note that changes to the UI will result in local changes to the `ui/bindata.go` file. You must include these changes in your Pull Request.
-
-To bundle UI changes in `ui/bindata.go` use:
+Hound includes a web UI that is composed of several files (html, css, javascript, etc.).
+To compile UI changes use:
 
 ```
 make ui
