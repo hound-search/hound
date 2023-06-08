@@ -1,4 +1,5 @@
 import {UrlToRepo} from './common';
+import reqwest from 'reqwest';
 
 var ExcludedRow = React.createClass({
   render: function() {
@@ -77,9 +78,9 @@ var RepoList = React.createClass({
 var FilterableExcludedFiles = React.createClass({
   getInitialState: function() {
     var _this = this;
-    $.ajax({
+    reqwest({
       url: 'api/v1/repos',
-      dataType: 'json',
+      type: 'json',
       success: function(data) {
         _this.setState({ repos: data });
       },
@@ -102,11 +103,10 @@ var FilterableExcludedFiles = React.createClass({
       searching: true,
       repo: this.state.repos[repo],
     });
-    $.ajax({
+    reqwest({
       url: 'api/v1/excludes',
       data: {repo: repo},
-      type: 'GET',
-      dataType: 'json',
+      type: 'json',
       success: function(data) {
         _this.setState({ files: data, searching: false });
       },

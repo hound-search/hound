@@ -4,8 +4,7 @@ import "io"
 
 // Current versions of some dependencies.
 const (
-	ReactVersion  = "0.12.2"
-	JQueryVersion = "2.1.3"
+	ReactVersion = "0.12.2"
 )
 
 var contents map[string]*content
@@ -22,7 +21,7 @@ type renderer interface {
 type content struct {
 
 	// The uri for accessing this asset
-	uri string  //nolint
+	uri string //nolint
 
 	// The filename of the template relative to the asset directory
 	template string
