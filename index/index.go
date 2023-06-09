@@ -386,7 +386,7 @@ func indexAllFiles(opt *IndexOptions, dst, src string) error {
 		}
 	}
 
-	if err := filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
+	if err := filepath.Walk(src, func(path string, info os.FileInfo, err error) error { //nolint
 		name := info.Name()
 		rel, err := filepath.Rel(src, path) //nolint
 		if err != nil {
