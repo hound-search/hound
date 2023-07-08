@@ -321,6 +321,10 @@ button:focus {
   display: inline-block;
   font-size: 14px;
   color: #767676;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .match > .line:last-child > .lnum {
