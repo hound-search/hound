@@ -26,7 +26,7 @@ func TestIsWriteable(t *testing.T) {
 	if writeable, err := IsWriteable(dir); !writeable {
 		t.Fatalf("%s is not writeable but should be: %s", dir, err)
 	}
-	if err := os.Chmod(dir, 0o555); err != nil {
+	if err := os.Chmod(dir, 0444); err != nil {
 		t.Fatal(err)
 	}
 
