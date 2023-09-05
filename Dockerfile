@@ -11,7 +11,7 @@ COPY . /src
 
 RUN --mount=type=cache,target=/go/pkg/mod \
 	cd /src \
-	&& make \
+	&& make
 
 FROM alpine:latest
 RUN   --mount=type=cache,target=/var/cache/apk \
