@@ -249,6 +249,40 @@ func buildAndOpenIndex(
 	return index.Open(idxDir)
 }
 
+// finds an already built index for a new revision. Used for a read only
+// replica instance to update the index associated with a repository when
+// a new repository revision is pulled
+func findNewExistingIndex(
+	s *Searcher,
+	dbpath string,
+	name string,
+	url string,
+	rev string,
+	newRev string,
+) (string, bool) {
+	refs, err := findExistingRefs(dbpath)
+	if err != nil {
+		log.Printf("failed to update existing indices (%s): %s", name, err)
+		return rev, false
+	}
+	ref := refs.find(url, newRev)
+	if ref == nil {
+		log.Printf("not able to find existing index (%s)", name)
+		return rev, false
+	}
+	idx, err := index.Open(ref.Dir())
+	if err != nil {
+		log.Printf("failed to open existing index (%s): %s", name, err)
+		return rev, false
+	}
+	if err := s.swapIndexes(idx); err != nil {
+		log.Printf("failed index swap (%s): %s", name, err)
+		return rev, false
+	}
+
+	return newRev, true
+}
+
 // Simply prints out statistics about the heap. When hound rebuilds a new
 // index it will expand the heap with a decent amount of garbage. This is
 // helpful to ensure the heap growth looks sane.
@@ -264,7 +298,7 @@ func reportOnMemory() {
 // Utility function for producing a hex encoded sha1 hash for a string.
 func hashFor(name string) string {
 	h := sha1.New()
-	h.Write([]byte(name))  //nolint
+	h.Write([]byte(name)) //nolint
 	return hex.EncodeToString(h.Sum(nil))
 }
 
@@ -365,6 +399,15 @@ func updateAndReindex(
 	if newRev == rev {
 		return rev, false
 	}
+	if writeable, _ := vcs.IsWriteable(dbpath); !writeable {
+		// not writeable, let's update our ref list and look for it.
+		log.Printf(
+			"dbpath (%s) not writeable for update to (%s), updating existing indices",
+			dbpath,
+			name,
+		)
+		return findNewExistingIndex(s, dbpath, name, repo.Url, rev, newRev)
+	}
 
 	log.Printf("Rebuilding %s for %s", name, newRev)
 	idx, err := buildAndOpenIndex(
@@ -407,7 +450,6 @@ func newSearcher(
 		return nil, err
 	}
 
-
 	rev, err := wd.PullOrClone(vcsDir, repo.Url)
 	if err != nil {
 		return nil, err
@@ -441,7 +483,8 @@ func newSearcher(
 		vcsDir,
 		idxDir,
 		repo.Url,
-		rev)
+		rev,
+	)
 	if err != nil {
 		return nil, err
 	}

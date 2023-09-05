@@ -13,6 +13,7 @@ import (
 
 	"github.com/hound-search/hound/codesearch/index"
 	"github.com/hound-search/hound/codesearch/regexp"
+	"github.com/hound-search/hound/vcs"
 )
 
 const (
@@ -115,13 +116,24 @@ func (n *Index) Close() error {
 	return n.idx.Close()
 }
 
+// Destroy the index and if possible, destroy the index directory
 func (n *Index) Destroy() error {
 	n.lck.Lock()
 	defer n.lck.Unlock()
 	if err := n.idx.Close(); err != nil {
 		return err
 	}
-	return n.Ref.Remove()
+	err := n.Ref.Remove()
+	if err != nil {
+		parent := filepath.Dir(n.GetDir())
+		if writeable, _ := vcs.IsWriteable(parent); writeable {
+			// if it seems like we can write to the parent directory, but we can't remove the
+			// vcs directory, continue to return the error
+			return err
+		}
+		return nil
+	}
+	return nil
 }
 
 func (n *Index) GetDir() string {

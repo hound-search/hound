@@ -1,6 +1,8 @@
 package vcs
 
 import (
+	"os"
+	"runtime"
 	"testing"
 )
 
@@ -8,7 +10,7 @@ import (
 
 // Just make sure all drivers are tolerant of nil
 func TestNilConfigs(t *testing.T) {
-	for name, _ := range drivers {  //nolint
+	for name, _ := range drivers { //nolint
 		d, err := New(name, nil)
 		if err != nil {
 			t.Fatal(err)
@@ -17,5 +19,22 @@ func TestNilConfigs(t *testing.T) {
 		if d == nil {
 			t.Fatalf("vcs: %s returned a nil driver", name)
 		}
+	}
+}
+
+func TestIsWriteable(t *testing.T) {
+	dir := t.TempDir()
+	if writeable, err := IsWriteable(dir); !writeable {
+		t.Fatalf("%s is not writeable but should be: %s", dir, err)
+	}
+	if runtime.GOOS == "windows" {
+		t.Skip("Skipping testing RO directory in Windows environment")
+	}
+	if err := os.Chmod(dir, 0555); err != nil {
+		t.Fatal(err)
+	}
+
+	if writeable, err := IsWriteable(dir); writeable {
+		t.Fatalf("%s is writeable but should not be: %s", dir, err)
 	}
 }
