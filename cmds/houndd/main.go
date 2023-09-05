@@ -1,11 +1,10 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/blang/semver/v4"
 	"log"
-	"net/http"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -14,12 +13,9 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/blang/semver/v4"
 	"github.com/fsnotify/fsnotify"
-	"github.com/hound-search/hound/api"
 	"github.com/hound-search/hound/config"
 	"github.com/hound-search/hound/searcher"
-	"github.com/hound-search/hound/ui"
 	"github.com/hound-search/hound/web"
 )
 
@@ -78,6 +74,15 @@ func registerShutdownSignal() <-chan os.Signal {
 	shutdownCh := make(chan os.Signal, 1)
 	signal.Notify(shutdownCh, gracefulShutdownSignal)
 	return shutdownCh
+}
+
+// TODO: Automatically increment this when building a release
+func getVersion() semver.Version {
+	return semver.Version{
+		Major: 0,
+		Minor: 7,
+		Patch: 1,
+	}
 }
 
 func main() {
@@ -141,8 +146,8 @@ func main() {
 		webpack.Dir = basepath + "/../../"
 		webpack.Stdout = os.Stdout
 		webpack.Stderr = os.Stderr
-		err = webpack.Start()
-		if err != nil {
+
+		if err := webpack.Start(); err != nil {
 			error_log.Println(err)
 		}
 	}
