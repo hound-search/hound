@@ -2,6 +2,7 @@ package vcs
 
 import (
 	"os"
+	"runtime"
 	"testing"
 )
 
@@ -26,7 +27,10 @@ func TestIsWriteable(t *testing.T) {
 	if writeable, err := IsWriteable(dir); !writeable {
 		t.Fatalf("%s is not writeable but should be: %s", dir, err)
 	}
-	if err := os.Chmod(dir, 0444); err != nil {
+	if runtime.GOOS == "windows" {
+		t.Skip("Skipping testing RO directory in Windows environment")
+	}
+	if err := os.Chmod(dir, 0555); err != nil {
 		t.Fatal(err)
 	}
 
