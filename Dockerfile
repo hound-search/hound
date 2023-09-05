@@ -2,10 +2,8 @@
 
 FROM golang:alpine as builder
 
-RUN --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=cache,target=/var/cache/apk \
-    apk update \
-	&& apk add git subversion mercurial breezy openssh tini npm rsync build-base
+RUN apk update \
+	&& apk add --no-cache git subversion mercurial breezy openssh tini npm rsync build-base
 
 COPY . /src
 
@@ -14,8 +12,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 	&& make
 
 FROM alpine:latest
-RUN   --mount=type=cache,target=/var/cache/apk \
-      apk add git subversion mercurial breezy openssh tini
+RUN apk add --no-cache git subversion mercurial breezy openssh tini
 
 COPY --from=builder /src/.build/bin/houndd /bin/
 
