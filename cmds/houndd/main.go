@@ -81,7 +81,6 @@ func unregisterShutdownSignal(shutdownCh chan os.Signal) {
 		return
 	}
 	signal.Stop(shutdownCh)
-	shutdownCh = nil
 }
 
 // TODO: Automatically increment this when building a release
@@ -129,6 +128,7 @@ func main() {
 		}
 		// unregister shutdown signal to create a new one
 		unregisterShutdownSignal(shutdownCh)
+		shutdownCh = nil
 
 		// It's not safe to be killed during makeSearchers, so register the
 		// shutdown signal here and defer processing it until we are ready.
