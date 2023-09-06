@@ -194,7 +194,9 @@ func (c *Config) LoadFromFile(filename string) error {
 		return err
 	}
 	defer r.Close()
-
+	// reset Repos and VCSConfigMessages so that upon reload we clear out deleted things
+	c.Repos = make(map[string]*Repo)
+	c.VCSConfigMessages = make(map[string]*SecretMessage)
 	if err := json.NewDecoder(r).Decode(c); err != nil {
 		return err
 	}
