@@ -1,6 +1,5 @@
 # Hound
 
-[![Build Status](https://travis-ci.org/hound-search/hound.svg?branch=master)](https://travis-ci.org/hound-search/hound)
 [![.github/workflows/go.yaml](https://github.com/hound-search/hound/workflows/.github/workflows/go.yaml/badge.svg)](https://github.com/hound-search/hound/actions)
 
 Hound is an extremely fast source code search engine. The core is based on this article (and code) from Russ Cox:
