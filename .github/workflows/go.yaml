@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: ["1.18", "1.17", "1.16"]
+        go: ["1.21", "1.20"]
     steps:
       - uses: actions/checkout@v2.3.4
       - uses: actions/setup-node@v3
@@ -43,15 +43,15 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
       - name: Login to GitHub Packages Docker Registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Push to GitHub Packages
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: .
           platforms: linux/amd64,linux/arm64
@@ -62,7 +62,7 @@ jobs:
     name: lint
     strategy:
       matrix:
-        go: ["1.18"]
+        go: ["1.21"]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
@@ -82,7 +82,7 @@ jobs:
   test:
     strategy:
       matrix:
-        go: ["1.18", "1.17", "1.16"]
+        go: ["1.21", "1.20"]
         os: [windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
