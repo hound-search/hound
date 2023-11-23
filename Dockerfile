@@ -17,4 +17,6 @@ VOLUME ["/data"]
 
 EXPOSE 6080
 
-ENTRYPOINT ["/sbin/tini", "--", "/bin/houndd", "-conf", "/data/config.json"]
+RUN chmod +x ./src/entrypoint.sh
+
+CMD ["/sbin/tini", "--", "./src/entrypoint.sh"]

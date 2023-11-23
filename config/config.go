@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	defaultMsBetweenPoll         = 30000
+	defaultMsBetweenPoll         = 300000
 	defaultMaxConcurrentIndexers = 2
 	defaultPushEnabled           = false
 	defaultPollEnabled           = true
