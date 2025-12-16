@@ -40,7 +40,7 @@ func TestExampleConfigsAreValid(t *testing.T) {
 	repo := cfg.Repos["SomeGitRepo"]
 	vcsConfigBytes := repo.VcsConfig()
 	var vcsConfigVals map[string]interface{}
-	json.Unmarshal(vcsConfigBytes, &vcsConfigVals)  //nolint
+	json.Unmarshal(vcsConfigBytes, &vcsConfigVals) //nolint
 	if detectRef, ok := vcsConfigVals["detect-ref"]; !ok || !detectRef.(bool) {
 		t.Error("global detectRef vcs config setting not set for repo")
 	}
@@ -51,7 +51,7 @@ func TestExampleConfigsAreValid(t *testing.T) {
 
 	repo = cfg.Repos["GitRepoWithDetectRefDisabled"]
 	vcsConfigBytes = repo.VcsConfig()
-	json.Unmarshal(vcsConfigBytes, &vcsConfigVals)  //nolint
+	json.Unmarshal(vcsConfigBytes, &vcsConfigVals) //nolint
 	if detectRef, ok := vcsConfigVals["detect-ref"]; !ok || detectRef.(bool) {
 		t.Error("global detectRef vcs config setting not overriden by repo-level setting")
 	}

@@ -13,6 +13,7 @@ import (
 
 	"github.com/hound-search/hound/codesearch/index"
 	"github.com/hound-search/hound/codesearch/regexp"
+	"github.com/hound-search/hound/vcs"
 )
 
 const (
@@ -256,9 +257,9 @@ func (n *Index) Search(pat string, opt *SearchOptions) (*SearchResponse, error) 
 	}, nil
 }
 
-func isTextFile(filename string) (bool, error) {
+func isTextFile(filename string, fs vcs.FileSystem) (bool, error) {
 	buf := make([]byte, filePeekSize)
-	r, err := os.Open(filename)
+	r, err := fs.Open(filename)
 	if err != nil {
 		return false, err
 	}
@@ -307,13 +308,8 @@ func validUTF8IgnoringPartialTrailingRune(p []byte) bool {
 	return true
 }
 
-func addFileToIndex(ix *index.IndexWriter, dst, src, path string) (string, error) {
-	rel, err := filepath.Rel(src, path)
-	if err != nil {
-		return "", err
-	}
-
-	r, err := os.Open(path)
+func addFileToIndex(ix *index.IndexWriter, dst string, fs vcs.FileSystem, rel string) (string, error) {
+	r, err := fs.Open(rel)
 	if err != nil {
 		return "", err
 	}
@@ -332,12 +328,7 @@ func addFileToIndex(ix *index.IndexWriter, dst, src, path string) (string, error
 	return ix.Add(rel, io.TeeReader(r, g)), nil
 }
 
-func addDirToIndex(dst, src, path string) error {
-	rel, err := filepath.Rel(src, path)
-	if err != nil {
-		return err
-	}
-
+func addDirToIndex(dst string, fs vcs.FileSystem, rel string) error {
 	if rel == "." {
 		return nil
 	}
@@ -366,7 +357,7 @@ func containsString(haystack []string, needle string) bool {
 	return false
 }
 
-func indexAllFiles(opt *IndexOptions, dst, src string) error {
+func indexAllFiles(opt *IndexOptions, dst string, fs vcs.FileSystem) error {
 	ix := index.Create(filepath.Join(dst, "tri"))
 	defer ix.Close()
 
@@ -379,19 +370,8 @@ func indexAllFiles(opt *IndexOptions, dst, src string) error {
 	}
 	defer fileHandle.Close()
 
-	// Resolve the symbolic link
-	if fi, err := os.Stat(src); err == nil && fi.Mode()|os.ModeSymlink != 0 {
-		if s, err := os.Readlink(src); err == nil {
-			src = s
-		}
-	}
-
-	if err := filepath.Walk(src, func(path string, info os.FileInfo, err error) error { //nolint
+	if err := fs.Walk(func(rel string, info vcs.FileInfo, err error) error { //nolint
 		name := info.Name()
-		rel, err := filepath.Rel(src, path) //nolint
-		if err != nil {
-			return err
-		}
 
 		// Is this file considered "special", this means it's not even a part
 		// of the source repository (like .git or .svn).
@@ -415,7 +395,7 @@ func indexAllFiles(opt *IndexOptions, dst, src string) error {
 		}
 
 		if info.IsDir() {
-			return addDirToIndex(dst, src, path)
+			return addDirToIndex(dst, fs, rel)
 		}
 
 		if info.Mode()&os.ModeType != 0 {
@@ -426,7 +406,7 @@ func indexAllFiles(opt *IndexOptions, dst, src string) error {
 			return nil
 		}
 
-		txt, err := isTextFile(path)
+		txt, err := isTextFile(rel, fs)
 		if err != nil {
 			return err
 		}
@@ -439,7 +419,7 @@ func indexAllFiles(opt *IndexOptions, dst, src string) error {
 			return nil
 		}
 
-		reasonForExclusion, err := addFileToIndex(ix, dst, src, path)
+		reasonForExclusion, err := addFileToIndex(ix, dst, fs, rel)
 		if err != nil {
 			return err
 		}
@@ -485,7 +465,7 @@ func Read(dir string) (*IndexRef, error) {
 	return m, nil
 }
 
-func Build(opt *IndexOptions, dst, src, url, rev string) (*IndexRef, error) {
+func Build(opt *IndexOptions, dst string, fs vcs.FileSystem, url, rev string) (*IndexRef, error) {
 	if _, err := os.Stat(dst); err != nil {
 		if err := os.MkdirAll(dst, os.ModePerm); err != nil {
 			return nil, err
@@ -496,7 +476,7 @@ func Build(opt *IndexOptions, dst, src, url, rev string) (*IndexRef, error) {
 		return nil, err
 	}
 
-	if err := indexAllFiles(opt, dst, src); err != nil {
+	if err := indexAllFiles(opt, dst, fs); err != nil {
 		return nil, err
 	}
 

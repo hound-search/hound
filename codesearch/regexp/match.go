@@ -338,9 +338,9 @@ func (m *matcher) matchString(b string, beginText, endText bool) (end int) {
 
 // isWordByte reports whether the byte c is a word character: ASCII only.
 // This is used to implement \b and \B.  This is not right for Unicode, but:
-//	- it's hard to get right in a byte-at-a-time matching world
-//	  (the DFA has only one-byte lookahead)
-//	- this crude approximation is the same one PCRE uses
+//   - it's hard to get right in a byte-at-a-time matching world
+//     (the DFA has only one-byte lookahead)
+//   - this crude approximation is the same one PCRE uses
 func isWordByte(c int) bool {
 	return 'A' <= c && c <= 'Z' ||
 		'a' <= c && c <= 'z' ||

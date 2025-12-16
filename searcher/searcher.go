@@ -232,13 +232,13 @@ func findExistingRefs(dbpath string) (*foundRefs, error) {
 // one will be built.
 func buildAndOpenIndex(
 	opt *index.IndexOptions,
-	dbpath,
-	vcsDir,
+	dbpath string,
+	fs vcs.FileSystem,
 	idxDir,
 	url,
 	rev string) (*index.Index, error) {
 	if _, err := os.Stat(idxDir); err != nil {
-		r, err := index.Build(opt, idxDir, vcsDir, url, rev)
+		r, err := index.Build(opt, idxDir, fs, url, rev)
 		if err != nil {
 			return nil, err
 		}
@@ -264,7 +264,7 @@ func reportOnMemory() {
 // Utility function for producing a hex encoded sha1 hash for a string.
 func hashFor(name string) string {
 	h := sha1.New()
-	h.Write([]byte(name))  //nolint
+	h.Write([]byte(name)) //nolint
 	return hex.EncodeToString(h.Sum(nil))
 }
 
@@ -366,11 +366,17 @@ func updateAndReindex(
 		return rev, false
 	}
 
+	fs, err := wd.FileSystem(vcsDir)
+	if err != nil {
+		log.Printf("vcs fs error: %s", err)
+		return rev, false
+	}
+
 	log.Printf("Rebuilding %s for %s", name, newRev)
 	idx, err := buildAndOpenIndex(
 		opt,
 		dbpath,
-		vcsDir,
+		fs,
 		nextIndexDir(dbpath),
 		repo.Url,
 		newRev)
@@ -407,7 +413,6 @@ func newSearcher(
 		return nil, err
 	}
 
-
 	rev, err := wd.PullOrClone(vcsDir, repo.Url)
 	if err != nil {
 		return nil, err
@@ -435,10 +440,15 @@ func newSearcher(
 		refs.claim(ref)
 	}
 
+	fs, err := wd.FileSystem(vcsDir)
+	if err != nil {
+		return nil, err
+	}
+
 	idx, err := buildAndOpenIndex(
 		opt,
 		dbpath,
-		vcsDir,
+		fs,
 		idxDir,
 		repo.Url,
 		rev)
