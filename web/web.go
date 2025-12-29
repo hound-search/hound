@@ -70,6 +70,16 @@ func Start(cfg *config.Config, addr string, dev bool) *Server {
 // ServeWithIndex allow the server to start offering the search UI and the
 // search APIs operating on the given indexes.
 func (s *Server) ServeWithIndex(idx map[string]*searcher.Searcher) error {
+	err := s.UpdateServeWithIndex(idx)
+	if err != nil {
+		return err
+	}
+
+	return <-s.ch
+}
+
+// UpdateServeWithIndex updates the server handler without returning the error channel
+func (s *Server) UpdateServeWithIndex(idx map[string]*searcher.Searcher) error {
 	h, err := ui.Content(s.dev, s.cfg)
 	if err != nil {
 		return err
@@ -81,5 +91,5 @@ func (s *Server) ServeWithIndex(idx map[string]*searcher.Searcher) error {
 
 	s.serveWith(m)
 
-	return <-s.ch
+	return nil
 }
