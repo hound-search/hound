@@ -128,7 +128,7 @@ func (h *prdHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ct := h.content[p]
 	if ct != nil {
 		// if so, render it
-		if err := renderForPrd(w, ct, h.cfg, h.cfgJson, r); err != nil {
+		if err := renderForPrd(w, ct, h.cfg, r); err != nil {
 			log.Panic(err)
 		}
 		return
@@ -142,7 +142,7 @@ func (h *prdHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // Renders a templated asset in prd-mode. This strategy will embed
 // the sources directly in a script tag on the templated page.
-func renderForPrd(w io.Writer, c *content, cfg *config.Config, cfgJson string, r *http.Request) error {
+func renderForPrd(w io.Writer, c *content, cfg *config.Config, r *http.Request) error {
 	var buf bytes.Buffer
 	buf.WriteString("<script>")
 	for _, src := range c.sources {
@@ -154,9 +154,14 @@ func renderForPrd(w io.Writer, c *content, cfg *config.Config, cfgJson string, r
 	}
 	buf.WriteString("</script>")
 
+	json, err := cfg.ToJsonString()
+	if err != nil {
+		return err
+	}
+
 	return c.tpl.Execute(w, map[string]interface{}{
 		"ReactVersion": ReactVersion,
-		"ReposAsJson":  cfgJson,
+		"ReposAsJson":  json,
 		"Title":        cfg.Title,
 		"Source":       html_template.HTML(buf.String()),
 		"Host":         r.Host,

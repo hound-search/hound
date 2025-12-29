@@ -1,11 +1,14 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/blang/semver/v4"
+	"github.com/fsnotify/fsnotify"
+	"github.com/hound-search/hound/config"
+	"github.com/hound-search/hound/searcher"
+	"github.com/hound-search/hound/web"
 	"log"
-	"net/http"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -13,13 +16,6 @@ import (
 	"runtime"
 	"strings"
 	"syscall"
-
-	"github.com/blang/semver/v4"
-	"github.com/hound-search/hound/api"
-	"github.com/hound-search/hound/config"
-	"github.com/hound-search/hound/searcher"
-	"github.com/hound-search/hound/ui"
-	"github.com/hound-search/hound/web"
 )
 
 const gracefulShutdownSignal = syscall.SIGTERM
@@ -31,30 +27,30 @@ var (
 	basepath   = filepath.Dir(b)
 )
 
-func makeSearchers(cfg *config.Config) (map[string]*searcher.Searcher, bool, error) {
+func makeSearchers(cfg *config.Config, searchers map[string]*searcher.Searcher) (bool, error) {
 	// Ensure we have a dbpath
 	if _, err := os.Stat(cfg.DbPath); err != nil {
 		if err := os.MkdirAll(cfg.DbPath, os.ModePerm); err != nil {
-			return nil, false, err
+			return false, err
 		}
 	}
 
-	searchers, errs, err := searcher.MakeAll(cfg)
+	errs, err := searcher.MakeAll(cfg, searchers)
 	if err != nil {
-		return nil, false, err
+		return false, err
 	}
 
 	if len(errs) > 0 {
 		// NOTE: This mutates the original config so the repos
 		// are not even seen by other code paths.
-		for name, _ := range errs { //nolint
+		for name := range errs { //nolint
 			delete(cfg.Repos, name)
 		}
 
-		return searchers, false, nil
+		return false, nil
 	}
 
-	return searchers, true, nil
+	return true, nil
 }
 
 func handleShutdown(shutdownCh <-chan os.Signal, searchers map[string]*searcher.Searcher) {
@@ -77,42 +73,6 @@ func registerShutdownSignal() <-chan os.Signal {
 	shutdownCh := make(chan os.Signal, 1)
 	signal.Notify(shutdownCh, gracefulShutdownSignal)
 	return shutdownCh
-}
-
-func makeTemplateData(cfg *config.Config) (interface{}, error) { //nolint
-	var data struct {
-		ReposAsJson string
-	}
-
-	res := map[string]*config.Repo{}
-	for name, repo := range cfg.Repos {
-		res[name] = repo
-	}
-
-	b, err := json.Marshal(res)
-	if err != nil {
-		return nil, err
-	}
-
-	data.ReposAsJson = string(b)
-	return &data, nil
-}
-
-func runHttp( //nolint
-	addr string,
-	dev bool,
-	cfg *config.Config,
-	idx map[string]*searcher.Searcher) error {
-	m := http.DefaultServeMux
-
-	h, err := ui.Content(dev, cfg)
-	if err != nil {
-		return err
-	}
-
-	m.Handle("/", h)
-	api.Setup(m, idx, cfg.ResultLimit)
-	return http.ListenAndServe(addr, m)
 }
 
 // TODO: Automatically increment this when building a release
@@ -141,28 +101,37 @@ func main() {
 		os.Exit(0)
 	}
 
+	idx := make(map[string]*searcher.Searcher)
 	var cfg config.Config
-	if err := cfg.LoadFromFile(*flagConf); err != nil {
-		panic(err)
+
+	loadConfig := func() {
+		if err := cfg.LoadFromFile(*flagConf); err != nil {
+			panic(err)
+		}
+		// It's not safe to be killed during makeSearchers, so register the
+		// shutdown signal here and defer processing it until we are ready.
+		shutdownCh := registerShutdownSignal()
+		ok, err := makeSearchers(&cfg, idx)
+		if err != nil {
+			log.Panic(err)
+		}
+		if !ok {
+			info_log.Println("Some repos failed to index, see output above")
+		} else {
+			info_log.Println("All indexes built!")
+		}
+		handleShutdown(shutdownCh, idx)
 	}
+	loadConfig()
+
+	// watch for config file changes
+	configWatcher := config.NewWatcher(*flagConf)
+	configWatcher.OnChange(func(fsnotify.Event) {
+		loadConfig()
+	})
 
 	// Start the web server on a background routine.
 	ws := web.Start(&cfg, *flagAddr, *flagDev)
-
-	// It's not safe to be killed during makeSearchers, so register the
-	// shutdown signal here and defer processing it until we are ready.
-	shutdownCh := registerShutdownSignal()
-	idx, ok, err := makeSearchers(&cfg)
-	if err != nil {
-		log.Panic(err)
-	}
-	if !ok {
-		info_log.Println("Some repos failed to index, see output above")
-	} else {
-		info_log.Println("All indexes built!")
-	}
-
-	handleShutdown(shutdownCh, idx)
 
 	host := *flagAddr
 	if strings.HasPrefix(host, ":") { //nolint
@@ -175,8 +144,7 @@ func main() {
 		webpack.Dir = basepath + "/../../"
 		webpack.Stdout = os.Stdout
 		webpack.Stderr = os.Stderr
-		err = webpack.Start()
-		if err != nil {
+		if err := webpack.Start(); err != nil {
 			error_log.Println(err)
 		}
 	}

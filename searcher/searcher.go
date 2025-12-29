@@ -52,7 +52,7 @@ type limiter chan bool
  */
 type foundRefs struct {
 	refs    []*index.IndexRef
-	claimed map[*index.IndexRef]bool
+	claimed map[string]bool
 	lock    sync.Mutex
 }
 
@@ -89,7 +89,7 @@ func (r *foundRefs) claim(ref *index.IndexRef) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
-	r.claimed[ref] = true
+	r.claimed[ref.Dir()] = true
 }
 
 /**
@@ -101,7 +101,7 @@ func (r *foundRefs) removeUnclaimed() error {
 	defer r.lock.Unlock()
 
 	for _, ref := range r.refs {
-		if r.claimed[ref] {
+		if r.claimed[ref.Dir()] {
 			continue
 		}
 
@@ -217,13 +217,16 @@ func findExistingRefs(dbpath string) (*foundRefs, error) {
 
 	var refs []*index.IndexRef
 	for _, dir := range dirs {
-		r, _ := index.Read(dir)
+		r, err := index.Read(dir)
+		if err != nil {
+			return nil, err
+		}
 		refs = append(refs, r)
 	}
 
 	return &foundRefs{
 		refs:    refs,
-		claimed: map[*index.IndexRef]bool{},
+		claimed: map[string]bool{},
 	}, nil
 }
 
@@ -264,7 +267,7 @@ func reportOnMemory() {
 // Utility function for producing a hex encoded sha1 hash for a string.
 func hashFor(name string) string {
 	h := sha1.New()
-	h.Write([]byte(name))  //nolint
+	h.Write([]byte(name)) //nolint
 	return hex.EncodeToString(h.Sum(nil))
 }
 
@@ -282,24 +285,34 @@ func init() {
 // occurred and no other return values are valid. If an error occurs that is specific
 // to a particular searcher, that searcher will not be present in the searcher map and
 // will have an error entry in the error map.
-func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error) {
+func MakeAll(cfg *config.Config, searchers map[string]*Searcher) (map[string]error, error) {
 	errs := map[string]error{}
-	searchers := map[string]*Searcher{}
 
 	refs, err := findExistingRefs(cfg.DbPath)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	lim := makeLimiter(cfg.MaxConcurrentIndexers)
 
-	n := len(cfg.Repos)
+	n := 0
+	for name := range cfg.Repos {
+		if s, ok := searchers[name]; ok {
+			// claim any already running searcher refs so that they don't get removed
+			refs.claim(s.idx.Ref)
+			continue
+		}
+		n++
+	}
 	// Channel to receive the results from newSearcherConcurrent function.
 	resultCh := make(chan searcherResult, n)
 
 	// Start new searchers for all repos in different go routines while
 	// respecting cfg.MaxConcurrentIndexers.
 	for name, repo := range cfg.Repos {
+		if _, ok := searchers[name]; ok {
+			continue
+		}
 		go newSearcherConcurrent(cfg.DbPath, name, repo, refs, lim, resultCh)
 	}
 
@@ -315,7 +328,7 @@ func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error)
 	}
 
 	if err := refs.removeUnclaimed(); err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	// after all the repos are in good shape, we start their polling
@@ -323,7 +336,7 @@ func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error)
 		s.begin()
 	}
 
-	return searchers, errs, nil
+	return errs, nil
 }
 
 // Creates a new Searcher that is available for searches as soon as this returns.
@@ -406,7 +419,6 @@ func newSearcher(
 	if err != nil {
 		return nil, err
 	}
-
 
 	rev, err := wd.PullOrClone(vcsDir, repo.Url)
 	if err != nil {
