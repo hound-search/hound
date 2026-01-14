@@ -195,7 +195,10 @@ func (c *Config) LoadFromFile(filename string) error {
 	}
 	defer r.Close()
 
-	if err := json.NewDecoder(r).Decode(c); err != nil {
+	var decoder = json.NewDecoder(r);
+	decoder.DisallowUnknownFields();
+
+	if err := decoder.Decode(c); err != nil {
 		return err
 	}
 
