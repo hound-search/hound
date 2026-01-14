@@ -130,7 +130,7 @@ func main() {
 	error_log = log.New(os.Stderr, "", log.LstdFlags)
 
 	flagConf := flag.String("conf", "config.json", "")
-	flagCheckConf := flag.Bool("check-conf", false, "")
+	flagCheckConf := flag.Bool("check-config", false, "")
 	flagAddr := flag.String("addr", ":6080", "")
 	flagDev := flag.Bool("dev", false, "")
 	flagVer := flag.Bool("version", false, "Display version and exit")
