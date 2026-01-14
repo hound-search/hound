@@ -34,19 +34,24 @@ var configPaths = []string{
 
 // Attempt to populate a client.Config from the json found in
 // filename.
-func loadConfigFrom(filename string, cfg *client.Config) error {
+func loadConfigFrom(filename string, cfg *client.Config, disallowUnknownFields bool) error {
 	r, err := os.Open(filename)
 	if err != nil {
 		return err
 	}
 	defer r.Close()
 
-	return json.NewDecoder(r).Decode(cfg)
+	decoder := json.NewDecoder(r)
+	if disallowUnknownFields {
+		decoder.DisallowUnknownFields()
+	}
+
+	return decoder.Decode(cfg)
 }
 
 // Attempt to populate a client.Config from the json found in
 // any of the configPaths.
-func loadConfig(cfg *client.Config) error {
+func loadConfig(cfg *client.Config, disallowUnknownFields bool) error {
 	u, err := user.Current()
 	if err != nil {
 		return err
@@ -59,7 +64,7 @@ func loadConfig(cfg *client.Config) error {
 	for _, path := range configPaths {
 		err = loadConfigFrom(os.Expand(path, func(name string) string {
 			return env[name]
-		}), cfg)
+		}), cfg, disallowUnknownFields)
 
 		if os.IsNotExist(err) {
 			continue
@@ -110,7 +115,7 @@ func main() {
 		HttpHeaders: nil,
 	}
 
-	if err := loadConfig(&cfg); err != nil {
+	if err := loadConfig(&cfg, *flagCheckCfg); err != nil {
 		log.Panic(err)
 	}
 
