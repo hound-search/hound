@@ -320,6 +320,9 @@ func MakeAll(cfg *config.Config, disallowUnknownFields bool) (map[string]*Search
 
 	// after all the repos are in good shape, we start their polling
 	for _, s := range searchers {
+		if s == nil {
+			continue
+		}
 		s.begin()
 	}
 
