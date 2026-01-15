@@ -32,10 +32,12 @@ var (
 )
 
 func makeSearchers(cfg *config.Config, disallowUnknownFields bool) (map[string]*searcher.Searcher, bool, error) {
-	// Ensure we have a dbpath
-	if _, err := os.Stat(cfg.DbPath); err != nil {
-		if err := os.MkdirAll(cfg.DbPath, os.ModePerm); err != nil {
-			return nil, false, err
+	if !disallowUnknownFields {
+		// Ensure we have a dbpath
+		if _, err := os.Stat(cfg.DbPath); err != nil {
+			if err := os.MkdirAll(cfg.DbPath, os.ModePerm); err != nil {
+				return nil, false, err
+			}
 		}
 	}
 

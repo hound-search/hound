@@ -119,9 +119,9 @@ func main() {
 		log.Panic(err)
 	}
 
-  if *flagCheckCfg {
-    return
-  }
+	if *flagCheckCfg {
+		return
+	}
 
 	res, repos, err := client.SearchAndLoadRepos(&cfg,
 		flag.Arg(0),
