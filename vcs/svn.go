@@ -19,11 +19,15 @@ type SVNDriver struct {
 	Password string `json:"password"`
 }
 
-func newSvn(b []byte) (Driver, error) {
+func newSvn(b []byte, disallowUnknownFields bool) (Driver, error) {
 	var d SVNDriver
 
 	if b != nil {
-		if err := json.Unmarshal(b, &d); err != nil {
+		decoder := json.NewDecoder(bytes.NewReader(b))
+		if disallowUnknownFields {
+			decoder.DisallowUnknownFields()
+		}
+		if err := decoder.Decode(&d); err != nil {
 			return nil, err
 		}
 	}

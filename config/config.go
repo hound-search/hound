@@ -1,6 +1,7 @@
 package config
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"os"
@@ -123,7 +124,7 @@ func initRepo(r *Repo) {
 
 // Populate missing config values with default values and
 // merge global VCS configs into repo level configs.
-func initConfig(c *Config) error {
+func initConfig(c *Config, disallowUnknownFields bool) error {
 	if c.MaxConcurrentIndexers == 0 {
 		c.MaxConcurrentIndexers = defaultMaxConcurrentIndexers
 	}
@@ -136,10 +137,10 @@ func initConfig(c *Config) error {
 		c.ResultLimit = defaultResultLimit
 	}
 
-	return mergeVCSConfigs(c)
+	return mergeVCSConfigs(c, disallowUnknownFields)
 }
 
-func mergeVCSConfigs(cfg *Config) error {
+func mergeVCSConfigs(cfg *Config, disallowUnknownFields bool) error {
 	globalConfigLen := len(cfg.VCSConfigMessages)
 	if globalConfigLen == 0 {
 		return nil
@@ -148,7 +149,11 @@ func mergeVCSConfigs(cfg *Config) error {
 	globalConfigVals := make(map[string]map[string]interface{}, globalConfigLen)
 	for vcs, configBytes := range cfg.VCSConfigMessages {
 		var configVals map[string]interface{}
-		if err := json.Unmarshal(*configBytes, &configVals); err != nil {
+		decoder := json.NewDecoder(bytes.NewReader(*configBytes))
+		if disallowUnknownFields {
+			decoder.DisallowUnknownFields()
+		}
+		if err := decoder.Decode(&configVals); err != nil {
 			return err
 		}
 
@@ -166,8 +171,14 @@ func mergeVCSConfigs(cfg *Config) error {
 		var repoVals map[string]interface{}
 		if len(repoBytes) == 0 {
 			repoVals = make(map[string]interface{}, len(globalVals))
-		} else if err := json.Unmarshal(repoBytes, &repoVals); err != nil {
-			return err
+		} else {
+			decoder := json.NewDecoder(bytes.NewReader(repoBytes))
+			if disallowUnknownFields {
+				decoder.DisallowUnknownFields()
+			}
+			if err := decoder.Decode(&repoVals); err != nil {
+				return err
+			}
 		}
 
 		for name, val := range globalVals {
@@ -221,7 +232,7 @@ func (c *Config) LoadFromFile(filename string, disallowUnknownFields bool) error
 		initRepo(repo)
 	}
 
-	return initConfig(c)
+	return initConfig(c, disallowUnknownFields)
 }
 
 func (c *Config) ToJsonString() (string, error) {

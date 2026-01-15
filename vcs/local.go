@@ -1,6 +1,7 @@
 package vcs
 
 import (
+	"bytes"
 	"crypto/sha1"
 	"encoding/hex"
 	"encoding/json"
@@ -23,11 +24,16 @@ type LocalDriver struct {
 	IgnoredFiles []string `json:"ignored-files"`
 }
 
-func newLocal(b []byte) (Driver, error) {
+func newLocal(b []byte, disallowUnknownFields bool) (Driver, error) {
 	d := LocalDriver{}
 
 	if b != nil {
-		if err := json.Unmarshal(b, &d); err != nil {
+		decoder := json.NewDecoder(bytes.NewReader(b))
+		if disallowUnknownFields {
+			decoder.DisallowUnknownFields()
+		}
+		err := decoder.Decode(&d)
+		if err != nil {
 			return nil, err
 		}
 	}

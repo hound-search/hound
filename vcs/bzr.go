@@ -13,7 +13,7 @@ func init() {
 	Register(newBzr, "bzr")
 }
 
-func newBzr(b []byte) (Driver, error) {
+func newBzr(b []byte, disallowUnknownFields bool) (Driver, error) {
 	return &BzrDriver{}, nil
 }
 

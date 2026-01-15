@@ -15,7 +15,7 @@ func init() {
 
 type MercurialDriver struct{}
 
-func newHg(b []byte) (Driver, error) {
+func newHg(b []byte, disallowUnknownFields bool) (Driver, error) {
 	return &MercurialDriver{}, nil
 }
 

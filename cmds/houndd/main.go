@@ -31,7 +31,7 @@ var (
 	basepath   = filepath.Dir(b)
 )
 
-func makeSearchers(cfg *config.Config) (map[string]*searcher.Searcher, bool, error) {
+func makeSearchers(cfg *config.Config, disallowUnknownFields bool) (map[string]*searcher.Searcher, bool, error) {
 	// Ensure we have a dbpath
 	if _, err := os.Stat(cfg.DbPath); err != nil {
 		if err := os.MkdirAll(cfg.DbPath, os.ModePerm); err != nil {
@@ -39,7 +39,7 @@ func makeSearchers(cfg *config.Config) (map[string]*searcher.Searcher, bool, err
 		}
 	}
 
-	searchers, errs, err := searcher.MakeAll(cfg)
+	searchers, errs, err := searcher.MakeAll(cfg, disallowUnknownFields)
 	if err != nil {
 		return nil, false, err
 	}
@@ -147,17 +147,13 @@ func main() {
 		panic(err)
 	}
 
-	if *flagCheckCfg {
-		return
-	}
-
 	// Start the web server on a background routine.
 	ws := web.Start(&cfg, *flagAddr, *flagDev)
 
 	// It's not safe to be killed during makeSearchers, so register the
 	// shutdown signal here and defer processing it until we are ready.
 	shutdownCh := registerShutdownSignal()
-	idx, ok, err := makeSearchers(&cfg)
+	idx, ok, err := makeSearchers(&cfg, *flagCheckCfg)
 	if err != nil {
 		log.Panic(err)
 	}

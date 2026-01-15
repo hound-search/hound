@@ -8,8 +8,8 @@ import (
 
 // Just make sure all drivers are tolerant of nil
 func TestNilConfigs(t *testing.T) {
-	for name, _ := range drivers {  //nolint
-		d, err := New(name, nil)
+	for name, _ := range drivers { //nolint
+		d, err := New(name, nil, true)
 		if err != nil {
 			t.Fatal(err)
 		}

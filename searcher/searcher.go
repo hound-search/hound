@@ -264,7 +264,7 @@ func reportOnMemory() {
 // Utility function for producing a hex encoded sha1 hash for a string.
 func hashFor(name string) string {
 	h := sha1.New()
-	h.Write([]byte(name))  //nolint
+	h.Write([]byte(name)) //nolint
 	return hex.EncodeToString(h.Sum(nil))
 }
 
@@ -282,7 +282,7 @@ func init() {
 // occurred and no other return values are valid. If an error occurs that is specific
 // to a particular searcher, that searcher will not be present in the searcher map and
 // will have an error entry in the error map.
-func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error) {
+func MakeAll(cfg *config.Config, disallowUnknownFields bool) (map[string]*Searcher, map[string]error, error) {
 	errs := map[string]error{}
 	searchers := map[string]*Searcher{}
 
@@ -300,7 +300,7 @@ func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error)
 	// Start new searchers for all repos in different go routines while
 	// respecting cfg.MaxConcurrentIndexers.
 	for name, repo := range cfg.Repos {
-		go newSearcherConcurrent(cfg.DbPath, name, repo, refs, lim, resultCh)
+		go newSearcherConcurrent(cfg.DbPath, name, repo, refs, lim, disallowUnknownFields, resultCh)
 	}
 
 	// Collect the results on resultCh channel for all repos.
@@ -328,8 +328,8 @@ func MakeAll(cfg *config.Config) (map[string]*Searcher, map[string]error, error)
 
 // Creates a new Searcher that is available for searches as soon as this returns.
 // This will pull or clone the target repo and start watching the repo for changes.
-func New(dbpath, name string, repo *config.Repo) (*Searcher, error) {
-	s, err := newSearcher(dbpath, name, repo, &foundRefs{}, makeLimiter(1))
+func New(dbpath, name string, repo *config.Repo, disallowUnknownFields bool) (*Searcher, error) {
+	s, err := newSearcher(dbpath, name, repo, &foundRefs{}, makeLimiter(1), disallowUnknownFields)
 	if err != nil {
 		return nil, err
 	}
@@ -396,17 +396,21 @@ func newSearcher(
 	dbpath, name string,
 	repo *config.Repo,
 	refs *foundRefs,
-	lim limiter) (*Searcher, error) {
+	lim limiter,
+	disallowUnknownFields bool) (*Searcher, error) {
 
 	vcsDir := filepath.Join(dbpath, vcsDirFor(repo))
 
 	log.Printf("Searcher started for %s", name)
 
-	wd, err := vcs.New(repo.Vcs, repo.VcsConfig())
+	wd, err := vcs.New(repo.Vcs, repo.VcsConfig(), disallowUnknownFields)
 	if err != nil {
 		return nil, err
 	}
 
+	if disallowUnknownFields {
+		return nil, nil
+	}
 
 	rev, err := wd.PullOrClone(vcsDir, repo.Url)
 	if err != nil {
@@ -508,13 +512,14 @@ func newSearcherConcurrent(
 	repo *config.Repo,
 	refs *foundRefs,
 	lim limiter,
+	disallowUnknownFields bool,
 	resultCh chan searcherResult) {
 
 	// acquire a token from the rate limiter
 	lim.Acquire()
 	defer lim.Release()
 
-	s, err := newSearcher(dbpath, name, repo, refs, lim)
+	s, err := newSearcher(dbpath, name, repo, refs, lim, disallowUnknownFields)
 	if err != nil {
 		resultCh <- searcherResult{
 			name: name,
