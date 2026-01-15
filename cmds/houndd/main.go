@@ -31,15 +31,17 @@ var (
 	basepath   = filepath.Dir(b)
 )
 
-func makeSearchers(cfg *config.Config) (map[string]*searcher.Searcher, bool, error) {
-	// Ensure we have a dbpath
-	if _, err := os.Stat(cfg.DbPath); err != nil {
-		if err := os.MkdirAll(cfg.DbPath, os.ModePerm); err != nil {
-			return nil, false, err
+func makeSearchers(cfg *config.Config, disallowUnknownFields bool) (map[string]*searcher.Searcher, bool, error) {
+	if !disallowUnknownFields {
+		// Ensure we have a dbpath
+		if _, err := os.Stat(cfg.DbPath); err != nil {
+			if err := os.MkdirAll(cfg.DbPath, os.ModePerm); err != nil {
+				return nil, false, err
+			}
 		}
 	}
 
-	searchers, errs, err := searcher.MakeAll(cfg)
+	searchers, errs, err := searcher.MakeAll(cfg, disallowUnknownFields)
 	if err != nil {
 		return nil, false, err
 	}
@@ -130,6 +132,7 @@ func main() {
 	error_log = log.New(os.Stderr, "", log.LstdFlags)
 
 	flagConf := flag.String("conf", "config.json", "")
+	flagCheckCfg := flag.Bool("check-config", false, "")
 	flagAddr := flag.String("addr", ":6080", "")
 	flagDev := flag.Bool("dev", false, "")
 	flagVer := flag.Bool("version", false, "Display version and exit")
@@ -142,7 +145,7 @@ func main() {
 	}
 
 	var cfg config.Config
-	if err := cfg.LoadFromFile(*flagConf); err != nil {
+	if err := cfg.LoadFromFile(*flagConf, *flagCheckCfg); err != nil {
 		panic(err)
 	}
 
@@ -152,14 +155,20 @@ func main() {
 	// It's not safe to be killed during makeSearchers, so register the
 	// shutdown signal here and defer processing it until we are ready.
 	shutdownCh := registerShutdownSignal()
-	idx, ok, err := makeSearchers(&cfg)
+	idx, ok, err := makeSearchers(&cfg, *flagCheckCfg)
 	if err != nil {
 		log.Panic(err)
 	}
 	if !ok {
+		if *flagCheckCfg {
+			log.Panic("Config check failed")
+		}
 		info_log.Println("Some repos failed to index, see output above")
 	} else {
 		info_log.Println("All indexes built!")
+		if *flagCheckCfg {
+			os.Exit(0)
+		}
 	}
 
 	handleShutdown(shutdownCh, idx)

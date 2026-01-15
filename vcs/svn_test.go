@@ -8,7 +8,7 @@ import (
 func TestSvnConfig(t *testing.T) {
 	cfg := `{"username" : "svn_username", "password" : "svn_password"}`
 
-	d, err := New("svn", []byte(cfg))
+	d, err := New("svn", []byte(cfg), true)
 	if err != nil {
 		t.Fatal(err)
 	}
