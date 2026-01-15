@@ -160,9 +160,15 @@ func main() {
 		log.Panic(err)
 	}
 	if !ok {
+		if *flagCheckCfg {
+			log.Panic("Config check failed")
+		}
 		info_log.Println("Some repos failed to index, see output above")
 	} else {
 		info_log.Println("All indexes built!")
+		if *flagCheckCfg {
+			os.Exit(0)
+		}
 	}
 
 	handleShutdown(shutdownCh, idx)
