@@ -74,7 +74,7 @@ func (l limiter) Release() {
  */
 func (r *foundRefs) find(url, rev string) *index.IndexRef {
 	for _, ref := range r.refs {
-		if ref.Url == url && ref.Rev == rev {
+		if ref.Repo.Url == url && ref.Rev == rev {
 			return ref
 		}
 	}
@@ -234,11 +234,11 @@ func buildAndOpenIndex(
 	opt *index.IndexOptions,
 	dbpath,
 	vcsDir,
-	idxDir,
-	url,
+	idxDir string,
+	repo *config.Repo,
 	rev string) (*index.Index, error) {
 	if _, err := os.Stat(idxDir); err != nil {
-		r, err := index.Build(opt, idxDir, vcsDir, url, rev)
+		r, err := index.Build(opt, idxDir, vcsDir, repo, rev)
 		if err != nil {
 			return nil, err
 		}
@@ -264,7 +264,7 @@ func reportOnMemory() {
 // Utility function for producing a hex encoded sha1 hash for a string.
 func hashFor(name string) string {
 	h := sha1.New()
-	h.Write([]byte(name))  //nolint
+	h.Write([]byte(name)) //nolint
 	return hex.EncodeToString(h.Sum(nil))
 }
 
@@ -372,7 +372,7 @@ func updateAndReindex(
 		dbpath,
 		vcsDir,
 		nextIndexDir(dbpath),
-		repo.Url,
+		repo,
 		newRev)
 	if err != nil {
 		log.Printf("failed index build (%s): %s", name, err)
@@ -407,7 +407,6 @@ func newSearcher(
 		return nil, err
 	}
 
-
 	rev, err := wd.PullOrClone(vcsDir, repo.Url)
 	if err != nil {
 		return nil, err
@@ -440,7 +439,7 @@ func newSearcher(
 		dbpath,
 		vcsDir,
 		idxDir,
-		repo.Url,
+		repo,
 		rev)
 	if err != nil {
 		return nil, err

@@ -5,6 +5,7 @@ import (
 	"encoding/gob"
 	"encoding/json"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"sync"
@@ -13,6 +14,7 @@ import (
 
 	"github.com/hound-search/hound/codesearch/index"
 	"github.com/hound-search/hound/codesearch/regexp"
+	"github.com/hound-search/hound/config"
 )
 
 const (
@@ -77,7 +79,7 @@ type ExcludedFile struct {
 }
 
 type IndexRef struct {
-	Url                string
+	Repo               *config.Repo
 	Rev                string
 	Time               time.Time
 	dir                string
@@ -184,6 +186,23 @@ func (n *Index) Search(pat string, opt *SearchOptions) (*SearchResponse, error) 
 		}
 	}
 
+	openArchiveCached := func() func() (fs.FS, error) {
+		done := false
+		var fsys fs.FS
+		var err error
+
+		return func() (fs.FS, error) {
+			if done {
+				return fsys, err
+			}
+
+			fsys, err = openArchive(n.Ref.Repo)
+			done = true
+
+			return fsys, err
+		}
+	}()
+
 	files := n.idx.PostingQuery(index.RegexpQuery(re.Syntax))
 	for _, file := range files {
 		var matches []*Match
@@ -206,29 +225,47 @@ func (n *Index) Search(pat string, opt *SearchOptions) (*SearchResponse, error) 
 		}
 
 		filesOpened++
-		if err := g.grep2File(filepath.Join(n.Ref.dir, "raw", name), re, int(opt.LinesOfContext),
-			func(line []byte, lineno int, before [][]byte, after [][]byte) (bool, error) {
+		matchCollector := func(line []byte, lineno int, before [][]byte, after [][]byte) (bool, error) {
 
-				hasMatch = true
-				if filesFound < opt.Offset || (opt.Limit > 0 && filesCollected >= opt.Limit) {
-					return false, nil
-				}
+			hasMatch = true
+			if filesFound < opt.Offset || (opt.Limit > 0 && filesCollected >= opt.Limit) {
+				return false, nil
+			}
 
-				matchesCollected++
-				matches = append(matches, &Match{
-					Line:       string(line),
-					LineNumber: lineno,
-					Before:     toStrings(before),
-					After:      toStrings(after),
-				})
+			matchesCollected++
+			matches = append(matches, &Match{
+				Line:       string(line),
+				LineNumber: lineno,
+				Before:     toStrings(before),
+				After:      toStrings(after),
+			})
 
-				if opt.MaxResults > 0 && matchesCollected >= opt.MaxResults {
-					return false, nil
-				}
+			if opt.MaxResults > 0 && matchesCollected >= opt.MaxResults {
+				return false, nil
+			}
 
-				return true, nil
-			}); err != nil {
-			return nil, err
+			return true, nil
+		}
+
+		if isArchiveRepo(n.Ref.Repo) {
+			fsys, err := openArchiveCached()
+			if err != nil {
+				return nil, err
+			}
+
+			r, err := fsys.Open(name)
+			if err != nil {
+				return nil, err
+			}
+			defer r.Close()
+
+			if err := g.grep2(r, re, int(opt.LinesOfContext), matchCollector); err != nil {
+				return nil, err
+			}
+		} else {
+			if err := g.grep2File(filepath.Join(n.Ref.dir, "raw", name), re, int(opt.LinesOfContext), matchCollector); err != nil {
+				return nil, err
+			}
 		}
 
 		if !hasMatch {
@@ -256,14 +293,8 @@ func (n *Index) Search(pat string, opt *SearchOptions) (*SearchResponse, error) 
 	}, nil
 }
 
-func isTextFile(filename string) (bool, error) {
+func isTextReader(r io.Reader) (bool, error) {
 	buf := make([]byte, filePeekSize)
-	r, err := os.Open(filename)
-	if err != nil {
-		return false, err
-	}
-	defer r.Close()
-
 	n, err := io.ReadFull(r, buf)
 	if err != nil && err != io.ErrUnexpectedEOF && err != io.EOF {
 		return false, err
@@ -278,7 +309,16 @@ func isTextFile(filename string) (bool, error) {
 
 	// read a prefix, allow trailing partial runes.
 	return validUTF8IgnoringPartialTrailingRune(buf), nil
+}
 
+func isTextFile(filename string) (bool, error) {
+	r, err := os.Open(filename)
+	if err != nil {
+		return false, err
+	}
+	defer r.Close()
+
+	return isTextReader(r)
 }
 
 // Determines if the buffer contains valid UTF8 encoded string data. The buffer is assumed
@@ -366,7 +406,7 @@ func containsString(haystack []string, needle string) bool {
 	return false
 }
 
-func indexAllFiles(opt *IndexOptions, dst, src string) error {
+func indexAllFiles(opt *IndexOptions, dst, src string, repo *config.Repo) error {
 	ix := index.Create(filepath.Join(dst, "tri"))
 	defer ix.Close()
 
@@ -386,7 +426,39 @@ func indexAllFiles(opt *IndexOptions, dst, src string) error {
 		}
 	}
 
-	if err := filepath.Walk(src, func(path string, info os.FileInfo, err error) error { //nolint
+	if isArchiveRepo(repo) {
+		var err error
+		excluded, err = indexArchive(opt, repo, ix)
+		if err != nil {
+			return nil
+		}
+	} else {
+		var err error
+		excluded, err = indexFileTree(opt, dst, src, ix)
+		if err != nil {
+			return err
+		}
+	}
+
+	if err := writeExcludedFilesJson(
+		filepath.Join(dst, excludedFileJsonFilename),
+		excluded); err != nil {
+		return err
+	}
+
+	ix.Flush()
+
+	return nil
+}
+
+func indexFileTree(opt *IndexOptions, dst, src string, ix *index.IndexWriter) ([]*ExcludedFile, error) {
+	excluded := []*ExcludedFile{}
+
+	err := filepath.Walk(src, func(path string, info os.FileInfo, err error) error { //nolint
+		if err != nil {
+			return err
+		}
+
 		name := info.Name()
 		rel, err := filepath.Rel(src, path) //nolint
 		if err != nil {
@@ -448,19 +520,12 @@ func indexAllFiles(opt *IndexOptions, dst, src string) error {
 		}
 
 		return nil
-	}); err != nil {
-		return err
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	if err := writeExcludedFilesJson(
-		filepath.Join(dst, excludedFileJsonFilename),
-		excluded); err != nil {
-		return err
-	}
-
-	ix.Flush()
-
-	return nil
+	return excluded, nil
 }
 
 // Read the metadata for the index directory. Note that even if this
@@ -485,7 +550,7 @@ func Read(dir string) (*IndexRef, error) {
 	return m, nil
 }
 
-func Build(opt *IndexOptions, dst, src, url, rev string) (*IndexRef, error) {
+func Build(opt *IndexOptions, dst, src string, repo *config.Repo, rev string) (*IndexRef, error) {
 	if _, err := os.Stat(dst); err != nil {
 		if err := os.MkdirAll(dst, os.ModePerm); err != nil {
 			return nil, err
@@ -496,12 +561,12 @@ func Build(opt *IndexOptions, dst, src, url, rev string) (*IndexRef, error) {
 		return nil, err
 	}
 
-	if err := indexAllFiles(opt, dst, src); err != nil {
+	if err := indexAllFiles(opt, dst, src, repo); err != nil {
 		return nil, err
 	}
 
 	r := &IndexRef{
-		Url:                url,
+		Repo:               repo,
 		Rev:                rev,
 		Time:               time.Now(),
 		dir:                dst,
