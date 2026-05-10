@@ -374,10 +374,10 @@ func (g *Grep) AddFlags() {
 func (g *Grep) File(name string) {
 	f, err := os.Open(name)
 	if err != nil {
-		fmt.Fprintf(g.Stderr, "%s\n", err)
+		_, _ = fmt.Fprintf(g.Stderr, "%s\n", err)
 		return
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	g.Reader(f, name)
 }
 
@@ -430,7 +430,7 @@ func (g *Grep) Reader(r io.Reader, name string) {
 			}
 			g.Match = true
 			if g.L {
-				fmt.Fprintf(g.Stdout, "%s\n", name)
+				_, _ = fmt.Fprintf(g.Stdout, "%s\n", name)
 				return
 			}
 			lineStart := bytes.LastIndex(buf[chunkStart:m1], nl) + 1 + chunkStart
@@ -446,9 +446,9 @@ func (g *Grep) Reader(r io.Reader, name string) {
 			case g.C:
 				count++
 			case g.N:
-				fmt.Fprintf(g.Stdout, "%s%d:%s", prefix, lineno, line)
+				_, _ = fmt.Fprintf(g.Stdout, "%s%d:%s", prefix, lineno, line)
 			default:
-				fmt.Fprintf(g.Stdout, "%s%s", prefix, line)
+				_, _ = fmt.Fprintf(g.Stdout, "%s%s", prefix, line)
 			}
 			if needLineno {
 				lineno++
@@ -462,12 +462,12 @@ func (g *Grep) Reader(r io.Reader, name string) {
 		buf = buf[:n]
 		if len(buf) == 0 && err != nil {
 			if err != io.EOF && err != io.ErrUnexpectedEOF {
-				fmt.Fprintf(g.Stderr, "%s: %v\n", name, err)
+				_, _ = fmt.Fprintf(g.Stderr, "%s: %v\n", name, err)
 			}
 			break
 		}
 	}
 	if g.C && count > 0 {
-		fmt.Fprintf(g.Stdout, "%s: %d\n", name, count)
+		_, _ = fmt.Fprintf(g.Stdout, "%s: %d\n", name, count)
 	}
 }

@@ -3,7 +3,6 @@ package index
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -21,7 +20,7 @@ func thisDir() string {
 }
 
 func buildIndex(url, rev string) (*IndexRef, error) {
-	dir, err := ioutil.TempDir(os.TempDir(), "hound")
+	dir, err := os.MkdirTemp(os.TempDir(), "hound")
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +36,7 @@ func TestSearch(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer ref.Remove()  //nolint
+	defer ref.Remove() //nolint
 
 	// Make sure the metadata in the ref is good.
 	if ref.Rev != rev {
@@ -53,7 +52,7 @@ func TestSearch(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer idx.Close()
+	defer func() { _ = idx.Close() }()
 
 	// Make sure we can carry out a search
 	if _, err := idx.Search("5a1c0dac2d9b3ea4085b30dd14375c18eab993d5", &SearchOptions{}); err != nil {
@@ -67,14 +66,14 @@ func TestSearchWithLimits(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer ref.Remove()  //nolint
+	defer ref.Remove() //nolint
 
 	// Make sure the ref can be opened.
 	idx, err := ref.Open()
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer idx.Close()
+	defer func() { _ = idx.Close() }()
 
 	// Make sure we can carry out a search within result limits
 	expectedMatches := 100
@@ -116,7 +115,7 @@ func TestRead(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer ref.Remove()  //nolint
+	defer ref.Remove() //nolint
 
 	r, err := Read(ref.Dir())
 	if err != nil {
@@ -135,5 +134,5 @@ func TestRead(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer idx.Close()
+	defer func() { _ = idx.Close() }()
 }

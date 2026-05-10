@@ -227,8 +227,8 @@ func Merge(dst, src1, src2 string) {
 	ix3.writeString(trailerMagic)
 	ix3.flush()
 
-	os.Remove(nameIndexFile.name)
-	os.Remove(w.postIndexFile.name)
+	_ = os.Remove(nameIndexFile.name)
+	_ = os.Remove(w.postIndexFile.name)
 }
 
 type postMapReader struct {

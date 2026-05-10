@@ -5,7 +5,6 @@
 package index
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 )
@@ -38,12 +37,12 @@ var mergeFiles2 = map[string]string{
 }
 
 func TestMerge(t *testing.T) {
-	f1, _ := ioutil.TempFile("", "index-test")
-	f2, _ := ioutil.TempFile("", "index-test")
-	f3, _ := ioutil.TempFile("", "index-test")
-	defer os.Remove(f1.Name())
-	defer os.Remove(f2.Name())
-	defer os.Remove(f3.Name())
+	f1, _ := os.CreateTemp("", "index-test")
+	f2, _ := os.CreateTemp("", "index-test")
+	f3, _ := os.CreateTemp("", "index-test")
+	defer func() { _ = os.Remove(f1.Name()) }()
+	defer func() { _ = os.Remove(f2.Name()) }()
+	defer func() { _ = os.Remove(f3.Name()) }()
 
 	out1 := f1.Name()
 	out2 := f2.Name()
@@ -59,15 +58,16 @@ func TestMerge(t *testing.T) {
 	ix3 := Open(out3)
 
 	nameof := func(ix *Index) string {
-		switch {
-		case ix == ix1:
+		switch ix {
+		case ix1:
 			return "ix1"
-		case ix == ix2:
+		case ix2:
 			return "ix2"
-		case ix == ix3:
+		case ix3:
 			return "ix3"
+		default:
+			return "???"
 		}
-		return "???"
 	}
 
 	checkFiles := func(ix *Index, l ...string) {

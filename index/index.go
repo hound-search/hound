@@ -93,7 +93,7 @@ func (r *IndexRef) writeManifest() error {
 	if err != nil {
 		return err
 	}
-	defer w.Close()
+	defer func() { _ = w.Close() }()
 
 	return gob.NewEncoder(w).Encode(r)
 }
@@ -208,7 +208,6 @@ func (n *Index) Search(pat string, opt *SearchOptions) (*SearchResponse, error) 
 		filesOpened++
 		if err := g.grep2File(filepath.Join(n.Ref.dir, "raw", name), re, int(opt.LinesOfContext),
 			func(line []byte, lineno int, before [][]byte, after [][]byte) (bool, error) {
-
 				hasMatch = true
 				if filesFound < opt.Offset || (opt.Limit > 0 && filesCollected >= opt.Limit) {
 					return false, nil
@@ -262,7 +261,7 @@ func isTextFile(filename string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	defer r.Close()
+	defer func() { _ = r.Close() }()
 
 	n, err := io.ReadFull(r, buf)
 	if err != nil && err != io.ErrUnexpectedEOF && err != io.EOF {
@@ -278,7 +277,6 @@ func isTextFile(filename string) (bool, error) {
 
 	// read a prefix, allow trailing partial runes.
 	return validUTF8IgnoringPartialTrailingRune(buf), nil
-
 }
 
 // Determines if the buffer contains valid UTF8 encoded string data. The buffer is assumed
@@ -317,17 +315,17 @@ func addFileToIndex(ix *index.IndexWriter, dst, src, path string) (string, error
 	if err != nil {
 		return "", err
 	}
-	defer r.Close()
+	defer func() { _ = r.Close() }()
 
 	dup := filepath.Join(dst, "raw", rel)
 	w, err := os.Create(dup)
 	if err != nil {
 		return "", err
 	}
-	defer w.Close()
+	defer func() { _ = w.Close() }()
 
 	g := gzip.NewWriter(w)
-	defer g.Close()
+	defer func() { _ = g.Close() }()
 
 	return ix.Add(rel, io.TeeReader(r, g)), nil
 }
@@ -352,7 +350,7 @@ func writeExcludedFilesJson(filename string, files []*ExcludedFile) error {
 	if err != nil {
 		return err
 	}
-	defer w.Close()
+	defer func() { _ = w.Close() }()
 
 	return json.NewEncoder(w).Encode(files)
 }
@@ -377,7 +375,7 @@ func indexAllFiles(opt *IndexOptions, dst, src string) error {
 	if err != nil {
 		return err
 	}
-	defer fileHandle.Close()
+	defer func() { _ = fileHandle.Close() }()
 
 	// Resolve the symbolic link
 	if fi, err := os.Stat(src); err == nil && fi.Mode()|os.ModeSymlink != 0 {
@@ -476,7 +474,7 @@ func Read(dir string) (*IndexRef, error) {
 	if err != nil {
 		return m, err
 	}
-	defer r.Close()
+	defer func() { _ = r.Close() }()
 
 	if err := gob.NewDecoder(r).Decode(m); err != nil {
 		return m, err

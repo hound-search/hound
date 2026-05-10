@@ -3,7 +3,6 @@ package vcs
 import (
 	"bytes"
 	"io"
-	"io/ioutil"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -32,7 +31,7 @@ func (g *MercurialDriver) HeadRev(dir string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer r.Close()
+	defer func() { _ = r.Close() }()
 
 	if err := cmd.Start(); err != nil {
 		return "", err
@@ -66,7 +65,7 @@ func (g *MercurialDriver) Clone(dir, url string) (string, error) {
 		url,
 		rep)
 	cmd.Dir = par
-	cmd.Stdout = ioutil.Discard
+	cmd.Stdout = io.Discard
 	if err := cmd.Run(); err != nil {
 		return "", err
 	}

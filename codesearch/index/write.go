@@ -7,7 +7,6 @@ package index
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -114,7 +113,7 @@ func (ix *IndexWriter) AddFile(name string) {
 		log.Print(err)
 		return
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	ix.Add(name, f)
 }
 
@@ -123,7 +122,7 @@ func (ix *IndexWriter) AddFile(name string) {
 func (ix *IndexWriter) Add(name string, f io.Reader) string {
 	ix.trigram.Reset()
 	var (
-		c          = byte(0)  //nolint
+		c          = byte(0) //nolint
 		i          = 0
 		buf        = ix.inbuf[:0]
 		tv         = uint32(0)
@@ -131,7 +130,7 @@ func (ix *IndexWriter) Add(name string, f io.Reader) string {
 		linelen    = 0
 		numLines   = 0
 		longLines  = 0
-		skipReason = ""  //nolint
+		skipReason = "" //nolint
 	)
 
 	for {
@@ -244,16 +243,16 @@ func (ix *IndexWriter) Flush() {
 	}
 	ix.main.writeString(trailerMagic)
 
-	os.Remove(ix.nameData.name)
+	_ = os.Remove(ix.nameData.name)
 	for _, d := range ix.postData {
-		unmmap(d)  //nolint
+		unmmap(d) //nolint
 	}
 	for _, f := range ix.postFile {
-		f.Close()
-		os.Remove(f.Name())
+		_ = f.Close()
+		_ = os.Remove(f.Name())
 	}
-	os.Remove(ix.nameIndex.name)
-	os.Remove(ix.postIndex.name)
+	_ = os.Remove(ix.nameIndex.name)
+	_ = os.Remove(ix.postIndex.name)
 
 	log.Printf("%d data bytes, %d index bytes", ix.totalBytes, ix.main.offset())
 
@@ -261,7 +260,7 @@ func (ix *IndexWriter) Flush() {
 }
 
 func (ix *IndexWriter) Close() {
-	ix.main.file.Close()
+	_ = ix.main.file.Close()
 }
 
 func copyFile(dst, src *bufWriter) {
@@ -290,7 +289,7 @@ func (ix *IndexWriter) addName(name string) uint32 {
 // flushPost writes ix.post to a new temporary file and
 // clears the slice.
 func (ix *IndexWriter) flushPost() {
-	w, err := ioutil.TempFile("", "csearch-index")
+	w, err := os.CreateTemp("", "csearch-index")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -310,7 +309,7 @@ func (ix *IndexWriter) flushPost() {
 	}
 
 	ix.post = ix.post[:0]
-	w.Seek(0, 0)  //nolint
+	w.Seek(0, 0) //nolint
 	ix.postFile = append(ix.postFile, w)
 }
 
@@ -368,7 +367,7 @@ type postChunk struct {
 	m []postEntry // remaining entries after e
 }
 
-const postBuf = 4096  //nolint
+const postBuf = 4096 //nolint
 
 // A postHeap is a heap (priority queue) of postChunks.
 type postHeap struct {
@@ -388,7 +387,7 @@ func (h *postHeap) addMem(x []postEntry) {
 
 // step reads the next entry from ch and saves it in ch.e.
 // It returns false if ch is over.
-func (h *postHeap) step(ch *postChunk) bool {  //nolint
+func (h *postHeap) step(ch *postChunk) bool { //nolint
 	old := ch.e
 	m := ch.m
 	if len(m) == 0 {
@@ -414,7 +413,7 @@ func (h *postHeap) add(ch *postChunk) {
 }
 
 // empty reports whether the postHeap is empty.
-func (h *postHeap) empty() bool {  //nolint
+func (h *postHeap) empty() bool { //nolint
 	return len(h.ch) == 0
 }
 
@@ -492,7 +491,7 @@ type bufWriter struct {
 	name string
 	file *os.File
 	buf  []byte
-	tmp  [8]byte  //nolint
+	tmp  [8]byte //nolint
 }
 
 // bufCreate creates a new file with the given name and returns a
@@ -506,7 +505,7 @@ func bufCreate(name string) *bufWriter {
 	if name != "" {
 		f, err = os.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	} else {
-		f, err = ioutil.TempFile("", "csearch")
+		f, err = os.CreateTemp("", "csearch")
 	}
 	if err != nil {
 		log.Fatal(err)
@@ -578,7 +577,7 @@ func (b *bufWriter) flush() {
 func (b *bufWriter) finish() *os.File {
 	b.flush()
 	f := b.file
-	f.Seek(0, 0)  //nolint
+	f.Seek(0, 0) //nolint
 	return f
 }
 

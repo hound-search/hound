@@ -1,32 +1,42 @@
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+name: Go
+
 on:
-  # Run CI when pushing to main
   push:
-    branches: [ main ]
-  # Run CI for PRs to main and staging
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
+
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        go: ["1.18", "1.17", "1.16"]
+        go: ["1.24", "1.25", "1.26"]
     steps:
-      - uses: actions/checkout@v2.3.4
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: current
-      - uses: actions/setup-go@v3
+          node-version: "22"
+          cache: npm
+      - uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
       - run: make
+
   docker-build:
     name: Create docker image
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v4
       - name: Prepare
         id: prep
         run: |
@@ -39,60 +49,81 @@ jobs:
           if [[ $VERSION =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
             TAGS="$TAGS,${DOCKER_IMAGE}:latest"
           fi
-          echo ::set-output name=tags::${TAGS}
+          echo "tags=${TAGS}" >> "${GITHUB_OUTPUT}"
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-      - name: Login to GitHub Packages Docker Registry
-        uses: docker/login-action@v1
+        uses: docker/setup-buildx-action@v3
+      - name: Log in to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Push to GitHub Packages
-        uses: docker/build-push-action@v2
+      - name: Build and push
+        uses: docker/build-push-action@v6
         with:
           context: .
           platforms: linux/amd64,linux/arm64
           file: ./Dockerfile
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.prep.outputs.tags }}
+
   golangci:
     name: lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
     strategy:
+      fail-fast: false
       matrix:
-        go: ["1.18"]
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
+        go: ["1.24", "1.25", "1.26"]
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: current
-      - run: make ui
-      - uses: actions/setup-go@v3
+          node-version: "22"
+          cache: npm
+      - name: Build UI
+        shell: bash
+        run: |
+          npm ci
+          mkdir -p ui/.build/ui
+          cp -r ui/assets/* ui/.build/ui/
+          npx webpack --mode production
+      - uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
+        uses: golangci/golangci-lint-action@v8
         with:
-          version: v1.46.2
+          version: v2.11.4
 
   test:
     strategy:
+      fail-fast: false
       matrix:
-        go: ["1.18", "1.17", "1.16"]
+        go: ["1.24", "1.25", "1.26"]
         os: [windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     steps:
-      - uses: actions/checkout@v2.3.4
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: current
-      - run: make ui
-      - uses: actions/setup-go@v3
+          node-version: "22"
+          cache: npm
+      - name: Build UI
+        run: |
+          npm ci
+          mkdir -p ui/.build/ui
+          cp -r ui/assets/* ui/.build/ui/
+          npx webpack --mode production
+      - uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
       - run: go test -race ./...
-  # There are no npm tests, yet.

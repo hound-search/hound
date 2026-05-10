@@ -13,45 +13,46 @@ Hound is an extremely fast source code search engine. The core is based on this 
 
 ### Building hound
 
-0. Install [go](https://go.dev/) (minimum version required: 1.16) and [npm](https://github.com/npm/cli/#installation)
+0. Install [go](https://go.dev/) (minimum version required: 1.24) and [npm](https://github.com/npm/cli/#installation)
 
 1. Clone the repository and run make.
 
-  ```
-  git clone https://github.com/hound-search/hound.git
-  cd hound
-  make
-  ```
+```
+git clone https://github.com/hound-search/hound.git
+cd hound
+make
+```
 
-  The resulting binaries (`hound`, `houndd`) can be found in the .build/bin/ directory.
+The resulting binaries (`hound`, `houndd`) can be found in the .build/bin/ directory.
 
 2. Create a config.json file and use it to list your repositories. Check out our [example-config.json](config-example.json)
-to see how to set up various types of repositories. For example, we can configure Hound to search its own source code using 
-the config found in [default-config.json](default-config.json):
+   to see how to set up various types of repositories. For example, we can configure Hound to search its own source code using
+   the config found in [default-config.json](default-config.json):
 
-  ```json
-  {
-    "dbpath" : "db",
-    "repos" : {
-      "Hound" : {
-        "url" : "https://github.com/hound-search/hound.git",
-        "vcs-config" : {
-          "ref" : "main"
+```json
+{
+    "dbpath": "db",
+    "repos": {
+        "Hound": {
+            "url": "https://github.com/hound-search/hound.git",
+            "vcs-config": {
+                "ref": "main"
+            }
         }
-      }
     }
-  }
-  ```
+}
+```
 
-  A complete list of available config options can be found [here](docs/config-options.md).
+A complete list of available config options can be found [here](docs/config-options.md).
 
 3. Run the Hound server with `houndd` in the same directory as your `config.json`. You should see output similar to:
-  ```
-  2015/03/13 09:07:42 Searcher started for statsd
-  2015/03/13 09:07:42 Searcher started for Hound
-  2015/03/13 09:07:42 All indexes built!
-  2015/03/13 09:07:42 running server at http://localhost:6080
-  ```
+
+```
+2015/03/13 09:07:42 Searcher started for statsd
+2015/03/13 09:07:42 Searcher started for Hound
+2015/03/13 09:07:42 All indexes built!
+2015/03/13 09:07:42 running server at http://localhost:6080
+```
 
 4. By default, hound hosts a web ui at http://localhost:6080 . Open it in your browser, and start searching.
 
@@ -59,46 +60,49 @@ the config found in [default-config.json](default-config.json):
 
 0. [Install docker](https://docs.docker.com/get-docker/) if you don't have it. We need at least `Docker >= 1.14`.
 
-1. Create a config.json file and use it to list your repositories. Check out our [example-config.json](config-example.json) 
-to see how to set up various types of repositories. For example, we can configure Hound to search its own source code using 
-the config found in [default-config.json](default-config.json). 
-
+1. Create a config.json file and use it to list your repositories. Check out our [example-config.json](config-example.json)
+   to see how to set up various types of repositories. For example, we can configure Hound to search its own source code using
+   the config found in [default-config.json](default-config.json).
 
 #### Run with image from github
 
-  ```
-  docker run -d -p 6080:6080 --name hound -v $(pwd):/data ghcr.io/hound-search/hound:latest
-  ```
+```
+docker run -d -p 6080:6080 --name hound -v $(pwd):/data ghcr.io/hound-search/hound:latest
+```
 
-You should be able to navigate to [http://localhost:6080/](http://localhost:6080/) as usual. 
+You should be able to navigate to [http://localhost:6080/](http://localhost:6080/) as usual.
 
 #### Build image and container yourself
 
 0. Clone repository
-  ```
-  git clone https://github.com/hound-search/hound.git
-  cd hound
-  ```
+
+```
+git clone https://github.com/hound-search/hound.git
+cd hound
+```
 
 1. Build the image
-  ```
-  docker build . --tag=hound
-  ```
+
+```
+docker build . --tag=hound
+```
 
 2. Create the container
-  ```
-  docker create -p 6080:6080 --name hound -v $(pwd):/data hound
-  ```
+
+```
+docker create -p 6080:6080 --name hound -v $(pwd):/data hound
+```
 
 3. Starting and stopping the container
-  ```
-  docker start hound
-  docker stop hound
-  ```
+
+```
+docker start hound
+docker stop hound
+```
 
 ## Running in Production
 
-There are no special flags to run Hound in production. You can use the `--addr=:6880` flag to control the port to which the server binds. 
+There are no special flags to run Hound in production. You can use the `--addr=:6880` flag to control the port to which the server binds.
 Currently, Hound does not support TLS as most users simply run Hound behind either Apache or nginx. However, we are open to contributions to add TLS support.
 
 ## Why Another Code Search Tool?
@@ -107,22 +111,22 @@ We've used many similar tools in the past, and most of them are either too slow,
 Which brings us to...
 
 ## Requirements
-* Go 1.16+
+
+-   Go 1.16+
 
 Yup, that's it. You can proxy requests to the Go service through Apache/nginx/etc., but that's not required.
 
-
 ## Support
 
-Currently Hound is only tested on MacOS and CentOS, but it should work on any *nix system. Hound on Windows is not supported but we've heard it compiles and runs just fine (although it helps to exclude your data folder from Windows Search Indexer).
+Currently Hound is only tested on MacOS and CentOS, but it should work on any \*nix system. Hound on Windows is not supported but we've heard it compiles and runs just fine (although it helps to exclude your data folder from Windows Search Indexer).
 
-Hound supports the following version control systems: 
+Hound supports the following version control systems:
 
-* Git - This is the default
-* Mercurial - use `"vcs" : "hg"` in the config
-* SVN - use `"vcs" : "svn"` in the config
-* Bazaar - use `"vcs" : "bzr"` in the config
-* Local - use `"vcs" : "local"` in the config
+-   Git - This is the default
+-   Mercurial - use `"vcs" : "hg"` in the config
+-   SVN - use `"vcs" : "svn"` in the config
+-   Bazaar - use `"vcs" : "bzr"` in the config
+-   Local - use `"vcs" : "local"` in the config
 
 See [config-example.json](config-example.json) for examples of how to use each VCS.
 
@@ -130,33 +134,34 @@ See [config-example.json](config-example.json) for examples of how to use each V
 
 There are a couple of ways to get Hound to index private repositories:
 
-* Use the `local` pseudo-vcs driver. This allows you to index a local directory. You can set `"watch-changes" : true` to calculate a recursive hash of all the files in the directory and automatically re-index.
-* Use the `file://` protocol. This allows you to index a local clone of a repository. The downside here is that the polling to keep the repo up to date will
-not work. (This also doesn't work on local folders that are not of a supported repository type.) If you're using Docker, you must mount a volume to your repository (e.g., `-v $(pwd)/src:/src`) and use the relative path to the repo in your configuration.
-* Use SSH style URLs in the config: `"url" : "git@github.com:foo/bar.git"`. As long as you have your 
-[SSH keys](https://help.github.com/articles/generating-ssh-keys/) set up on the box where Hound is running this will work.
+-   Use the `local` pseudo-vcs driver. This allows you to index a local directory. You can set `"watch-changes" : true` to calculate a recursive hash of all the files in the directory and automatically re-index.
+-   Use the `file://` protocol. This allows you to index a local clone of a repository. The downside here is that the polling to keep the repo up to date will
+    not work. (This also doesn't work on local folders that are not of a supported repository type.) If you're using Docker, you must mount a volume to your repository (e.g., `-v $(pwd)/src:/src`) and use the relative path to the repo in your configuration.
+-   Use SSH style URLs in the config: `"url" : "git@github.com:foo/bar.git"`. As long as you have your
+    [SSH keys](https://help.github.com/articles/generating-ssh-keys/) set up on the box where Hound is running this will work.
 
 ## Keeping Repos Updated
 
-By default Hound polls the URL in the config for updates every 30 seconds. You can override this value by setting the `ms-between-poll` key on a per repo basis in the config. If you are indexing a large number of repositories, you may also be interested in tweaking the `max-concurrent-indexers` property. You can see how these work in the [example config](config-example.json). 
+By default Hound polls the URL in the config for updates every 30 seconds. You can override this value by setting the `ms-between-poll` key on a per repo basis in the config. If you are indexing a large number of repositories, you may also be interested in tweaking the `max-concurrent-indexers` property. You can see how these work in the [example config](config-example.json).
 
 ## Editor Integration
 
 Currently the following editors have plugins that support Hound:
 
-* [Sublime Text](https://github.com/bgreenlee/SublimeHound)
-* [Vim](https://github.com/urthbound/hound.vim)
-* [Emacs](https://github.com/ryoung786/hound.el)
-* [Visual Studio Code](https://github.com/sjzext/vscode-hound)
+-   [Sublime Text](https://github.com/bgreenlee/SublimeHound)
+-   [Vim](https://github.com/urthbound/hound.vim)
+-   [Emacs](https://github.com/ryoung786/hound.el)
+-   [Visual Studio Code](https://github.com/sjzext/vscode-hound)
 
 ## Hacking on Hound
 
 ### Editing & Building
 
 #### Requirements:
- * make
- * [npm](https://github.com/npm/cli/#installation)
- (Usuall npm comes bundled with Node.js. If that's not the case on the system you're using, you can get it [here](https://nodejs.org/en/download))
+
+-   make
+-   [npm](https://github.com/npm/cli/#installation)
+    (Usuall npm comes bundled with Node.js. If that's not the case on the system you're using, you can get it [here](https://nodejs.org/en/download))
 
 ```
 git clone https://github.com/hound-search/hound.git
@@ -176,12 +181,13 @@ make test
 ```
 
 If you want to just run the JavaScript test suite, use:
+
 ```
 npm test
 ```
 
-Any Go files that end in `_test.go` are assumed to be test files.  Similarly, any JavaScript files that ends in `.test.js` are automatically run by Jest, our test runner. Tests should live next to the files that they cover. 
-[Check out Jest's docs](https://jestjs.io/docs/en/getting-started) for more details on writing Jest tests, 
+Any Go files that end in `_test.go` are assumed to be test files. Similarly, any JavaScript files that ends in `.test.js` are automatically run by Jest, our test runner. Tests should live next to the files that they cover.
+[Check out Jest's docs](https://jestjs.io/docs/en/getting-started) for more details on writing Jest tests,
 and [check out Go's testing docs](https://golang.org/pkg/testing/) for more details on testing Go code.
 
 You need to install `Node.js >= 12` and install `jest` by `npm install jest` to run the JS tests.
@@ -213,19 +219,18 @@ Then run the hound server with the --dev option:
 
 Created at [Etsy](https://www.etsy.com) by:
 
-* [Kelly Norton](https://github.com/kellegous)
-* [Jonathan Klein](https://github.com/jklein)
+-   [Kelly Norton](https://github.com/kellegous)
+-   [Jonathan Klein](https://github.com/jklein)
 
 Hound is maintained by:
 
-* [David Schott](https://github.com/dschott68)
-* [Jacob Rose](https://github.com/jacobrose)
-* [Nick Sawyer](https://github.com/nickmoorman)
-* [Salem Hilal](https://github.com/salemhilal)
-* [Brad Greenlee](https://github.com/bgreenlee)
-* [Jeffery Swensen](https://github.com/jeffswensen)
-* [Ifeanyi Agu](https://github.com/twizzyyanki)
-* [Joe Torraca](https://github.com/jvt)
-* [Gabe Aguilar](https://github.com/gmcaguilar)
-* [Greg Petroski](https://github.com/gpetroski)
-
+-   [David Schott](https://github.com/dschott68)
+-   [Jacob Rose](https://github.com/jacobrose)
+-   [Nick Sawyer](https://github.com/nickmoorman)
+-   [Salem Hilal](https://github.com/salemhilal)
+-   [Brad Greenlee](https://github.com/bgreenlee)
+-   [Jeffery Swensen](https://github.com/jeffswensen)
+-   [Ifeanyi Agu](https://github.com/twizzyyanki)
+-   [Joe Torraca](https://github.com/jvt)
+-   [Gabe Aguilar](https://github.com/gmcaguilar)
+-   [Greg Petroski](https://github.com/gpetroski)

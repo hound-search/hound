@@ -53,7 +53,7 @@ func Register(fn func(c []byte) (Driver, error), names ...string) {
 func New(name string, cfg []byte) (*WorkDir, error) {
 	f := drivers[name]
 	if f == nil {
-		return nil, fmt.Errorf("vcs: %s is not a valid vcs driver.", name)
+		return nil, fmt.Errorf("vcs: %s is not a valid vcs driver", name)
 	}
 
 	d, err := f(cfg)

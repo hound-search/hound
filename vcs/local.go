@@ -52,11 +52,11 @@ func myHash(files []string, open func(string) (io.ReadCloser, error)) (string, e
 		}
 		hf := sha1.New()
 		_, err = io.Copy(hf, r)
-		r.Close()
+		_ = r.Close()
 		if err != nil {
 			return "", err
 		}
-		fmt.Fprintf(h, "%x  %s\n", hf.Sum(nil), file)
+		_, _ = fmt.Fprintf(h, "%x  %s\n", hf.Sum(nil), file)
 	}
 	return hex.EncodeToString(h.Sum(nil)), nil
 }

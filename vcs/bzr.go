@@ -28,7 +28,7 @@ func (g *BzrDriver) HeadRev(dir string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer r.Close()
+	defer func() { _ = r.Close() }()
 
 	if err := cmd.Start(); err != nil {
 		return "", err

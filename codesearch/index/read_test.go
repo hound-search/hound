@@ -5,7 +5,6 @@
 package index
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 )
@@ -22,8 +21,8 @@ func tri(x, y, z byte) uint32 {
 }
 
 func TestTrivialPosting(t *testing.T) {
-	f, _ := ioutil.TempFile("", "index-test")
-	defer os.Remove(f.Name())
+	f, _ := os.CreateTemp("", "index-test")
+	defer func() { _ = os.Remove(f.Name()) }()
 	out := f.Name()
 	buildIndex(out, nil, postFiles)
 	ix := Open(out)

@@ -39,7 +39,7 @@ func loadConfigFrom(filename string, cfg *client.Config) error {
 	if err != nil {
 		return err
 	}
-	defer r.Close()
+	defer func() { _ = r.Close() }()
 
 	return json.NewDecoder(r).Decode(cfg)
 }

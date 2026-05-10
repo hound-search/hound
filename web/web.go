@@ -26,7 +26,7 @@ type Server struct {
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == s.cfg.HealthCheckURI {
-		fmt.Fprintln(w, "👍")
+		_, _ = fmt.Fprintln(w, "👍")
 		return
 	}
 

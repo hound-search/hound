@@ -4,7 +4,6 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"math/rand"
 	"os"
@@ -138,7 +137,7 @@ func (s *Searcher) Search(pat string, opt *index.SearchOptions) (*index.SearchRe
 // the data directly to clients (thus JSON).
 func (s *Searcher) GetExcludedFiles() string {
 	path := filepath.Join(s.idx.GetDir(), "excluded_files.json")
-	dat, err := ioutil.ReadFile(path)
+	dat, err := os.ReadFile(path)
 	if err != nil {
 		log.Printf("Couldn't read excluded_files.json %v\n", err)
 	}
@@ -203,7 +202,7 @@ func (s *Searcher) begin() {
 // Generate a new index directory in the dbpath. The names are based
 // on pseudo-randomness with a time-based seed.
 func nextIndexDir(dbpath string) string {
-	r := uint64(rand.Uint32())<<32 | uint64(rand.Uint32())
+	r := uint64(rng.Uint32())<<32 | uint64(rng.Uint32())
 	return filepath.Join(dbpath, fmt.Sprintf("idx-%08x", r))
 }
 
@@ -273,8 +272,10 @@ func vcsDirFor(repo *config.Repo) string {
 	return fmt.Sprintf("vcs-%s", hashFor(repo.Url))
 }
 
+var rng *rand.Rand
+
 func init() {
-	rand.Seed(time.Now().UnixNano())
+	rng = rand.New(rand.NewSource(time.Now().UnixNano()))
 }
 
 // Make a searcher for each repo in the Config. This function kind of has a notion

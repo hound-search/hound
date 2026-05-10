@@ -34,13 +34,13 @@ func (g *grepper) grepFile(filename string, re *regexp.Regexp,  //nolint
 	if err != nil {
 		return err
 	}
-	defer r.Close()
+	defer func() { _ = r.Close() }()
 
 	c, err := gzip.NewReader(r)
 	if err != nil {
 		return err
 	}
-	defer c.Close()
+	defer func() { _ = c.Close() }()
 
 	return g.grep(c, re, fn)
 }
@@ -51,13 +51,13 @@ func (g *grepper) grep2File(filename string, re *regexp.Regexp, nctx int,
 	if err != nil {
 		return err
 	}
-	defer r.Close()
+	defer func() { _ = r.Close() }()
 
 	c, err := gzip.NewReader(r)
 	if err != nil {
 		return err
 	}
-	defer c.Close()
+	defer func() { _ = c.Close() }()
 
 	return g.grep2(c, re, nctx, fn)
 }

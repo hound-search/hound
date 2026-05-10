@@ -108,10 +108,10 @@ func Search(r *Response, cfg *Config, pattern, repos, files string, context int,
 	if err != nil {
 		return err
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 
 	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("Status %d", res.StatusCode)
+		return fmt.Errorf("status %d", res.StatusCode)
 	}
 
 	return json.NewDecoder(res.Body).Decode(r)
@@ -123,7 +123,7 @@ func LoadRepos(repos map[string]*config.Repo, cfg *Config) error {
 	if err != nil {
 		return err
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 
 	return json.NewDecoder(res.Body).Decode(&repos)
 }

@@ -12,11 +12,11 @@ var (
 )
 
 func makeReal(s string) string {  //nolint
-	return strings.Replace(s, "~", "\x1b", -1)
+	return strings.ReplaceAll(s, "~", "\x1b")
 }
 
 func makeFake(s string) string {
-	return strings.Replace(s, "\x1b", "~", -1)
+	return strings.ReplaceAll(s, "\x1b", "~")
 }
 
 func assertEqual(t *testing.T, got string, exp string) {
@@ -24,7 +24,7 @@ func assertEqual(t *testing.T, got string, exp string) {
 		fmt.Println(got)
 	}
 
-	exp = strings.Replace(exp, "~", "\x1b", -1)
+	exp = strings.ReplaceAll(exp, "~", "\x1b")
 	if got != exp {
 		t.Errorf("mismatch: %s & %s", makeFake(got), makeFake(exp))
 	}
