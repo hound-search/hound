@@ -9,8 +9,8 @@ see http://swtch.com/~rsc/regexp/regexp4.html.
 
 To install:
 
-	go get code.google.com/p/codesearch/cmd/...
+    go get code.google.com/p/codesearch/cmd/...
 
-Russ Cox 
+Russ Cox
 rsc@swtch.com
 January 2012

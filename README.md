@@ -112,7 +112,7 @@ Which brings us to...
 
 ## Requirements
 
--   Go 1.16+
+- Go 1.16+
 
 Yup, that's it. You can proxy requests to the Go service through Apache/nginx/etc., but that's not required.
 
@@ -122,11 +122,11 @@ Currently Hound is only tested on MacOS and CentOS, but it should work on any \*
 
 Hound supports the following version control systems:
 
--   Git - This is the default
--   Mercurial - use `"vcs" : "hg"` in the config
--   SVN - use `"vcs" : "svn"` in the config
--   Bazaar - use `"vcs" : "bzr"` in the config
--   Local - use `"vcs" : "local"` in the config
+- Git - This is the default
+- Mercurial - use `"vcs" : "hg"` in the config
+- SVN - use `"vcs" : "svn"` in the config
+- Bazaar - use `"vcs" : "bzr"` in the config
+- Local - use `"vcs" : "local"` in the config
 
 See [config-example.json](config-example.json) for examples of how to use each VCS.
 
@@ -134,11 +134,11 @@ See [config-example.json](config-example.json) for examples of how to use each V
 
 There are a couple of ways to get Hound to index private repositories:
 
--   Use the `local` pseudo-vcs driver. This allows you to index a local directory. You can set `"watch-changes" : true` to calculate a recursive hash of all the files in the directory and automatically re-index.
--   Use the `file://` protocol. This allows you to index a local clone of a repository. The downside here is that the polling to keep the repo up to date will
-    not work. (This also doesn't work on local folders that are not of a supported repository type.) If you're using Docker, you must mount a volume to your repository (e.g., `-v $(pwd)/src:/src`) and use the relative path to the repo in your configuration.
--   Use SSH style URLs in the config: `"url" : "git@github.com:foo/bar.git"`. As long as you have your
-    [SSH keys](https://help.github.com/articles/generating-ssh-keys/) set up on the box where Hound is running this will work.
+- Use the `local` pseudo-vcs driver. This allows you to index a local directory. You can set `"watch-changes" : true` to calculate a recursive hash of all the files in the directory and automatically re-index.
+- Use the `file://` protocol. This allows you to index a local clone of a repository. The downside here is that the polling to keep the repo up to date will
+  not work. (This also doesn't work on local folders that are not of a supported repository type.) If you're using Docker, you must mount a volume to your repository (e.g., `-v $(pwd)/src:/src`) and use the relative path to the repo in your configuration.
+- Use SSH style URLs in the config: `"url" : "git@github.com:foo/bar.git"`. As long as you have your
+  [SSH keys](https://help.github.com/articles/generating-ssh-keys/) set up on the box where Hound is running this will work.
 
 ## Keeping Repos Updated
 
@@ -148,10 +148,10 @@ By default Hound polls the URL in the config for updates every 30 seconds. You c
 
 Currently the following editors have plugins that support Hound:
 
--   [Sublime Text](https://github.com/bgreenlee/SublimeHound)
--   [Vim](https://github.com/urthbound/hound.vim)
--   [Emacs](https://github.com/ryoung786/hound.el)
--   [Visual Studio Code](https://github.com/sjzext/vscode-hound)
+- [Sublime Text](https://github.com/bgreenlee/SublimeHound)
+- [Vim](https://github.com/urthbound/hound.vim)
+- [Emacs](https://github.com/ryoung786/hound.el)
+- [Visual Studio Code](https://github.com/sjzext/vscode-hound)
 
 ## Hacking on Hound
 
@@ -159,9 +159,9 @@ Currently the following editors have plugins that support Hound:
 
 #### Requirements:
 
--   make
--   [npm](https://github.com/npm/cli/#installation)
-    (Usuall npm comes bundled with Node.js. If that's not the case on the system you're using, you can get it [here](https://nodejs.org/en/download))
+- make
+- [npm](https://github.com/npm/cli/#installation)
+  (Usuall npm comes bundled with Node.js. If that's not the case on the system you're using, you can get it [here](https://nodejs.org/en/download))
 
 ```
 git clone https://github.com/hound-search/hound.git
@@ -186,11 +186,11 @@ If you want to just run the JavaScript test suite, use:
 npm test
 ```
 
-Any Go files that end in `_test.go` are assumed to be test files. Similarly, any JavaScript files that ends in `.test.js` are automatically run by Jest, our test runner. Tests should live next to the files that they cover.
-[Check out Jest's docs](https://jestjs.io/docs/en/getting-started) for more details on writing Jest tests,
+Any Go files that end in `_test.go` are assumed to be test files. Similarly, any JavaScript files that ends in `.test.js` are automatically run by [Vitest](https://vitest.dev), our test runner (via [Vite+](https://viteplus.dev)). Tests should live next to the files that they cover.
+[Check out Vitest's docs](https://vitest.dev/guide/) for more details on writing tests,
 and [check out Go's testing docs](https://golang.org/pkg/testing/) for more details on testing Go code.
 
-You need to install `Node.js >= 12` and install `jest` by `npm install jest` to run the JS tests.
+You need to install `Node.js >= 12` and run `npm install` to run the JS tests.
 
 ### Working on the web UI
 
@@ -219,18 +219,18 @@ Then run the hound server with the --dev option:
 
 Created at [Etsy](https://www.etsy.com) by:
 
--   [Kelly Norton](https://github.com/kellegous)
--   [Jonathan Klein](https://github.com/jklein)
+- [Kelly Norton](https://github.com/kellegous)
+- [Jonathan Klein](https://github.com/jklein)
 
 Hound is maintained by:
 
--   [David Schott](https://github.com/dschott68)
--   [Jacob Rose](https://github.com/jacobrose)
--   [Nick Sawyer](https://github.com/nickmoorman)
--   [Salem Hilal](https://github.com/salemhilal)
--   [Brad Greenlee](https://github.com/bgreenlee)
--   [Jeffery Swensen](https://github.com/jeffswensen)
--   [Ifeanyi Agu](https://github.com/twizzyyanki)
--   [Joe Torraca](https://github.com/jvt)
--   [Gabe Aguilar](https://github.com/gmcaguilar)
--   [Greg Petroski](https://github.com/gpetroski)
+- [David Schott](https://github.com/dschott68)
+- [Jacob Rose](https://github.com/jacobrose)
+- [Nick Sawyer](https://github.com/nickmoorman)
+- [Salem Hilal](https://github.com/salemhilal)
+- [Brad Greenlee](https://github.com/bgreenlee)
+- [Jeffery Swensen](https://github.com/jeffswensen)
+- [Ifeanyi Agu](https://github.com/twizzyyanki)
+- [Joe Torraca](https://github.com/jvt)
+- [Gabe Aguilar](https://github.com/gmcaguilar)
+- [Greg Petroski](https://github.com/gpetroski)

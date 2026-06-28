@@ -1,11 +1,12 @@
 @font-face {
-  font-family: 'octicons';
-  src: url('octicons.eot?#iefix') format('embedded-opentype'),
-       url('octicons.woff') format('woff'),
-       url('octicons.ttf') format('truetype'),
-       url('octicons.svg#octicons') format('svg');
-  font-weight: normal;
-  font-style: normal;
+    font-family: "octicons";
+    src:
+        url("octicons.eot?#iefix") format("embedded-opentype"),
+        url("octicons.woff") format("woff"),
+        url("octicons.ttf") format("truetype"),
+        url("octicons.svg#octicons") format("svg");
+    font-weight: normal;
+    font-style: normal;
 }
 
 /*
@@ -15,233 +16,587 @@
 
 */
 .octicon {
-  font: normal normal 16px octicons;
-  line-height: 1;
-  display: inline-block;
-  text-decoration: none;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  cursor: default;
+    font: normal normal 16px octicons;
+    line-height: 1;
+    display: inline-block;
+    text-decoration: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: default;
 }
 .mega-octicon {
-  font: normal normal 32px octicons;
-  line-height: 1;
-  display: inline-block;
-  text-decoration: none;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  cursor: default;
+    font: normal normal 32px octicons;
+    line-height: 1;
+    display: inline-block;
+    text-decoration: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: default;
 }
 
-.octicon-alert:before { content: '\f02d'} /*  */
-.octicon-alignment-align:before { content: '\f08a'} /*  */
-.octicon-alignment-aligned-to:before { content: '\f08e'} /*  */
-.octicon-alignment-unalign:before { content: '\f08b'} /*  */
-.octicon-arrow-down:before { content: '\f03f'} /*  */
-.octicon-arrow-left:before { content: '\f040'} /*  */
-.octicon-arrow-right:before { content: '\f03e'} /*  */
-.octicon-arrow-small-down:before { content: '\f0a0'} /*  */
-.octicon-arrow-small-left:before { content: '\f0a1'} /*  */
-.octicon-arrow-small-right:before { content: '\f071'} /*  */
-.octicon-arrow-small-up:before { content: '\f09f'} /*  */
-.octicon-arrow-up:before { content: '\f03d'} /*  */
-.octicon-beer:before { content: '\f069'} /*  */
-.octicon-book:before { content: '\f007'} /*  */
-.octicon-bookmark:before { content: '\f07b'} /*  */
-.octicon-briefcase:before { content: '\f0d3'} /*  */
-.octicon-broadcast:before { content: '\f048'} /*  */
-.octicon-browser:before { content: '\f0c5'} /*  */
-.octicon-bug:before { content: '\f091'} /*  */
-.octicon-calendar:before { content: '\f068'} /*  */
-.octicon-check:before { content: '\f03a'} /*  */
-.octicon-checklist:before { content: '\f076'} /*  */
-.octicon-chevron-down:before { content: '\f0a3'} /*  */
-.octicon-chevron-left:before { content: '\f0a4'} /*  */
-.octicon-chevron-right:before { content: '\f078'} /*  */
-.octicon-chevron-up:before { content: '\f0a2'} /*  */
-.octicon-circle-slash:before { content: '\f084'} /*  */
-.octicon-circuit-board:before { content: '\f0d6'} /*  */
-.octicon-clippy:before { content: '\f035'} /*  */
-.octicon-clock:before { content: '\f046'} /*  */
-.octicon-cloud-download:before { content: '\f00b'} /*  */
-.octicon-cloud-upload:before { content: '\f00c'} /*  */
-.octicon-code:before { content: '\f05f'} /*  */
-.octicon-color-mode:before { content: '\f065'} /*  */
+.octicon-alert:before {
+    content: "\f02d";
+} /*  */
+.octicon-alignment-align:before {
+    content: "\f08a";
+} /*  */
+.octicon-alignment-aligned-to:before {
+    content: "\f08e";
+} /*  */
+.octicon-alignment-unalign:before {
+    content: "\f08b";
+} /*  */
+.octicon-arrow-down:before {
+    content: "\f03f";
+} /*  */
+.octicon-arrow-left:before {
+    content: "\f040";
+} /*  */
+.octicon-arrow-right:before {
+    content: "\f03e";
+} /*  */
+.octicon-arrow-small-down:before {
+    content: "\f0a0";
+} /*  */
+.octicon-arrow-small-left:before {
+    content: "\f0a1";
+} /*  */
+.octicon-arrow-small-right:before {
+    content: "\f071";
+} /*  */
+.octicon-arrow-small-up:before {
+    content: "\f09f";
+} /*  */
+.octicon-arrow-up:before {
+    content: "\f03d";
+} /*  */
+.octicon-beer:before {
+    content: "\f069";
+} /*  */
+.octicon-book:before {
+    content: "\f007";
+} /*  */
+.octicon-bookmark:before {
+    content: "\f07b";
+} /*  */
+.octicon-briefcase:before {
+    content: "\f0d3";
+} /*  */
+.octicon-broadcast:before {
+    content: "\f048";
+} /*  */
+.octicon-browser:before {
+    content: "\f0c5";
+} /*  */
+.octicon-bug:before {
+    content: "\f091";
+} /*  */
+.octicon-calendar:before {
+    content: "\f068";
+} /*  */
+.octicon-check:before {
+    content: "\f03a";
+} /*  */
+.octicon-checklist:before {
+    content: "\f076";
+} /*  */
+.octicon-chevron-down:before {
+    content: "\f0a3";
+} /*  */
+.octicon-chevron-left:before {
+    content: "\f0a4";
+} /*  */
+.octicon-chevron-right:before {
+    content: "\f078";
+} /*  */
+.octicon-chevron-up:before {
+    content: "\f0a2";
+} /*  */
+.octicon-circle-slash:before {
+    content: "\f084";
+} /*  */
+.octicon-circuit-board:before {
+    content: "\f0d6";
+} /*  */
+.octicon-clippy:before {
+    content: "\f035";
+} /*  */
+.octicon-clock:before {
+    content: "\f046";
+} /*  */
+.octicon-cloud-download:before {
+    content: "\f00b";
+} /*  */
+.octicon-cloud-upload:before {
+    content: "\f00c";
+} /*  */
+.octicon-code:before {
+    content: "\f05f";
+} /*  */
+.octicon-color-mode:before {
+    content: "\f065";
+} /*  */
 .octicon-comment-add:before,
-.octicon-comment:before { content: '\f02b'} /*  */
-.octicon-comment-discussion:before { content: '\f04f'} /*  */
-.octicon-credit-card:before { content: '\f045'} /*  */
-.octicon-dash:before { content: '\f0ca'} /*  */
-.octicon-dashboard:before { content: '\f07d'} /*  */
-.octicon-database:before { content: '\f096'} /*  */
-.octicon-device-camera:before { content: '\f056'} /*  */
-.octicon-device-camera-video:before { content: '\f057'} /*  */
-.octicon-device-desktop:before { content: '\f27c'} /*  */
-.octicon-device-mobile:before { content: '\f038'} /*  */
-.octicon-diff:before { content: '\f04d'} /*  */
-.octicon-diff-added:before { content: '\f06b'} /*  */
-.octicon-diff-ignored:before { content: '\f099'} /*  */
-.octicon-diff-modified:before { content: '\f06d'} /*  */
-.octicon-diff-removed:before { content: '\f06c'} /*  */
-.octicon-diff-renamed:before { content: '\f06e'} /*  */
-.octicon-ellipsis:before { content: '\f09a'} /*  */
+.octicon-comment:before {
+    content: "\f02b";
+} /*  */
+.octicon-comment-discussion:before {
+    content: "\f04f";
+} /*  */
+.octicon-credit-card:before {
+    content: "\f045";
+} /*  */
+.octicon-dash:before {
+    content: "\f0ca";
+} /*  */
+.octicon-dashboard:before {
+    content: "\f07d";
+} /*  */
+.octicon-database:before {
+    content: "\f096";
+} /*  */
+.octicon-device-camera:before {
+    content: "\f056";
+} /*  */
+.octicon-device-camera-video:before {
+    content: "\f057";
+} /*  */
+.octicon-device-desktop:before {
+    content: "\f27c";
+} /*  */
+.octicon-device-mobile:before {
+    content: "\f038";
+} /*  */
+.octicon-diff:before {
+    content: "\f04d";
+} /*  */
+.octicon-diff-added:before {
+    content: "\f06b";
+} /*  */
+.octicon-diff-ignored:before {
+    content: "\f099";
+} /*  */
+.octicon-diff-modified:before {
+    content: "\f06d";
+} /*  */
+.octicon-diff-removed:before {
+    content: "\f06c";
+} /*  */
+.octicon-diff-renamed:before {
+    content: "\f06e";
+} /*  */
+.octicon-ellipsis:before {
+    content: "\f09a";
+} /*  */
 .octicon-eye-unwatch:before,
 .octicon-eye-watch:before,
-.octicon-eye:before { content: '\f04e'} /*  */
-.octicon-file-binary:before { content: '\f094'} /*  */
-.octicon-file-code:before { content: '\f010'} /*  */
-.octicon-file-directory:before { content: '\f016'} /*  */
-.octicon-file-media:before { content: '\f012'} /*  */
-.octicon-file-pdf:before { content: '\f014'} /*  */
-.octicon-file-submodule:before { content: '\f017'} /*  */
-.octicon-file-symlink-directory:before { content: '\f0b1'} /*  */
-.octicon-file-symlink-file:before { content: '\f0b0'} /*  */
-.octicon-file-text:before { content: '\f011'} /*  */
-.octicon-file-zip:before { content: '\f013'} /*  */
-.octicon-flame:before { content: '\f0d2'} /*  */
-.octicon-fold:before { content: '\f0cc'} /*  */
-.octicon-gear:before { content: '\f02f'} /*  */
-.octicon-gift:before { content: '\f042'} /*  */
-.octicon-gist:before { content: '\f00e'} /*  */
-.octicon-gist-secret:before { content: '\f08c'} /*  */
+.octicon-eye:before {
+    content: "\f04e";
+} /*  */
+.octicon-file-binary:before {
+    content: "\f094";
+} /*  */
+.octicon-file-code:before {
+    content: "\f010";
+} /*  */
+.octicon-file-directory:before {
+    content: "\f016";
+} /*  */
+.octicon-file-media:before {
+    content: "\f012";
+} /*  */
+.octicon-file-pdf:before {
+    content: "\f014";
+} /*  */
+.octicon-file-submodule:before {
+    content: "\f017";
+} /*  */
+.octicon-file-symlink-directory:before {
+    content: "\f0b1";
+} /*  */
+.octicon-file-symlink-file:before {
+    content: "\f0b0";
+} /*  */
+.octicon-file-text:before {
+    content: "\f011";
+} /*  */
+.octicon-file-zip:before {
+    content: "\f013";
+} /*  */
+.octicon-flame:before {
+    content: "\f0d2";
+} /*  */
+.octicon-fold:before {
+    content: "\f0cc";
+} /*  */
+.octicon-gear:before {
+    content: "\f02f";
+} /*  */
+.octicon-gift:before {
+    content: "\f042";
+} /*  */
+.octicon-gist:before {
+    content: "\f00e";
+} /*  */
+.octicon-gist-secret:before {
+    content: "\f08c";
+} /*  */
 .octicon-git-branch-create:before,
 .octicon-git-branch-delete:before,
-.octicon-git-branch:before { content: '\f020'} /*  */
-.octicon-git-commit:before { content: '\f01f'} /*  */
-.octicon-git-compare:before { content: '\f0ac'} /*  */
-.octicon-git-merge:before { content: '\f023'} /*  */
+.octicon-git-branch:before {
+    content: "\f020";
+} /*  */
+.octicon-git-commit:before {
+    content: "\f01f";
+} /*  */
+.octicon-git-compare:before {
+    content: "\f0ac";
+} /*  */
+.octicon-git-merge:before {
+    content: "\f023";
+} /*  */
 .octicon-git-pull-request-abandoned:before,
-.octicon-git-pull-request:before { content: '\f009'} /*  */
-.octicon-globe:before { content: '\f0b6'} /*  */
-.octicon-graph:before { content: '\f043'} /*  */
-.octicon-heart:before { content: '\2665'} /* ♥ */
-.octicon-history:before { content: '\f07e'} /*  */
-.octicon-home:before { content: '\f08d'} /*  */
-.octicon-horizontal-rule:before { content: '\f070'} /*  */
-.octicon-hourglass:before { content: '\f09e'} /*  */
-.octicon-hubot:before { content: '\f09d'} /*  */
-.octicon-inbox:before { content: '\f0cf'} /*  */
-.octicon-info:before { content: '\f059'} /*  */
-.octicon-issue-closed:before { content: '\f028'} /*  */
-.octicon-issue-opened:before { content: '\f026'} /*  */
-.octicon-issue-reopened:before { content: '\f027'} /*  */
-.octicon-jersey:before { content: '\f019'} /*  */
-.octicon-jump-down:before { content: '\f072'} /*  */
-.octicon-jump-left:before { content: '\f0a5'} /*  */
-.octicon-jump-right:before { content: '\f0a6'} /*  */
-.octicon-jump-up:before { content: '\f073'} /*  */
-.octicon-key:before { content: '\f049'} /*  */
-.octicon-keyboard:before { content: '\f00d'} /*  */
-.octicon-law:before { content: '\f0d8'} /*  */
-.octicon-light-bulb:before { content: '\f000'} /*  */
-.octicon-link:before { content: '\f05c'} /*  */
-.octicon-link-external:before { content: '\f07f'} /*  */
-.octicon-list-ordered:before { content: '\f062'} /*  */
-.octicon-list-unordered:before { content: '\f061'} /*  */
-.octicon-location:before { content: '\f060'} /*  */
+.octicon-git-pull-request:before {
+    content: "\f009";
+} /*  */
+.octicon-globe:before {
+    content: "\f0b6";
+} /*  */
+.octicon-graph:before {
+    content: "\f043";
+} /*  */
+.octicon-heart:before {
+    content: "\2665";
+} /* ♥ */
+.octicon-history:before {
+    content: "\f07e";
+} /*  */
+.octicon-home:before {
+    content: "\f08d";
+} /*  */
+.octicon-horizontal-rule:before {
+    content: "\f070";
+} /*  */
+.octicon-hourglass:before {
+    content: "\f09e";
+} /*  */
+.octicon-hubot:before {
+    content: "\f09d";
+} /*  */
+.octicon-inbox:before {
+    content: "\f0cf";
+} /*  */
+.octicon-info:before {
+    content: "\f059";
+} /*  */
+.octicon-issue-closed:before {
+    content: "\f028";
+} /*  */
+.octicon-issue-opened:before {
+    content: "\f026";
+} /*  */
+.octicon-issue-reopened:before {
+    content: "\f027";
+} /*  */
+.octicon-jersey:before {
+    content: "\f019";
+} /*  */
+.octicon-jump-down:before {
+    content: "\f072";
+} /*  */
+.octicon-jump-left:before {
+    content: "\f0a5";
+} /*  */
+.octicon-jump-right:before {
+    content: "\f0a6";
+} /*  */
+.octicon-jump-up:before {
+    content: "\f073";
+} /*  */
+.octicon-key:before {
+    content: "\f049";
+} /*  */
+.octicon-keyboard:before {
+    content: "\f00d";
+} /*  */
+.octicon-law:before {
+    content: "\f0d8";
+} /*  */
+.octicon-light-bulb:before {
+    content: "\f000";
+} /*  */
+.octicon-link:before {
+    content: "\f05c";
+} /*  */
+.octicon-link-external:before {
+    content: "\f07f";
+} /*  */
+.octicon-list-ordered:before {
+    content: "\f062";
+} /*  */
+.octicon-list-unordered:before {
+    content: "\f061";
+} /*  */
+.octicon-location:before {
+    content: "\f060";
+} /*  */
 .octicon-gist-private:before,
 .octicon-mirror-private:before,
 .octicon-git-fork-private:before,
-.octicon-lock:before { content: '\f06a'} /*  */
-.octicon-logo-github:before { content: '\f092'} /*  */
-.octicon-mail:before { content: '\f03b'} /*  */
-.octicon-mail-read:before { content: '\f03c'} /*  */
-.octicon-mail-reply:before { content: '\f051'} /*  */
-.octicon-mark-github:before { content: '\f00a'} /*  */
-.octicon-markdown:before { content: '\f0c9'} /*  */
-.octicon-megaphone:before { content: '\f077'} /*  */
-.octicon-mention:before { content: '\f0be'} /*  */
-.octicon-microscope:before { content: '\f089'} /*  */
-.octicon-milestone:before { content: '\f075'} /*  */
+.octicon-lock:before {
+    content: "\f06a";
+} /*  */
+.octicon-logo-github:before {
+    content: "\f092";
+} /*  */
+.octicon-mail:before {
+    content: "\f03b";
+} /*  */
+.octicon-mail-read:before {
+    content: "\f03c";
+} /*  */
+.octicon-mail-reply:before {
+    content: "\f051";
+} /*  */
+.octicon-mark-github:before {
+    content: "\f00a";
+} /*  */
+.octicon-markdown:before {
+    content: "\f0c9";
+} /*  */
+.octicon-megaphone:before {
+    content: "\f077";
+} /*  */
+.octicon-mention:before {
+    content: "\f0be";
+} /*  */
+.octicon-microscope:before {
+    content: "\f089";
+} /*  */
+.octicon-milestone:before {
+    content: "\f075";
+} /*  */
 .octicon-mirror-public:before,
-.octicon-mirror:before { content: '\f024'} /*  */
-.octicon-mortar-board:before { content: '\f0d7'} /*  */
-.octicon-move-down:before { content: '\f0a8'} /*  */
-.octicon-move-left:before { content: '\f074'} /*  */
-.octicon-move-right:before { content: '\f0a9'} /*  */
-.octicon-move-up:before { content: '\f0a7'} /*  */
-.octicon-mute:before { content: '\f080'} /*  */
-.octicon-no-newline:before { content: '\f09c'} /*  */
-.octicon-octoface:before { content: '\f008'} /*  */
-.octicon-organization:before { content: '\f037'} /*  */
-.octicon-package:before { content: '\f0c4'} /*  */
-.octicon-paintcan:before { content: '\f0d1'} /*  */
-.octicon-pencil:before { content: '\f058'} /*  */
+.octicon-mirror:before {
+    content: "\f024";
+} /*  */
+.octicon-mortar-board:before {
+    content: "\f0d7";
+} /*  */
+.octicon-move-down:before {
+    content: "\f0a8";
+} /*  */
+.octicon-move-left:before {
+    content: "\f074";
+} /*  */
+.octicon-move-right:before {
+    content: "\f0a9";
+} /*  */
+.octicon-move-up:before {
+    content: "\f0a7";
+} /*  */
+.octicon-mute:before {
+    content: "\f080";
+} /*  */
+.octicon-no-newline:before {
+    content: "\f09c";
+} /*  */
+.octicon-octoface:before {
+    content: "\f008";
+} /*  */
+.octicon-organization:before {
+    content: "\f037";
+} /*  */
+.octicon-package:before {
+    content: "\f0c4";
+} /*  */
+.octicon-paintcan:before {
+    content: "\f0d1";
+} /*  */
+.octicon-pencil:before {
+    content: "\f058";
+} /*  */
 .octicon-person-add:before,
 .octicon-person-follow:before,
-.octicon-person:before { content: '\f018'} /*  */
-.octicon-pin:before { content: '\f041'} /*  */
-.octicon-playback-fast-forward:before { content: '\f0bd'} /*  */
-.octicon-playback-pause:before { content: '\f0bb'} /*  */
-.octicon-playback-play:before { content: '\f0bf'} /*  */
-.octicon-playback-rewind:before { content: '\f0bc'} /*  */
-.octicon-plug:before { content: '\f0d4'} /*  */
+.octicon-person:before {
+    content: "\f018";
+} /*  */
+.octicon-pin:before {
+    content: "\f041";
+} /*  */
+.octicon-playback-fast-forward:before {
+    content: "\f0bd";
+} /*  */
+.octicon-playback-pause:before {
+    content: "\f0bb";
+} /*  */
+.octicon-playback-play:before {
+    content: "\f0bf";
+} /*  */
+.octicon-playback-rewind:before {
+    content: "\f0bc";
+} /*  */
+.octicon-plug:before {
+    content: "\f0d4";
+} /*  */
 .octicon-repo-create:before,
 .octicon-gist-new:before,
 .octicon-file-directory-create:before,
 .octicon-file-add:before,
-.octicon-plus:before { content: '\f05d'} /*  */
-.octicon-podium:before { content: '\f0af'} /*  */
-.octicon-primitive-dot:before { content: '\f052'} /*  */
-.octicon-primitive-square:before { content: '\f053'} /*  */
-.octicon-pulse:before { content: '\f085'} /*  */
-.octicon-puzzle:before { content: '\f0c0'} /*  */
-.octicon-question:before { content: '\f02c'} /*  */
-.octicon-quote:before { content: '\f063'} /*  */
-.octicon-radio-tower:before { content: '\f030'} /*  */
+.octicon-plus:before {
+    content: "\f05d";
+} /*  */
+.octicon-podium:before {
+    content: "\f0af";
+} /*  */
+.octicon-primitive-dot:before {
+    content: "\f052";
+} /*  */
+.octicon-primitive-square:before {
+    content: "\f053";
+} /*  */
+.octicon-pulse:before {
+    content: "\f085";
+} /*  */
+.octicon-puzzle:before {
+    content: "\f0c0";
+} /*  */
+.octicon-question:before {
+    content: "\f02c";
+} /*  */
+.octicon-quote:before {
+    content: "\f063";
+} /*  */
+.octicon-radio-tower:before {
+    content: "\f030";
+} /*  */
 .octicon-repo-delete:before,
-.octicon-repo:before { content: '\f001'} /*  */
-.octicon-repo-clone:before { content: '\f04c'} /*  */
-.octicon-repo-force-push:before { content: '\f04a'} /*  */
+.octicon-repo:before {
+    content: "\f001";
+} /*  */
+.octicon-repo-clone:before {
+    content: "\f04c";
+} /*  */
+.octicon-repo-force-push:before {
+    content: "\f04a";
+} /*  */
 .octicon-gist-fork:before,
-.octicon-repo-forked:before { content: '\f002'} /*  */
-.octicon-repo-pull:before { content: '\f006'} /*  */
-.octicon-repo-push:before { content: '\f005'} /*  */
-.octicon-rocket:before { content: '\f033'} /*  */
-.octicon-rss:before { content: '\f034'} /*  */
-.octicon-ruby:before { content: '\f047'} /*  */
-.octicon-screen-full:before { content: '\f066'} /*  */
-.octicon-screen-normal:before { content: '\f067'} /*  */
+.octicon-repo-forked:before {
+    content: "\f002";
+} /*  */
+.octicon-repo-pull:before {
+    content: "\f006";
+} /*  */
+.octicon-repo-push:before {
+    content: "\f005";
+} /*  */
+.octicon-rocket:before {
+    content: "\f033";
+} /*  */
+.octicon-rss:before {
+    content: "\f034";
+} /*  */
+.octicon-ruby:before {
+    content: "\f047";
+} /*  */
+.octicon-screen-full:before {
+    content: "\f066";
+} /*  */
+.octicon-screen-normal:before {
+    content: "\f067";
+} /*  */
 .octicon-search-save:before,
-.octicon-search:before { content: '\f02e'} /*  */
-.octicon-server:before { content: '\f097'} /*  */
-.octicon-settings:before { content: '\f07c'} /*  */
+.octicon-search:before {
+    content: "\f02e";
+} /*  */
+.octicon-server:before {
+    content: "\f097";
+} /*  */
+.octicon-settings:before {
+    content: "\f07c";
+} /*  */
 .octicon-log-in:before,
-.octicon-sign-in:before { content: '\f036'} /*  */
+.octicon-sign-in:before {
+    content: "\f036";
+} /*  */
 .octicon-log-out:before,
-.octicon-sign-out:before { content: '\f032'} /*  */
-.octicon-split:before { content: '\f0c6'} /*  */
-.octicon-squirrel:before { content: '\f0b2'} /*  */
+.octicon-sign-out:before {
+    content: "\f032";
+} /*  */
+.octicon-split:before {
+    content: "\f0c6";
+} /*  */
+.octicon-squirrel:before {
+    content: "\f0b2";
+} /*  */
 .octicon-star-add:before,
 .octicon-star-delete:before,
-.octicon-star:before { content: '\f02a'} /*  */
-.octicon-steps:before { content: '\f0c7'} /*  */
-.octicon-stop:before { content: '\f08f'} /*  */
+.octicon-star:before {
+    content: "\f02a";
+} /*  */
+.octicon-steps:before {
+    content: "\f0c7";
+} /*  */
+.octicon-stop:before {
+    content: "\f08f";
+} /*  */
 .octicon-repo-sync:before,
-.octicon-sync:before { content: '\f087'} /*  */
+.octicon-sync:before {
+    content: "\f087";
+} /*  */
 .octicon-tag-remove:before,
 .octicon-tag-add:before,
-.octicon-tag:before { content: '\f015'} /*  */
-.octicon-telescope:before { content: '\f088'} /*  */
-.octicon-terminal:before { content: '\f0c8'} /*  */
-.octicon-three-bars:before { content: '\f05e'} /*  */
-.octicon-tools:before { content: '\f031'} /*  */
-.octicon-trashcan:before { content: '\f0d0'} /*  */
-.octicon-triangle-down:before { content: '\f05b'} /*  */
-.octicon-triangle-left:before { content: '\f044'} /*  */
-.octicon-triangle-right:before { content: '\f05a'} /*  */
-.octicon-triangle-up:before { content: '\f0aa'} /*  */
-.octicon-unfold:before { content: '\f039'} /*  */
-.octicon-unmute:before { content: '\f0ba'} /*  */
-.octicon-versions:before { content: '\f064'} /*  */
+.octicon-tag:before {
+    content: "\f015";
+} /*  */
+.octicon-telescope:before {
+    content: "\f088";
+} /*  */
+.octicon-terminal:before {
+    content: "\f0c8";
+} /*  */
+.octicon-three-bars:before {
+    content: "\f05e";
+} /*  */
+.octicon-tools:before {
+    content: "\f031";
+} /*  */
+.octicon-trashcan:before {
+    content: "\f0d0";
+} /*  */
+.octicon-triangle-down:before {
+    content: "\f05b";
+} /*  */
+.octicon-triangle-left:before {
+    content: "\f044";
+} /*  */
+.octicon-triangle-right:before {
+    content: "\f05a";
+} /*  */
+.octicon-triangle-up:before {
+    content: "\f0aa";
+} /*  */
+.octicon-unfold:before {
+    content: "\f039";
+} /*  */
+.octicon-unmute:before {
+    content: "\f0ba";
+} /*  */
+.octicon-versions:before {
+    content: "\f064";
+} /*  */
 .octicon-remove-close:before,
-.octicon-x:before { content: '\f081'} /*  */
-.octicon-zap:before { content: '\26A1'} /* ⚡ */
+.octicon-x:before {
+    content: "\f081";
+} /*  */
+.octicon-zap:before {
+    content: "\26A1";
+} /* ⚡ */

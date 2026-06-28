@@ -1,7 +1,7 @@
 import { EscapeRegExp, UrlParts, UrlToRepo } from "./common";
 import { Signal } from "./signal";
-import reqwest from 'reqwest';
-import { merge } from 'merge-anything';
+import reqwest from "reqwest";
+import { merge } from "merge-anything";
 
 var css = function (el, n, v) {
     el.style.setProperty(n, v, "");
@@ -139,7 +139,7 @@ var Model = {
                 repos: "*",
                 rng: ":20",
             },
-            params
+            params,
         );
 
         if (params.repos === "") {
@@ -187,10 +187,7 @@ var Model = {
                 }
 
                 results.sort(function (a, b) {
-                    return (
-                        b.Matches.length - a.Matches.length ||
-                        a.Repo.localeCompare(b.Repo)
-                    );
+                    return b.Matches.length - a.Matches.length || a.Repo.localeCompare(b.Repo);
                 });
 
                 var byRepo = {};
@@ -255,8 +252,8 @@ var Model = {
             return repo;
         }
 
-        if (info['display-name']) {
-          return info['display-name'];
+        if (info["display-name"]) {
+            return info["display-name"];
         }
 
         var url = info.url,
@@ -384,10 +381,7 @@ var SearchBar = React.createClass({
         if (this.refs.lsearch.getDOMNode().checked) {
             regexp = EscapeRegExp(regexp);
         }
-        return new RegExp(
-            regexp,
-            this.refs.icase.getDOMNode().checked ? "ig" : "g"
-        );
+        return new RegExp(regexp, this.refs.icase.getDOMNode().checked ? "ig" : "g");
     },
     getParams: function () {
         // selecting all repos is the same as not selecting any, so normalize the url
@@ -470,9 +464,7 @@ var SearchBar = React.createClass({
         });
 
         this.state.allRepos.forEach(function (repoName) {
-            repoOptions.push(
-                <RepoOption value={repoName} selected={selected[repoName]} />
-            );
+            repoOptions.push(<RepoOption value={repoName} selected={selected[repoName]} />);
         });
 
         var stats = this.state.stats;
@@ -486,14 +478,9 @@ var SearchBar = React.createClass({
                         </a>
                     </div>
                     <div className="stats-right">
-                        <div className="val">
-                            {FormatNumber(stats.Total)}ms total
-                        </div>{" "}
-                        /
-                        <div className="val">
-                            {FormatNumber(stats.Server)}ms server
-                        </div>{" "}
-                        /<div className="val">{stats.Files} files</div>
+                        <div className="val">{FormatNumber(stats.Total)}ms total</div> /
+                        <div className="val">{FormatNumber(stats.Server)}ms server</div> /
+                        <div className="val">{stats.Files} files</div>
                     </div>
                 </div>
             );
@@ -513,11 +500,7 @@ var SearchBar = React.createClass({
                         onFocus={this.queryGotFocus}
                     />
                     <div className="button-add-on">
-                        <button
-                            id="dodat"
-                            title="Search"
-                            onClick={this.submitQuery}
-                        ></button>
+                        <button id="dodat" title="Search" onClick={this.submitQuery}></button>
                     </div>
                 </div>
 
@@ -541,9 +524,7 @@ var SearchBar = React.createClass({
                             </div>
                         </div>
                         <div className="field">
-                            <label htmlFor="excludeFiles">
-                                Exclude File Path
-                            </label>
+                            <label htmlFor="excludeFiles">Exclude File Path</label>
                             <div className="field-input">
                                 <input
                                     type="text"
@@ -558,30 +539,17 @@ var SearchBar = React.createClass({
                         <div className="field">
                             <label htmlFor="ignore-case">Ignore Case</label>
                             <div className="field-input">
-                                <input
-                                    id="ignore-case"
-                                    type="checkbox"
-                                    ref="icase"
-                                />
+                                <input id="ignore-case" type="checkbox" ref="icase" />
                             </div>
                         </div>
                         <div className="field">
-                            <label htmlFor="literal-search">
-                                Use string literally
-                            </label>
+                            <label htmlFor="literal-search">Use string literally</label>
                             <div className="field-input">
-                                <input
-                                    id="literal-search"
-                                    type="checkbox"
-                                    ref="lsearch"
-                                />
+                                <input id="literal-search" type="checkbox" ref="lsearch" />
                             </div>
                         </div>
                         <div className="field">
-                            <label
-                                className="multiselect_label"
-                                htmlFor="repos"
-                            >
+                            <label className="multiselect_label" htmlFor="repos">
                                 Select Repo
                             </label>
                             <div className="field-input">
@@ -598,8 +566,7 @@ var SearchBar = React.createClass({
                         </div>
                     </div>
                     <div className="ban" ref="ban" onClick={this.showAdvanced}>
-                        <em>Advanced:</em> ignore case, filter by path, stuff
-                        like that.
+                        <em>Advanced:</em> ignore case, filter by path, stuff like that.
                     </div>
                 </div>
                 {statsView}
@@ -667,9 +634,7 @@ var CoalesceMatches = function (matches) {
                 } else if (current && line.Match) {
                     // we have to go back into current and make sure that matches
                     // are properly marked.
-                    current[
-                        current.length - 1 - (max - line.Number)
-                    ].Match = true;
+                    current[current.length - 1 - (max - line.Number)].Match = true;
                 }
             });
         } else {
@@ -715,9 +680,7 @@ var ContentFor = function (line, regexp) {
             break;
         }
 
-        buffer.push(
-            EscapeHtml(content.substring(0, regexp.lastIndex - m[0].length))
-        );
+        buffer.push(EscapeHtml(content.substring(0, regexp.lastIndex - m[0].length)));
         buffer.push("<em>" + EscapeHtml(m[0]) + "</em>");
         content = content.substring(regexp.lastIndex);
     }
@@ -749,22 +712,14 @@ var FileContentView = React.createClass({
                 return (
                     <div className="line">
                         <a
-                            href={Model.UrlToRepo(
-                                repo,
-                                fileName,
-                                line.Number,
-                                rev
-                            )}
+                            href={Model.UrlToRepo(repo, fileName, line.Number, rev)}
                             className="lnum"
                             target="_blank"
                             rel="noopener noreferrer"
                         >
                             {line.Number}
                         </a>
-                        <span
-                            className="lval"
-                            dangerouslySetInnerHTML={{ __html: content }}
-                        />
+                        <span className="lval" dangerouslySetInnerHTML={{ __html: content }} />
                     </div>
                 );
             });
@@ -773,9 +728,7 @@ var FileContentView = React.createClass({
 
         var autoGeneratedBadge = null;
         if (this.props.isAutoGenerated) {
-            autoGeneratedBadge = (
-                <span className="file-badge">AUTOGENERATED</span>
-            );
+            autoGeneratedBadge = <span className="file-badge">AUTOGENERATED</span>;
         }
 
         return (
@@ -870,13 +823,10 @@ var RepoView = React.createClass({
             <div className={"repo " + (this.state.open ? "open" : "closed")}>
                 <div className="title" onClick={this.toggleRepo}>
                     <span className="mega-octicon octicon-repo"></span>
-                    <span className="name">
-                        {Model.NameForRepo(this.props.repo)}
-                    </span>
+                    <span className="name">{Model.NameForRepo(this.props.repo)}</span>
                     <span
                         className={
-                            "indicator octicon octicon-chevron-" +
-                            (this.state.open ? "up" : "down")
+                            "indicator octicon octicon-chevron-" + (this.state.open ? "up" : "down")
                         }
                         onClick={this.toggleRepo}
                     ></span>
@@ -971,12 +921,10 @@ var ResultView = React.createClass({
             actions = (
                 <div className="actions">
                     <button onClick={this.openAll}>
-                        <span className="octicon octicon-chevron-down"></span>{" "}
-                        Expand all
+                        <span className="octicon octicon-chevron-down"></span> Expand all
                     </button>
                     <button onClick={this.closeAll}>
-                        <span className="octicon octicon-chevron-up"></span>{" "}
-                        Collapse all
+                        <span className="octicon octicon-chevron-up"></span> Collapse all
                     </button>
                 </div>
             );
@@ -1007,9 +955,7 @@ var App = React.createClass({
         var _this = this;
         Model.didLoadRepos.tap(function (model, repos) {
             // If all repos are selected, don't show any selected.
-            if (
-                model.ValidRepos(_this.state.repos).length == model.RepoCount()
-            ) {
+            if (model.ValidRepos(_this.state.repos).length == model.RepoCount()) {
                 _this.setState({ repos: [] });
             }
         });

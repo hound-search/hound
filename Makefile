@@ -3,9 +3,9 @@ CMDS := .build/bin/houndd .build/bin/hound
 SRCS := $(shell find . -type f -name '*.go')
 UI := $(shell find ui/assets -type f)
 
-WEBPACK_ARGS := --mode production
+BUILD := build
 ifdef DEBUG
-	WEBPACK_ARGS := --mode development
+	BUILD := build:dev
 endif
 
 ALL: $(CMDS)
@@ -27,7 +27,7 @@ node_modules/build:
 ui/.build/ui: node_modules/build $(UI)
 	mkdir -p ui/.build/ui
 	cp -r ui/assets/* ui/.build/ui
-	npx webpack $(WEBPACK_ARGS)
+	npm run $(BUILD)
 
 dev: node_modules/build
 
