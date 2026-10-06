@@ -18,7 +18,7 @@ export function UrlParts(repo, path, line, rev) {
         path = path || '',
         port = '',
         filename = path.substring(path.lastIndexOf('/') + 1),
-        anchor = line ? ExpandVars(pattern.anchor, { line : line, filename : filename }) : '';
+        anchor = line ? ExpandVars(pattern.anchor, { line : line, filename : filename, repo : repo }) : '';
 
     // Determine if the URL passed is a GitHub wiki
     var wikiUrl = /\.wiki$/.exec(url);
@@ -28,26 +28,32 @@ export function UrlParts(repo, path, line, rev) {
         anchor = '' // wikis do not support direct line linking
     }
 
-    // Hacky solution to fix _some more_ of the 404's when using SSH style URLs.
-    // This works for both github style URLs (git@github.com:username/Foo.git) and
-    // bitbucket style URLs (ssh://hg@bitbucket.org/username/Foo).
+    // Check for ssh:// and hg:// protocol URLs
+    // match the protocol, optionally a basic auth indicator, a
+    // hostname, optionally a port, and then a path
+    var ssh_protocol = /^(git|hg|ssh):\/\/([^@\/]+@)?([^:\/]+)(:[0-9]+)?\/(.*)/.exec(url);
 
-    // Regex explained: Match either `git` or `hg` followed by an `@`.
-    // Next, slurp up the hostname by reading until either a `:` or `/` is found.
-    // If a port is specified, slurp that up too. Finally, grab the project and
-    // repo names.
-    var sshParts = /(git|hg)@(.*?)(:[0-9]+)?(:|\/)(.*)(\/)(.*)/.exec(url);
-    if (sshParts) {
-        hostname = '//' + sshParts[2]
-        project = sshParts[5]
-        repoName = sshParts[7]
-        // Port is omitted in most cases. Bitbucket Server is special:
-        // ssh://git@bitbucket.atlassian.com:7999/ATLASSIAN/jira.git
-        if(sshParts[3]){
-            port = sshParts[3]
+    //// Begin EasyPost edit:  support phab links
+    {
+        //
+        // Regex explained: Match either `git` or `hg` followed by an `@`.
+        // Next, slurp up the hostname by reading until either a `:` or `/` is found.
+        // If a port is specified, slurp that up too. Finally, grab the project and
+        // repo names.
+        var sshParts = /(git|hg)@(.*?)(:[0-9]+)?(:|\/)(.*)(\/)(.*)/.exec(url);
+        if (sshParts) {
+            hostname = '//' + sshParts[2]
+            project = sshParts[5]
+            repoName = sshParts[7]
+            // Port is omitted in most cases. Bitbucket Server is special:
+            // ssh://git@bitbucket.atlassian.com:7999/ATLASSIAN/jira.git
+            if (sshParts[3]) {
+                port = sshParts[3]
+            }
+            url = hostname + port + '/' + project + '/' + repoName;
         }
-        url = hostname + port + '/' + project + '/' + repoName;
     }
+    //// End EasyPost edit
 
     return {
         url : url,
@@ -61,9 +67,37 @@ export function UrlParts(repo, path, line, rev) {
     };
 }
 
+//// Begin EasyPost edit:  support phab links
+function toPhabURL(parts) {
+    // https://phab.easypo.net/source/easy_post/browse/master/app/helpers/sessions_helper.rb
+    const rev = parts['rev'],
+          path = parts['path'],
+          project = parts['project'],
+          repo = parts['repo'],
+          anchor = parts['anchor'];
+    const linenum = anchor ? anchor.replace(/^#L/, '') : undefined;
+    const branch = 'master';
+    // Caveat:  Assumes "master" branch is primary/exists.
+    const result = ('https://phab.easypo.net/' + project
+        + '/' + repo + '/browse/' + branch + '/' + path
+        + ';' + rev);
+    if (linenum) {
+        return result + '$' + linenum;
+    }
+    return result;
+}
+//// End EasyPost edit
+
 export function UrlToRepo(repo, path, line, rev) {
     var urlParts = UrlParts(repo, path, line, rev),
         pattern = repo['url-pattern']
+
+    //// Begin EasyPost edit:  support phab links
+    const hostname = urlParts['hostname'] || '';
+    if (hostname.endsWith('phab.easypo.net')) {
+        return toPhabURL(urlParts);
+    }
+    //// End EasyPost edit
 
     // I'm sure there is a nicer React/jsx way to do this:
     return ExpandVars(pattern['base-url'], urlParts);
