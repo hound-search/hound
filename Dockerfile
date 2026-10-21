@@ -1,17 +1,20 @@
-FROM alpine:3.16
+# syntax=docker/dockerfile:1
 
-ENV GOPATH /go
+FROM golang:alpine as builder
+
+RUN apk update \
+	&& apk add --no-cache git subversion mercurial breezy openssh tini npm rsync build-base
 
 COPY . /src
 
-RUN apk update \
-	&& apk add go git subversion libc-dev mercurial breezy openssh tini build-base npm rsync \
-	&& cd /src \
-	&& make \
-	&& cp .build/bin/houndd /bin \
-	&& rm -r .build \
-	&& apk del go build-base rsync npm \
-	&& rm -f /var/cache/apk/*
+RUN --mount=type=cache,target=/go/pkg/mod \
+	cd /src \
+	&& make
+
+FROM alpine:latest
+RUN apk add --no-cache git subversion mercurial breezy openssh tini
+
+COPY --from=builder /src/.build/bin/houndd /bin/
 
 VOLUME ["/data"]
 
