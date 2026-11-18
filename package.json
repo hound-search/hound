@@ -30,7 +30,7 @@
     "react-dom": "^18.2.0",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0",
-    "webpack-dev-server": "^4.11.1"
+    "webpack-dev-server": "^6.1.0"
   },
   "dependencies": {
     "merge-anything": "^5.1.7",
