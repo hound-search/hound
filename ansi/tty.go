@@ -1,3 +1,4 @@
+//go:build !windows
 // +build !windows
 
 package ansi
@@ -11,13 +12,11 @@ import (
 // we are unable to read one, this is not a tty.
 func isTTY(fd uintptr) bool {
 	var termios syscall.Termios
-	_, _, err := syscall.Syscall6(
+	// OpenBSD routes SYS_IOCTL through libc only for the three-argument Syscall.
+	_, _, err := syscall.Syscall(
 		syscall.SYS_IOCTL,
 		fd,
 		ioctlReadTermios,
-		uintptr(unsafe.Pointer(&termios)),
-		0,
-		0,
-		0)
+		uintptr(unsafe.Pointer(&termios)))
 	return err == 0
 }
